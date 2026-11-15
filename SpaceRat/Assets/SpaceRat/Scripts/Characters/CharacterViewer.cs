@@ -15,6 +15,8 @@ namespace SpaceRat.Characters
     {
         [SerializeField] Camera cam;
         [SerializeField] List<GameObject> variants = new();
+        [Tooltip("Variant shown first (the pilot's default outfit).")]
+        [SerializeField] int startIndex;
 
         [Header("Orbit")]
         [SerializeField] float distance = 3.2f;
@@ -45,6 +47,7 @@ namespace SpaceRat.Characters
         void Start()
         {
             if (cam) _orbitFov = cam.fieldOfView;
+            _index = Mathf.Clamp(startIndex, 0, Mathf.Max(0, variants.Count - 1));
             for (int i = 0; i < variants.Count; i++) variants[i].SetActive(i == _index);
         }
 

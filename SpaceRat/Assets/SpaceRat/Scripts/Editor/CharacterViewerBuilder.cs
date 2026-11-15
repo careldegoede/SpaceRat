@@ -21,6 +21,7 @@ namespace SpaceRat.EditorTools
         const string SkyboxPath = "Assets/SpaceSkies Free/Skybox_2/Green_2K_Resoution.mat"; // (sic)
         const string KitPrefabs = "Assets/Mwester Studios/Simple Space Starter Kit/Prefabs";
         const string GlobalProfilePath = "Assets/SpaceRat/Settings/Scene01_GlobalVolume.asset";
+        public const string PilotOutfit = "Man_03_URP"; // pants, boots, pullover, side bag
         const string MatDir = "Assets/SpaceRat/Art/Greybox";
 
         [MenuItem("SpaceRat/Build Character Viewer")]
@@ -95,6 +96,7 @@ namespace SpaceRat.EditorTools
             var list = so.FindProperty("variants");
             list.arraySize = variants.Count;
             for (int i = 0; i < variants.Count; i++) list.GetArrayElementAtIndex(i).objectReferenceValue = variants[i];
+            so.FindProperty("startIndex").intValue = Mathf.Max(0, variants.FindIndex(v => v.name.StartsWith(PilotOutfit)));
             so.ApplyModifiedPropertiesWithoutUndo();
 
             EditorSceneManager.SaveScene(scene, ScenePath);

@@ -1,4 +1,5 @@
 using System.Collections;
+using SpaceRat.Characters;
 using SpaceRat.Dialogue;
 using SpaceRat.Flight;
 using SpaceRat.UI;
@@ -129,6 +130,9 @@ namespace SpaceRat.Scene01
             subtitles.Clear();
             yield return Wait(1.2f);
             yield return Blink();
+
+            // The pilot is awake now: un-slump (visible again in the exterior escape shot).
+            if (pilotModel && pilotModel.GetComponentInChildren<SeatedPose>() is { } seated) seated.Slump = 0f;
 
             // ---- Beat 3: amnesia dialogue in the cockpit ------------------------
             State = Scene01State.Dialogue;

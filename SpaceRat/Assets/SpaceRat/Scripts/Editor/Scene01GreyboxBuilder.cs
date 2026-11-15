@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using SpaceRat.Characters;
 using SpaceRat.Dialogue;
 using SpaceRat.Environment;
 using SpaceRat.Flight;
@@ -30,6 +31,8 @@ namespace SpaceRat.EditorTools
         const string DialogueDir = Root + "/ScriptableObjects/Dialogue";
         const string SkyboxPath = "Assets/SpaceSkies Free/Skybox_2/Green_2K_Resoution.mat"; // (sic) vendor filename typo
         const string StarPrefabPath = "Assets/Mwester Studios/Simple Space Starter Kit/Prefabs/Planet and Star/Star.prefab";
+        const string PilotPrefabPath = Root + "/Prefabs/Characters/" + CharacterViewerBuilder.PilotOutfit + ".prefab";
+        static readonly Vector3 PilotHipsOnSeat = new(0f, -0.36f, 2.45f); // body-local, just above the seat cushion
         const string HeroShipPath = Root + "/Prefabs/Ship/Sparrow_blue_URP.prefab";
         const string CockpitArtPath = Root + "/Art/UI/Cockpit_Overlay.png";
         const string NoisePath ="Packages/com.unity.cinemachine/Presets/Noise/Handheld_normal_mild.asset";
@@ -132,8 +135,30 @@ namespace SpaceRat.EditorTools
             }
             Primitive("Seat", PrimitiveType.Cube, body, new Vector3(0, -0.6f, 2.6f), new Vector3(1.1f, 0.25f, 1.1f), mats["Trim"]);
             Primitive("SeatBack", PrimitiveType.Cube, body, new Vector3(0, 0.1f, 2.05f), new Vector3(1.1f, 1.4f, 0.2f), mats["Trim"]);
-            var pilot = Primitive("Pilot", PrimitiveType.Capsule, body, new Vector3(0, -0.05f, 2.55f), new Vector3(0.7f, 0.6f, 0.6f), mats["Pilot"]);
-            Primitive("Head", PrimitiveType.Sphere, pilot.transform, new Vector3(0, 1.2f, 0.05f), new Vector3(0.75f, 0.85f, 0.85f), mats["Pilot"]);
+            // Pilot: Adventure Character Man_03 (seated, slumped) if converted, else a capsule.
+            GameObject pilot;
+            var pilotPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(PilotPrefabPath);
+            var pilotAnim = pilotPrefab ? pilotPrefab.GetComponentInChildren<Animator>() : null;
+            if (pilotPrefab && pilotAnim && pilotAnim.isHuman)
+            {
+                pilot = (GameObject)PrefabUtility.InstantiatePrefab(pilotPrefab, scene);
+                pilot.name = "Pilot_Man03";
+                pilot.transform.SetParent(body, false);
+                pilot.transform.localPosition = new Vector3(0f, -1.2f, 2.45f);
+                pilot.transform.localRotation = Quaternion.identity;
+                var anim = pilot.GetComponentInChildren<Animator>();
+                var seated = anim.gameObject.AddComponent<SeatedPose>();
+                seated.Apply();
+                // Drop the hips onto the seat cushion.
+                var hips = anim.GetBoneTransform(HumanBodyBones.Hips);
+                pilot.transform.position += body.TransformPoint(PilotHipsOnSeat) - hips.position;
+            }
+            else
+            {
+                Debug.LogWarning($"[SpaceRat] {PilotPrefabPath} not found — using capsule pilot. Run SpaceRat > Convert Adventure Character to URP.");
+                pilot = Primitive("Pilot", PrimitiveType.Capsule, body, new Vector3(0, -0.05f, 2.55f), new Vector3(0.7f, 0.6f, 0.6f), mats["Pilot"]);
+                Primitive("Head", PrimitiveType.Sphere, pilot.transform, new Vector3(0, 1.2f, 0.05f), new Vector3(0.75f, 0.85f, 0.85f), mats["Pilot"]);
+            }
 
             var alarmGo = new GameObject("AlarmLight");
             alarmGo.transform.SetParent(body, false);
