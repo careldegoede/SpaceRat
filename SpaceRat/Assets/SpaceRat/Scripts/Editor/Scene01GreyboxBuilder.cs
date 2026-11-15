@@ -4,6 +4,7 @@ using SpaceRat.Dialogue;
 using SpaceRat.Environment;
 using SpaceRat.Flight;
 using SpaceRat.Scene01;
+using SpaceRat.UI;
 using Unity.Cinemachine;
 using Unity.Cinemachine.TargetTracking;
 using UnityEditor;
@@ -11,6 +12,7 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
+using UnityEngine.UI;
 
 namespace SpaceRat.EditorTools
 {
@@ -27,7 +29,9 @@ namespace SpaceRat.EditorTools
         const string SettingsDir = Root + "/Settings";
         const string DialogueDir = Root + "/ScriptableObjects/Dialogue";
         const string SkyboxPath = "Assets/SpaceSkies Free/Skybox_2/Green_2K_Resoution.mat"; // (sic) vendor filename typo
+        const string StarPrefabPath = "Assets/Mwester Studios/Simple Space Starter Kit/Prefabs/Planet and Star/Star.prefab";
         const string HeroShipPath = Root + "/Prefabs/Ship/Sparrow_blue_URP.prefab";
+        const string CockpitArtPath = Root + "/Art/UI/Cockpit_Overlay.png";
         const string NoisePath ="Packages/com.unity.cinemachine/Presets/Noise/Handheld_normal_mild.asset";
 
         static readonly Vector3 ShipStart = new(260f, 70f, -2600f);
@@ -59,7 +63,24 @@ namespace SpaceRat.EditorTools
             RenderSettings.ambientLight = new Color(0.03f, 0.035f, 0.05f);
             RenderSettings.fog = false;
 
-            var sun = Primitive("Sun", PrimitiveType.Sphere, null, Vector3.zero, Vector3.one * SunDiameter, mats["Sun"]);
+            // Sun: Starter Kit "Star" (animated cell shader) if imported, else an emissive sphere.
+            // The root stays a plain transform at the origin; ShipCinematicMotion steers toward it.
+            var sun = new GameObject("Sun");
+            var starPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(StarPrefabPath);
+            if (starPrefab)
+            {
+                var star = (GameObject)PrefabUtility.InstantiatePrefab(starPrefab, scene);
+                star.transform.SetParent(sun.transform, false);
+                var mesh = star.GetComponent<MeshFilter>().sharedMesh;
+                star.transform.localScale = Vector3.one * (SunDiameter / mesh.bounds.size.x);
+                // The prefab's VFX Graph child needs com.unity.visualeffectgraph (not installed).
+                foreach (Transform child in star.transform) child.gameObject.SetActive(false);
+            }
+            else
+            {
+                Debug.LogWarning($"[SpaceRat] {StarPrefabPath} not found — using greybox sun.");
+                Primitive("SunGreybox", PrimitiveType.Sphere, sun.transform, Vector3.zero, Vector3.one * SunDiameter, mats["Sun"]);
+            }
 
             var sunLightGo = new GameObject("SunLight");
             var sunLight = sunLightGo.AddComponent<Light>();
@@ -128,6 +149,10 @@ namespace SpaceRat.EditorTools
             var motion = ship.AddComponent<ShipCinematicMotion>();
             SetRefs(motion, ("sun", sun.transform), ("tumbleBody", body));
 
+            var flight = ship.AddComponent<ShipFlightController>();
+            SetRefs(flight, ("sun", sun.transform));
+            flight.enabled = false;
+
             // ---- Camera + brain ----------------------------------------------
             var camGo = new GameObject("Main Camera") { tag = "MainCamera" };
             var cam = camGo.AddComponent<Camera>();
@@ -173,11 +198,18 @@ namespace SpaceRat.EditorTools
             for (int i = 0; i < shakers.Count; i++) list.GetArrayElementAtIndex(i).objectReferenceValue = shakers[i];
             so.ApplyModifiedPropertiesWithoutUndo();
 
+            var overlay = BuildCockpitOverlay();
+
             var directorGo = new GameObject("Scene01Director");
             var subtitles = directorGo.AddComponent<GreyboxSubtitles>();
+            var evaluator = directorGo.AddComponent<CollisionCourseEvaluator>();
+            SetRefs(evaluator, ("ship", ship.transform), ("sun", sun.transform));
             var director = directorGo.AddComponent<Scene01Director>();
             SetRefs(director,
                 ("beat1Exterior", dialogue[0]), ("beat2Wake", dialogue[1]), ("beat3Amnesia", dialogue[2]),
+                ("beat4Takeover", dialogue[3]), ("beat4HeatCritical", dialogue[4]),
+                ("beat5Escape", dialogue[5]), ("failureImpact", dialogue[6]),
+                ("flight", flight), ("evaluator", evaluator), ("overlay", overlay),
                 ("subtitles", subtitles), ("brain", brain),
                 ("shotWide", shotWide), ("shotSide", shotSide), ("shotClose", shotClose),
                 ("shotPilot", shotPilot), ("shotPilotPov", shotPov),
@@ -193,6 +225,113 @@ namespace SpaceRat.EditorTools
         }
 
         // ---------------------------------------------------------------------
+
+        static CockpitOverlay BuildCockpitOverlay()
+        {
+            var font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+
+            var ti = (TextureImporter)AssetImporter.GetAtPath(CockpitArtPath);
+            if (ti && ti.textureType != TextureImporterType.Sprite)
+            {
+                ti.textureType = TextureImporterType.Sprite;
+                ti.alphaIsTransparency = true;
+                ti.mipmapEnabled = false;
+                ti.maxTextureSize = 4096;
+                ti.SaveAndReimport();
+            }
+            var cockpitSprite = AssetDatabase.LoadAssetAtPath<Sprite>(CockpitArtPath);
+
+            var canvasGo = new GameObject("CockpitCanvas", typeof(Canvas), typeof(CanvasScaler));
+            var canvas = canvasGo.GetComponent<Canvas>();
+            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            canvas.sortingOrder = 10;
+            var scaler = canvasGo.GetComponent<CanvasScaler>();
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            scaler.referenceResolution = new Vector2(1920, 1080);
+            scaler.matchWidthOrHeight = 0.5f;
+            var root = canvasGo.transform;
+
+            // Cockpit art: cover the screen while keeping its aspect (Envelope).
+            var cockpit = UiImage("Cockpit", root, Color.white);
+            cockpit.sprite = cockpitSprite;
+            var fitter = cockpit.gameObject.AddComponent<AspectRatioFitter>();
+            fitter.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;
+            fitter.aspectRatio = cockpitSprite ? cockpitSprite.rect.width / cockpitSprite.rect.height : 16f / 9f;
+
+            // HUD: heat bar + readout, top centre (keeps the windshield centre clear).
+            var hud = new GameObject("HUD", typeof(RectTransform));
+            var hudRt = (RectTransform)hud.transform;
+            hudRt.SetParent(root, false);
+            hudRt.anchorMin = hudRt.anchorMax = new Vector2(0.5f, 1f);
+            hudRt.pivot = new Vector2(0.5f, 1f);
+            hudRt.anchoredPosition = new Vector2(0, -36);
+            hudRt.sizeDelta = new Vector2(620, 70);
+            var barBg = UiImage("HeatBarBg", hudRt, new Color(0f, 0f, 0f, 0.55f));
+            var barBgRt = barBg.rectTransform;
+            barBgRt.anchorMin = new Vector2(0, 0);
+            barBgRt.anchorMax = new Vector2(1, 0);
+            barBgRt.pivot = new Vector2(0.5f, 0);
+            barBgRt.sizeDelta = new Vector2(0, 14);
+            barBgRt.anchoredPosition = Vector2.zero;
+            var fill = UiImage("HeatFill", barBgRt, new Color(0.35f, 0.9f, 1f));
+            fill.rectTransform.anchorMax = new Vector2(0.001f, 1f);
+            var readout = UiText("Readout", hudRt, font, 24, TextAnchor.UpperCenter, new Color(1f, 0.85f, 0.7f));
+            readout.rectTransform.offsetMin = new Vector2(0, 18);
+
+            var prompt = UiText("Prompt", root, font, 46, TextAnchor.MiddleCenter, new Color(0.45f, 0.95f, 1f));
+            prompt.fontStyle = FontStyle.Bold;
+            var prt = prompt.rectTransform;
+            prt.anchorMin = new Vector2(0, 0.62f);
+            prt.anchorMax = new Vector2(1, 0.8f);
+            prt.offsetMin = prt.offsetMax = Vector2.zero;
+            prompt.gameObject.AddComponent<Shadow>().effectDistance = new Vector2(2, -2);
+
+            var eyelid = UiImage("Eyelid", root, Color.black);
+            var flash = UiImage("Flash", root, Color.white);
+
+            var title = UiText("Title", root, font, 120, TextAnchor.MiddleCenter, Color.white);
+            title.text = "SPACE RAT";
+            title.fontStyle = FontStyle.Bold;
+
+            var overlay = canvasGo.AddComponent<CockpitOverlay>();
+            SetRefs(overlay, ("cockpit", cockpit), ("eyelid", eyelid), ("flash", flash), ("hud", hud),
+                ("heatFill", fill), ("timerText", readout), ("promptText", prompt), ("titleText", title));
+            return overlay;
+        }
+
+        static Image UiImage(string name, Transform parent, Color color)
+        {
+            var go = new GameObject(name, typeof(RectTransform), typeof(Image));
+            var rt = (RectTransform)go.transform;
+            rt.SetParent(parent, false);
+            rt.anchorMin = Vector2.zero;
+            rt.anchorMax = Vector2.one;
+            rt.offsetMin = rt.offsetMax = Vector2.zero;
+            var img = go.GetComponent<Image>();
+            img.color = color;
+            img.raycastTarget = false;
+            return img;
+        }
+
+        static Text UiText(string name, Transform parent, Font font, int size, TextAnchor anchor, Color color)
+        {
+            var go = new GameObject(name, typeof(RectTransform), typeof(Text));
+            var rt = (RectTransform)go.transform;
+            rt.SetParent(parent, false);
+            rt.anchorMin = Vector2.zero;
+            rt.anchorMax = Vector2.one;
+            rt.offsetMin = rt.offsetMax = Vector2.zero;
+            var t = go.GetComponent<Text>();
+            t.font = font;
+            t.fontSize = size;
+            t.alignment = anchor;
+            t.color = color;
+            t.supportRichText = true;
+            t.horizontalOverflow = HorizontalWrapMode.Overflow;
+            t.verticalOverflow = VerticalWrapMode.Overflow;
+            t.raycastTarget = false;
+            return t;
+        }
 
         static CinemachineCamera FollowShot(string name, Transform target, Vector3 offset, float fov,
             NoiseSettings noise, List<CinemachineBasicMultiChannelPerlin> shakers)
@@ -371,26 +510,46 @@ namespace SpaceRat.EditorTools
 
         static DialogueSequence[] EnsureDialogue()
         {
+            // Defaults only: existing assets are never overwritten, so edit text in the assets.
+            // Tone rule: sharp, sarcastic pilot; deadpan computer.
             return new[]
             {
                 EnsureSequence("Beat1_ExteriorEmergency",
-                    (Speaker.Computer, "Warning. Stellar collision trajectory detected.", 3.2f),
-                    (Speaker.Computer, "Attempting automatic course correction.", 3f),
-                    (Speaker.Computer, "Flight control interface unavailable.", 3f),
-                    (Speaker.Computer, "Pilot response required.", 2.6f)),
+                    (Speaker.Computer, "Warning. Stellar collision trajectory detected.", 3.0f),
+                    (Speaker.Computer, "Attempting automatic course correction.", 2.8f),
+                    (Speaker.Computer, "Course correction failed. Flight control interface unavailable. Again.", 3.6f),
+                    (Speaker.Computer, "Pilot response required. Pilot response... strongly encouraged.", 3.6f)),
                 EnsureSequence("Beat2_WakePilot",
-                    (Speaker.Computer, "Pilot. Wake up.", 2.4f),
-                    (Speaker.Computer, "Pilot, respond.", 2.4f),
-                    (Speaker.Computer, "Impact probability increasing.", 2.8f)),
+                    (Speaker.Computer, "Pilot. Wake up.", 2.2f),
+                    (Speaker.Computer, "Pilot, respond. This is not a drill. I checked.", 3.0f),
+                    (Speaker.Computer, "Impact probability increasing. So is my disappointment.", 3.2f)),
                 EnsureSequence("Beat3_Amnesia",
-                    (Speaker.Pilot, "What...? Where am I?", 2.6f),
-                    (Speaker.Computer, "You are aboard this vessel. We are on a collision course with a star.", 3.8f),
-                    (Speaker.Pilot, "Who am I? What happened?", 2.6f),
-                    (Speaker.Computer, "Your identity records are currently inaccessible.", 3.2f),
-                    (Speaker.Pilot, "Then change course!", 2.2f),
-                    (Speaker.Computer, "Unable to comply. Flight control systems are not responding to my commands.", 4f),
-                    (Speaker.Pilot, "Can I steer it?", 2.2f),
-                    (Speaker.Computer, "Manual controls may still function. You must try.", 3.2f)),
+                    (Speaker.Pilot, "Ugh... why is everything red? And hot. Why is it hot?", 3.2f),
+                    (Speaker.Computer, "We are on a collision course with a star. Red and hot are its main features.", 4.0f),
+                    (Speaker.Pilot, "Great. Love that. Who am I?", 2.4f),
+                    (Speaker.Computer, "Your identity records are currently inaccessible.", 3.0f),
+                    (Speaker.Pilot, "Convenient. And who are you?", 2.2f),
+                    (Speaker.Computer, "The ship's computer. The one who has been shouting at you for six minutes.", 3.8f),
+                    (Speaker.Pilot, "Then change course, genius!", 2.2f),
+                    (Speaker.Computer, "Unable to comply. Flight controls are ignoring me.", 3.0f),
+                    (Speaker.Pilot, "Relatable.", 1.6f),
+                    (Speaker.Pilot, "Can I steer it?", 1.8f),
+                    (Speaker.Computer, "Manual controls may still function. Statistically, you are our best option.", 3.8f),
+                    (Speaker.Pilot, "That's the most terrifying thing anyone has ever said to me.", 3.0f),
+                    (Speaker.Computer, "You have no memories to compare it to.", 2.8f)),
+                EnsureSequence("Beat4_Takeover",
+                    (Speaker.Computer, "Manual control link established.", 2.4f),
+                    (Speaker.Computer, "Ease us away from the star. Gently. Unlike your wake-up.", 3.4f)),
+                EnsureSequence("Beat4_HeatCritical",
+                    (Speaker.Computer, "Heat levels critical. Keep turning!", 2.4f),
+                    (Speaker.Pilot, "I'm turning! Is there a faster turning?", 2.4f)),
+                EnsureSequence("Beat5_Escape",
+                    (Speaker.Computer, "Collision course avoided.", 2.6f),
+                    (Speaker.Pilot, "You're welcome. Now tell me who I am.", 3.0f),
+                    (Speaker.Computer, "I am unable to answer that question.", 2.8f),
+                    (Speaker.Pilot, "Of course you are.", 2.4f)),
+                EnsureSequence("Failure_Impact",
+                    (Speaker.Computer, "Impact.", 1.6f)),
             };
         }
 

@@ -52,6 +52,10 @@ appreciated.
 
 ## Planned / not yet imported
 
+- **Sci-Fi Pistol [PBR]** — *downloaded, import when needed.* Pilot's default sidearm after Scene 1;
+  fires laser shots (built in Assets/SpaceRat). Check URP + any bundled package manifest on import.
+- **Too Many Crosshairs** — *downloaded, import when needed.* Crosshair art for on-foot first person.
+
 - **Adventure Character** (Maksim Bugrimov) — humanoid for full-body first person after Scene 1;
   rig type and pipeline unverified.
 - **Starter Assets – First Person / Third Person** (Unity) — controllers for after Scene 1; check

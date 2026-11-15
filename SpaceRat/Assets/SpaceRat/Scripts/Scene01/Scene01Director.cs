@@ -1,6 +1,7 @@
 using System.Collections;
 using SpaceRat.Dialogue;
 using SpaceRat.Flight;
+using SpaceRat.UI;
 using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -20,9 +21,10 @@ namespace SpaceRat.Scene01
     }
 
     /// <summary>
-    /// Drives Scene 1 as an explicit state sequence: camera shots, auto-timed
-    /// dialogue, emergency effects and the wake-up blur.
-    /// Dev keys: Space = skip current line, R = restart scene.
+    /// Drives Scene 1 as an explicit state sequence: camera shots, auto-timed dialogue,
+    /// emergency effects, the wake-up blink into the cockpit view, the playable manual
+    /// escape (W/S pitch, A/D yaw), and the escape or crash outcome.
+    /// Dev keys (focused window only): Space = skip current line, R = restart scene.
     /// </summary>
     public class Scene01Director : MonoBehaviour
     {
@@ -30,6 +32,10 @@ namespace SpaceRat.Scene01
         [SerializeField] DialogueSequence beat1Exterior;
         [SerializeField] DialogueSequence beat2Wake;
         [SerializeField] DialogueSequence beat3Amnesia;
+        [SerializeField] DialogueSequence beat4Takeover;
+        [SerializeField] DialogueSequence beat4HeatCritical;
+        [SerializeField] DialogueSequence beat5Escape;
+        [SerializeField] DialogueSequence failureImpact;
         [SerializeField] GreyboxSubtitles subtitles;
 
         [Header("Cameras")]
@@ -42,6 +48,8 @@ namespace SpaceRat.Scene01
 
         [Header("Ship")]
         [SerializeField] ShipCinematicMotion shipMotion;
+        [SerializeField] ShipFlightController flight;
+        [SerializeField] CollisionCourseEvaluator evaluator;
         [SerializeField] ShipEmergencyEffects effects;
         [Tooltip("Hidden during the pilot's first-person shots.")]
         [SerializeField] GameObject pilotModel;
@@ -49,12 +57,15 @@ namespace SpaceRat.Scene01
         [SerializeField] GameObject exteriorModel;
         [SerializeField] float cockpitRollRate = 8f;
 
-        [Header("Post FX")]
+        [Header("Presentation")]
+        [SerializeField] CockpitOverlay overlay;
         [Tooltip("Volume holding the blurred/dark 'eyes closed' look. Weight 1 = eyes closed.")]
         [SerializeField] Volume wakeVolume;
 
         [Header("Timing")]
         [SerializeField] float pauseBetweenLines = 0.4f;
+        [Tooltip("Heat level at which the 'heat critical' exchange plays.")]
+        [Range(0f, 1f)] [SerializeField] float heatCriticalAt = 0.55f;
 
         Scene01State _state;
         public Scene01State State
@@ -70,6 +81,7 @@ namespace SpaceRat.Scene01
         {
             _shots = new[] { shotWide, shotSide, shotClose, shotPilot, shotPilotPov };
             if (wakeVolume) wakeVolume.weight = 0f;
+            if (flight) flight.enabled = false;
             StartCoroutine(Run());
         }
 
@@ -83,7 +95,7 @@ namespace SpaceRat.Scene01
                 _skipRequested = true;
                 Debug.Log($"[Scene01] Skip requested at t={Time.time:F1} ({State})");
             }
-            if (kb.rKey.wasPressedThisFrame) SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+            if (kb.rKey.wasPressedThisFrame) Restart();
         }
 
         IEnumerator Run()
@@ -108,11 +120,12 @@ namespace SpaceRat.Scene01
             Show(shotSide, 0f);
             yield return PlayLine(beat2Wake, 2);
 
-            // Pilot POV, eyes closed -> blinking open.
+            // Pilot POV, eyes closed -> blinking open into the cockpit.
             Show(shotPilotPov, 0f);
             if (pilotModel) pilotModel.SetActive(false);
             if (shipMotion) shipMotion.SetRollRate(cockpitRollRate);
-            if (wakeVolume) wakeVolume.weight = 1f;
+            if (overlay) overlay.ShowCockpit(true);
+            SetEyesClosed(1f);
             subtitles.Clear();
             yield return Wait(1.2f);
             yield return Blink();
@@ -122,32 +135,148 @@ namespace SpaceRat.Scene01
             effects.SetTarget(0.9f);
             yield return PlayLines(beat3Amnesia, 0, int.MaxValue);
 
-            // ---- Beat 4+: manual recovery (milestone 5) -------------------------
+            // ---- Beat 4: manual recovery (playable) -----------------------------
+            yield return ManualRecovery();
+        }
+
+        IEnumerator ManualRecovery()
+        {
             State = Scene01State.ManualRecovery;
-            subtitles.ShowSystem("[ TAKE MANUAL CONTROL — not implemented yet. Press R to replay. ]");
+            if (overlay)
+            {
+                overlay.SetPrompt("TAKE MANUAL CONTROL\n<size=26>W / S  PITCH   ·   A / D  YAW</size>", 3f);
+                overlay.ShowHud(true);
+            }
+
+            // Hand over: cinematic stops driving the root; body levels out but stays a bit unstable.
+            shipMotion.DriveRoot = false;
+            shipMotion.LevelOut();
+            shipMotion.SetWobbleScale(0.25f);
+            flight.enabled = true;
+            evaluator.Begin();
+
+            StartCoroutine(PlayLinesUnskippable(beat4Takeover));
+            bool heatLinePlayed = false;
+            float promptOffAt = Time.time + 4f;
+
+            while (evaluator.Outcome == EscapeOutcome.InProgress)
+            {
+                flight.Heat = evaluator.Heat;
+                effects.SetTarget(0.55f + 0.45f * evaluator.Heat);
+                if (overlay)
+                {
+                    overlay.SetHeat(evaluator.Heat, evaluator.TimeRemaining);
+                    if (Time.time > promptOffAt) overlay.SetPrompt(null);
+                }
+                if (!heatLinePlayed && evaluator.Heat >= heatCriticalAt)
+                {
+                    heatLinePlayed = true;
+                    StartCoroutine(PlayLinesUnskippable(beat4HeatCritical));
+                }
+                yield return null;
+            }
+
+            flight.enabled = false;
+            if (overlay) { overlay.ShowHud(false); overlay.SetPrompt(null); }
+
+            if (evaluator.Outcome == EscapeOutcome.Escaped) yield return Escape();
+            else yield return Failure();
+        }
+
+        IEnumerator Escape()
+        {
+            State = Scene01State.Escape;
+            StopLineCoroutines();
+            effects.SetTarget(0f);
+
+            // Keep flying away under the cinematic drift (parked far from the sun, so it won't slow down).
+            shipMotion.DriveRoot = false;
+            var cruise = StartCoroutine(Cruise());
+
+            yield return Wait(1.0f);
+            if (overlay) overlay.ShowCockpit(false);
+            Show(shotWide, 0f);
+            if (pilotModel) pilotModel.SetActive(true);
+            yield return PlayLines(beat5Escape, 0, int.MaxValue);
+
+            // Fade to black, then title.
+            yield return Fade(Color.black, 0f, 1f, 2f);
+            for (float t = 0f; t < 1.5f; t += Time.deltaTime)
+            {
+                overlay.SetTitle(t / 1.5f);
+                yield return null;
+            }
+            overlay.SetTitle(1f);
+            StopCoroutine(cruise);
+            // Scene 2 handoff goes here once Scene02_TheSignal exists.
+        }
+
+        IEnumerator Cruise()
+        {
+            var t = flight.transform;
+            while (true)
+            {
+                t.position += t.forward * (flight.Speed * Time.deltaTime);
+                yield return null;
+            }
+        }
+
+        IEnumerator Failure()
+        {
+            State = Scene01State.Failure;
+            StopLineCoroutines();
+            subtitles.Clear();
+            yield return Fade(Color.white, 0f, 1f, 0.6f);
+            yield return PlayLinesUnskippable(failureImpact);
+            yield return new WaitForSeconds(0.6f);
+            Restart();
+        }
+
+        static void Restart() => SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+
+        IEnumerator Fade(Color color, float from, float to, float seconds)
+        {
+            if (!overlay) yield break;
+            for (float t = 0f; t < seconds; t += Time.deltaTime)
+            {
+                overlay.SetFlash(color, Mathf.Lerp(from, to, t / seconds));
+                yield return null;
+            }
+            overlay.SetFlash(color, to);
         }
 
         IEnumerator Blink()
         {
-            // Two half-opens then fully open: weight is 1 when eyes are closed.
-            yield return FadeWake(1f, 0.55f, 0.6f);
-            yield return FadeWake(0.55f, 1f, 0.25f);
+            // Two half-opens then fully open: 1 = eyes closed.
+            yield return FadeEyes(1f, 0.55f, 0.6f);
+            yield return FadeEyes(0.55f, 1f, 0.25f);
             yield return Wait(0.5f);
-            yield return FadeWake(1f, 0.3f, 0.8f);
-            yield return FadeWake(0.3f, 0.8f, 0.3f);
-            yield return FadeWake(0.8f, 0f, 2.2f);
+            yield return FadeEyes(1f, 0.3f, 0.8f);
+            yield return FadeEyes(0.3f, 0.8f, 0.3f);
+            yield return FadeEyes(0.8f, 0f, 2.2f);
         }
 
-        IEnumerator FadeWake(float from, float to, float seconds)
+        IEnumerator FadeEyes(float from, float to, float seconds)
         {
-            if (!wakeVolume) yield break;
             for (float t = 0f; t < seconds; t += Time.deltaTime)
             {
-                wakeVolume.weight = Mathf.Lerp(from, to, Mathf.SmoothStep(0f, 1f, t / seconds));
+                SetEyesClosed(Mathf.Lerp(from, to, Mathf.SmoothStep(0f, 1f, t / seconds)));
                 yield return null;
             }
-            wakeVolume.weight = to;
+            SetEyesClosed(to);
         }
+
+        void SetEyesClosed(float amount)
+        {
+            if (wakeVolume) wakeVolume.weight = amount;
+            if (overlay) overlay.SetEyelid(amount * 0.92f);
+        }
+
+        // ---- Dialogue ------------------------------------------------------------
+
+        int _lineToken;   // bumping this cancels background (unskippable) line coroutines
+
+        void StopLineCoroutines() => _lineToken++;
 
         IEnumerator PlayLines(DialogueSequence seq, int from, int toExclusive)
         {
@@ -165,6 +294,22 @@ namespace SpaceRat.Scene01
             yield return Wait(line.duration);
             subtitles.Clear();
             yield return Wait(pauseBetweenLines);
+        }
+
+        /// <summary>Lines that play alongside gameplay; Space doesn't skip them.</summary>
+        IEnumerator PlayLinesUnskippable(DialogueSequence seq)
+        {
+            if (!seq) yield break;
+            int token = _lineToken;
+            foreach (var line in seq.lines)
+            {
+                if (token != _lineToken) yield break;
+                subtitles.Show(line.speaker, line.text);
+                yield return new WaitForSeconds(line.duration);
+                if (token != _lineToken) yield break;
+                subtitles.Clear();
+                yield return new WaitForSeconds(pauseBetweenLines);
+            }
         }
 
         /// <summary>Waits for the given time, or until Space is pressed.</summary>

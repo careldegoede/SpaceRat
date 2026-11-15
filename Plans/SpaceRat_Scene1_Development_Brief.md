@@ -25,6 +25,7 @@ Build a small playable cinematic introduction in Unity. A damaged spacecraft tum
   - Computer: "Collision course avoided." · Pilot: "You're welcome. Now tell me who I am." · Computer: "I am unable to answer that question." · Pilot: "Of course you are."
   - On crash/restart: Computer: "Impact." (fade to white)
 - **After Scene 1:** use Unity's **Starter Assets – First Person Character Controller** for walking around (check Cinemachine 3 compatibility on import). Not used in Scene 1 — the pilot stays seated.
+- **Pilot weapon (after Scene 1):** default sidearm = **Sci-Fi Pistol PBR** (Asset Store, see Links.txt); fires **laser shots** (hitscan beam or fast emissive bolts + muzzle flash/impact, built in Assets/SpaceRat), not physical bullets. Verify URP on import.
 
 ## Development tools
 - **Claude Code:** Unity C# gameplay, scene assembly scripts, dialogue, camera and state machine.
