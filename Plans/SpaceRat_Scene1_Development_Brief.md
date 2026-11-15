@@ -12,12 +12,19 @@ Build a small playable cinematic introduction in Unity. A damaged spacecraft tum
 - **Assets:** **greybox first** (primitives, emissive sun, procedural skybox, placeholder audio); swap in Asset Store content after the loop works. Unity caches redirected to D: (`ASSETSTORE_CACHE_PATH=D:\UnityCache\AssetStore`, `UPM_CACHE_ROOT=D:\UnityCache\upm`).
 - **Source control:** user is creating a blank GitHub repo; init with Unity `.gitignore` once available.
 - **Flow:** Beats 1–2 exterior cinematic → on wake-up, cut **into cockpit view**: `Images/Futuristic Cockpit Control Console.png` (RGBA, transparent windows) as a full-screen overlay with the 3D sun visible through the windows.
-- **Controls:** W/S pitch, A/D yaw; sluggish with drift. No other player input except a dev skip key.
+- **Controls:** W = nose down / S = nose up (flight-sim, same as Scene 2), A/D yaw; sluggish with drift. No other player input except a dev skip key.
 - **Difficulty:** tense, ~25 s escape window, narrow corridor.
 - **Failure:** crash into sun → **restart the whole scene** (cinematics skippable).
 - **Dialogue:** auto-timed lines (Space skips ahead for testing).
 - **Post FX:** URP Volume — DoF/vignette for wake-up blur, bloom for the sun, heat-driven color tint.
 - **Acceptance (added):** a fresh clone opens with zero compile errors.
+- **Asset packs chosen:** Simple Space Starter Kit, Sparrow Fighter Spacecraft (hero ship candidate), SpaceSkies Free (skybox). See `Plans/Links.txt`.
+- **Dialogue tone (standing rule):** pilot ↔ computer lines are **sharp, funny, sarcastic** — mostly from the pilot; the computer is a deadpan straight man with the occasional dry jab. Keep plot beats and the identity mystery intact. Beats 1–3 live in `Assets/SpaceRat/ScriptableObjects/Dialogue/`. Planned Beat 4–5 lines:
+  - Computer: "Manual control link established." / "Ease us away from the star. Gently. Unlike your wake-up." / "Heat levels critical. Keep turning!"
+  - Pilot (while steering): "I'm turning! Is there a faster turning?"
+  - Computer: "Collision course avoided." · Pilot: "You're welcome. Now tell me who I am." · Computer: "I am unable to answer that question." · Pilot: "Of course you are."
+  - On crash/restart: Computer: "Impact." (fade to white)
+- **After Scene 1:** use Unity's **Starter Assets – First Person Character Controller** for walking around (check Cinemachine 3 compatibility on import). Not used in Scene 1 — the pilot stays seated.
 
 ## Development tools
 - **Claude Code:** Unity C# gameplay, scene assembly scripts, dialogue, camera and state machine.

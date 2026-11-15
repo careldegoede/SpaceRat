@@ -26,7 +26,8 @@ namespace SpaceRat.EditorTools
         const string MatDir = Root + "/Art/Greybox";
         const string SettingsDir = Root + "/Settings";
         const string DialogueDir = Root + "/ScriptableObjects/Dialogue";
-        const string NoisePath = "Packages/com.unity.cinemachine/Presets/Noise/Handheld_normal_mild.asset";
+        const string HeroShipPath = Root + "/Prefabs/Ship/Sparrow_blue_URP.prefab";
+        const string NoisePath ="Packages/com.unity.cinemachine/Presets/Noise/Handheld_normal_mild.asset";
 
         static readonly Vector3 ShipStart = new(260f, 70f, -2600f);
         static readonly Vector3 ShipAim = new(80f, 20f, 0f);
@@ -76,14 +77,30 @@ namespace SpaceRat.EditorTools
             var body = new GameObject("Body").transform;
             body.SetParent(ship.transform, false);
 
-            Primitive("Hull", PrimitiveType.Capsule, body, Vector3.zero, new Vector3(3.6f, 6f, 3.2f), mats["Hull"], new Vector3(90, 0, 0));
-            Primitive("Canopy", PrimitiveType.Sphere, body, new Vector3(0, 1.0f, 3.0f), new Vector3(2.2f, 1.6f, 3.6f), mats["Glass"]);
-            Primitive("Wings", PrimitiveType.Cube, body, new Vector3(0, -0.4f, -1.5f), new Vector3(14f, 0.25f, 3.5f), mats["Hull"]);
-            Primitive("Fin", PrimitiveType.Cube, body, new Vector3(0, 1.9f, -4.4f), new Vector3(0.25f, 3f, 2.5f), mats["Hull"]);
-            foreach (float x in new[] { -2.4f, 2.4f })
+            // Exterior: blue Sparrow (URP copy) if the Asset Store pack is imported, else greybox primitives.
+            GameObject exterior;
+            var heroShip = AssetDatabase.LoadAssetAtPath<GameObject>(HeroShipPath);
+            if (heroShip)
             {
-                Primitive("Engine", PrimitiveType.Cylinder, body, new Vector3(x, -0.4f, -5.2f), new Vector3(1.3f, 1.4f, 1.3f), mats["Trim"], new Vector3(90, 0, 0));
-                Primitive("EngineGlow", PrimitiveType.Sphere, body, new Vector3(x, -0.4f, -6.6f), Vector3.one * 1.1f, mats["EngineGlow"]);
+                exterior = (GameObject)PrefabUtility.InstantiatePrefab(heroShip, scene);
+                exterior.name = "Exterior_SparrowBlue";
+                exterior.transform.SetParent(body, false);
+            }
+            else
+            {
+                Debug.LogWarning($"[SpaceRat] {HeroShipPath} not found — using greybox ship. Import Sparrow Fighter and run SpaceRat > Convert Sparrow Fighter to URP.");
+                exterior = new GameObject("Exterior_Greybox");
+                var ex = exterior.transform;
+                ex.SetParent(body, false);
+                Primitive("Hull", PrimitiveType.Capsule, ex, Vector3.zero, new Vector3(3.6f, 6f, 3.2f), mats["Hull"], new Vector3(90, 0, 0));
+                Primitive("Canopy", PrimitiveType.Sphere, ex, new Vector3(0, 1.0f, 3.0f), new Vector3(2.2f, 1.6f, 3.6f), mats["Glass"]);
+                Primitive("Wings", PrimitiveType.Cube, ex, new Vector3(0, -0.4f, -1.5f), new Vector3(14f, 0.25f, 3.5f), mats["Hull"]);
+                Primitive("Fin", PrimitiveType.Cube, ex, new Vector3(0, 1.9f, -4.4f), new Vector3(0.25f, 3f, 2.5f), mats["Hull"]);
+                foreach (float x in new[] { -2.4f, 2.4f })
+                {
+                    Primitive("Engine", PrimitiveType.Cylinder, ex, new Vector3(x, -0.4f, -5.2f), new Vector3(1.3f, 1.4f, 1.3f), mats["Trim"], new Vector3(90, 0, 0));
+                    Primitive("EngineGlow", PrimitiveType.Sphere, ex, new Vector3(x, -0.4f, -6.6f), Vector3.one * 1.1f, mats["EngineGlow"]);
+                }
             }
             Primitive("Seat", PrimitiveType.Cube, body, new Vector3(0, -0.6f, 2.6f), new Vector3(1.1f, 0.25f, 1.1f), mats["Trim"]);
             Primitive("SeatBack", PrimitiveType.Cube, body, new Vector3(0, 0.1f, 2.05f), new Vector3(1.1f, 1.4f, 0.2f), mats["Trim"]);
@@ -157,7 +174,7 @@ namespace SpaceRat.EditorTools
                 ("subtitles", subtitles), ("brain", brain),
                 ("shotWide", shotWide), ("shotSide", shotSide), ("shotClose", shotClose),
                 ("shotPilot", shotPilot), ("shotPilotPov", shotPov),
-                ("shipMotion", motion), ("effects", effects), ("pilotModel", pilot),
+                ("shipMotion", motion), ("effects", effects), ("pilotModel", pilot), ("exteriorModel", exterior),
                 ("wakeVolume", wakeVol));
 
             foreach (var seq in dialogue)

@@ -14,11 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: SpaceRat.Runtime::SpaceRat.Dialogue.DialogueSequence
   lines:
   - speaker: 0
-    text: Pilot. Wake up.
-    duration: 2.4
+    text: 'Pilot. Wake up.'
+    duration: 2.2
   - speaker: 0
-    text: Pilot, respond.
-    duration: 2.4
+    text: 'Pilot, respond. This is not a drill. I checked.'
+    duration: 3.0
   - speaker: 0
-    text: Impact probability increasing.
-    duration: 2.8
+    text: 'Impact probability increasing. So is my disappointment.'
+    duration: 3.2

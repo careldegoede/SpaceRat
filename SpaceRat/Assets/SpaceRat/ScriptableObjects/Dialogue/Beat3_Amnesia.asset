@@ -14,26 +14,41 @@ MonoBehaviour:
   m_EditorClassIdentifier: SpaceRat.Runtime::SpaceRat.Dialogue.DialogueSequence
   lines:
   - speaker: 1
-    text: What...? Where am I?
-    duration: 2.6
+    text: 'Ugh... why is everything red? And hot. Why is it hot?'
+    duration: 3.2
   - speaker: 0
-    text: You are aboard this vessel. We are on a collision course with a star.
+    text: 'We are on a collision course with a star. Red and hot are its main features.'
+    duration: 4.0
+  - speaker: 1
+    text: 'Great. Love that. Who am I?'
+    duration: 2.4
+  - speaker: 0
+    text: 'Your identity records are currently inaccessible.'
+    duration: 3.0
+  - speaker: 1
+    text: 'Convenient. And who are you?'
+    duration: 2.2
+  - speaker: 0
+    text: 'The ship''s computer. The one who has been shouting at you for six minutes.'
     duration: 3.8
   - speaker: 1
-    text: Who am I? What happened?
-    duration: 2.6
-  - speaker: 0
-    text: Your identity records are currently inaccessible.
-    duration: 3.2
-  - speaker: 1
-    text: Then change course!
+    text: 'Then change course, genius!'
     duration: 2.2
   - speaker: 0
-    text: Unable to comply. Flight control systems are not responding to my commands.
-    duration: 4
+    text: 'Unable to comply. Flight controls are ignoring me.'
+    duration: 3.0
   - speaker: 1
-    text: Can I steer it?
-    duration: 2.2
+    text: 'Relatable.'
+    duration: 1.6
+  - speaker: 1
+    text: 'Can I steer it?'
+    duration: 1.8
   - speaker: 0
-    text: Manual controls may still function. You must try.
-    duration: 3.2
+    text: 'Manual controls may still function. Statistically, you are our best option.'
+    duration: 3.8
+  - speaker: 1
+    text: 'That''s the most terrifying thing anyone has ever said to me.'
+    duration: 3.0
+  - speaker: 0
+    text: 'You have no memories to compare it to.'
+    duration: 2.8

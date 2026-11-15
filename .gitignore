@@ -44,3 +44,14 @@ Thumbs.db
 # Secrets / local config
 .env
 *.local.json
+
+# Asset Store content (licensed per-seat; public repo must not redistribute it).
+# Restore via Package Manager > My Assets — see SpaceRat/Docs/AssetInventory.md
+SpaceRat/Assets/Mwester Studios/
+SpaceRat/Assets/Mwester Studios.meta
+SpaceRat/Assets/Sparrow_Fighter/
+SpaceRat/Assets/Sparrow_Fighter.meta
+SpaceRat/Assets/SpaceSkies Free/
+SpaceRat/Assets/SpaceSkies Free.meta
+# Derived from Sparrow vendor textures — regenerate with SpaceRat > Convert Sparrow Fighter to URP
+SpaceRat/Assets/SpaceRat/Art/Sparrow/Sparrow_MetallicSmoothness.png

@@ -45,6 +45,8 @@ namespace SpaceRat.Scene01
         [SerializeField] ShipEmergencyEffects effects;
         [Tooltip("Hidden during the pilot's first-person shots.")]
         [SerializeField] GameObject pilotModel;
+        [Tooltip("Ship exterior mesh; hidden during interior shots so it doesn't block the cockpit cameras.")]
+        [SerializeField] GameObject exteriorModel;
         [SerializeField] float cockpitRollRate = 8f;
 
         [Header("Post FX")]
@@ -183,6 +185,9 @@ namespace SpaceRat.Scene01
 
             foreach (var s in _shots)
                 if (s) s.Priority = s == shot ? 20 : 0;
+
+            if (exteriorModel)
+                exteriorModel.SetActive(shot != shotPilot && shot != shotPilotPov);
         }
     }
 }
