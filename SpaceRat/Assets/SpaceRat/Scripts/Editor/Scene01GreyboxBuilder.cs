@@ -133,7 +133,9 @@ namespace SpaceRat.EditorTools
                     Primitive("EngineGlow", PrimitiveType.Sphere, ex, new Vector3(x, -0.4f, -6.6f), Vector3.one * 1.1f, mats["EngineGlow"]);
                 }
             }
-            Primitive("Seat", PrimitiveType.Cube, body, new Vector3(0, -0.6f, 2.6f), new Vector3(1.1f, 0.25f, 1.1f), mats["Trim"]);
+            // Seat ends just behind the knees (z ~2.78) so the shins hang over the front edge.
+            Primitive("Seat", PrimitiveType.Cube, body, new Vector3(0, -0.6f, 2.42f), new Vector3(1.1f, 0.25f, 0.68f), mats["Trim"]);
+            Primitive("CockpitFloor", PrimitiveType.Cube, body, new Vector3(0, -0.84f, 2.7f), new Vector3(1.6f, 0.08f, 1.9f), mats["Trim"]);
             Primitive("SeatBack", PrimitiveType.Cube, body, new Vector3(0, 0.1f, 2.05f), new Vector3(1.1f, 1.4f, 0.2f), mats["Trim"]);
             // Pilot: Adventure Character Man_03 (seated, slumped) if converted, else a capsule.
             GameObject pilot;
