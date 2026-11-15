@@ -53,6 +53,7 @@ namespace SpaceRat.EditorTools
             PlaceBackdrop($"{KitPrefabs}/Planet and Star/Planet 1.prefab", new Vector3(-260f, 90f, -520f), 260f, Vector3.zero);
 
             // ---- Characters ----------------------------------------------------
+            var controller = AssetDatabase.IsValidFolder("Assets/Kevin Iglesias") ? CharacterAnimatorBuilder.Build() : null;
             var variants = new List<GameObject>();
             foreach (var guid in AssetDatabase.FindAssets("t:Prefab", new[] { CharacterPrefabs }))
             {
@@ -62,7 +63,14 @@ namespace SpaceRat.EditorTools
                 inst.transform.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
                 var anim = inst.GetComponentInChildren<Animator>();
                 if (anim && anim.avatar && anim.avatar.isHuman)
-                    anim.gameObject.AddComponent<RelaxedPose>();
+                {
+                    if (controller)
+                    {
+                        anim.runtimeAnimatorController = controller;
+                        anim.applyRootMotion = false;
+                    }
+                    else anim.gameObject.AddComponent<RelaxedPose>();
+                }
                 else
                     Debug.LogWarning($"[SpaceRat] {inst.name} has no humanoid Animator — it will stay in its bind pose.");
                 variants.Add(inst);
@@ -96,6 +104,10 @@ namespace SpaceRat.EditorTools
             var list = so.FindProperty("variants");
             list.arraySize = variants.Count;
             for (int i = 0; i < variants.Count; i++) list.GetArrayElementAtIndex(i).objectReferenceValue = variants[i];
+            var statesProp = so.FindProperty("animStates");
+            var names = controller ? CharacterAnimatorBuilder.StateNames : new string[0];
+            statesProp.arraySize = names.Length;
+            for (int i = 0; i < names.Length; i++) statesProp.GetArrayElementAtIndex(i).stringValue = names[i];
             so.FindProperty("startIndex").intValue = Mathf.Max(0, variants.FindIndex(v => v.name.StartsWith(PilotOutfit)));
             so.ApplyModifiedPropertiesWithoutUndo();
 

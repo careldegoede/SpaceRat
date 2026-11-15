@@ -58,6 +58,11 @@ appreciated.
 | Adventure Character | Maksim Bugrimov | `Assets/Adventure_Character` | Standard → URP **copies** + `Man_*_URP` prefabs (SpaceRat > Convert Adventure Character to URP) | Pilot = **Man_03**; Character Viewer. Humanoid rig, no animations |
 | Sci-Fi Styled Modular Pack | karboosx | `Assets/Sci-Fi Styled Modular Pack` | 173 URP Lit + 24 legacy materials converted **in place** (SpaceRat > Fix Sci-Fi Modular Pack Materials) — re-run after any re-import | `pilot_seat` (scaled 0.5) in the Scene 1 cockpit; modular walls/floors/consoles for later interiors |
 
+| Human Basic Motions FREE | Kevin Iglesias | `Assets/Kevin Iglesias` | Humanoid FBX clips (no materials needed) | Idle, walk, run, sprint, jump, turn, talk (male/female, in-place + root motion) |
+| Basic Character Animations FREE | Burak Uzun | `Assets/Burak Uzun` | Humanoid FBX clips | Idle alt, crouch, jump phases, swim, run-climb |
+
+Preview animator: **SpaceRat > Build Character Preview Animator** → `Assets/SpaceRat/Animation/CharacterPreview.controller` (built automatically by the Character Viewer builder).
+
 ## Planned / not yet imported
 
 - **Sci-Fi Pistol [PBR]** — *downloaded, import when needed.* Pilot's default sidearm after Scene 1;

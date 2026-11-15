@@ -15,6 +15,8 @@ namespace SpaceRat.Characters
     {
         [SerializeField] Camera cam;
         [SerializeField] List<GameObject> variants = new();
+        [Tooltip("Animator state names played by number keys 1-9 (empty = no animations).")]
+        [SerializeField] string[] animStates = new string[0];
         [Tooltip("Variant shown first (the pilot's default outfit).")]
         [SerializeField] int startIndex;
 
@@ -36,6 +38,7 @@ namespace SpaceRat.Characters
         [SerializeField] string[] headMeshKeywords = { "Head", "Jaw", "Eyes", "Balaclava", "Face" };
 
         int _index;
+        int _anim;
         bool _firstPerson;
         float _fpYaw, _fpPitch;
         float _orbitFov;
@@ -59,6 +62,9 @@ namespace SpaceRat.Characters
             {
                 if (kb.fKey.wasPressedThisFrame) SetFirstPerson(!_firstPerson);
                 if (kb.cKey.wasPressedThisFrame) Cycle();
+                for (int i = 0; i < animStates.Length && i < 9; i++)
+                    if (kb[(UnityEngine.InputSystem.Key)((int)UnityEngine.InputSystem.Key.Digit1 + i)].wasPressedThisFrame)
+                        PlayAnim(i);
                 if (kb.rKey.wasPressedThisFrame) { yaw = 200f; pitch = 8f; distance = 3.2f; _fpYaw = _fpPitch = 0f; }
             }
 
@@ -98,6 +104,14 @@ namespace SpaceRat.Characters
             }
         }
 
+        public void PlayAnim(int i)
+        {
+            if (i < 0 || i >= animStates.Length) return;
+            _anim = i;
+            var anim = Current ? Current.GetComponentInChildren<Animator>() : null;
+            if (anim && anim.runtimeAnimatorController) anim.CrossFadeInFixedTime(animStates[i], 0.2f);
+        }
+
         void Cycle()
         {
             if (variants.Count < 2) return;
@@ -106,6 +120,7 @@ namespace SpaceRat.Characters
             variants[_index].SetActive(false);
             _index = (_index + 1) % variants.Count;
             variants[_index].SetActive(true);
+            if (animStates.Length > 0) PlayAnim(_anim);
             SetFirstPerson(fp);
         }
 
@@ -150,7 +165,7 @@ namespace SpaceRat.Characters
         void OnGUI()
         {
             GUI.Label(new Rect(16, 12, 900, 24),
-                $"{(Current ? Current.name : "-")}   ·   drag: look/orbit   ·   scroll: zoom   ·   F: {(_firstPerson ? "orbit view" : "first person")}   ·   C: next outfit   ·   R: reset");
+                $"{(Current ? Current.name : "-")}{(animStates.Length > 0 ? "  [" + animStates[_anim] + "]  1-" + Mathf.Min(9, animStates.Length) + ": anims" : "")}   ·   drag: look/orbit   ·   scroll: zoom   ·   F: {(_firstPerson ? "orbit view" : "first person")}   ·   C: next outfit   ·   R: reset");
         }
     }
 }
