@@ -26,6 +26,7 @@ namespace SpaceRat.EditorTools
         const string MatDir = Root + "/Art/Greybox";
         const string SettingsDir = Root + "/Settings";
         const string DialogueDir = Root + "/ScriptableObjects/Dialogue";
+        const string SkyboxPath = "Assets/SpaceSkies Free/Skybox_2/Green_2K_Resoution.mat"; // (sic) vendor filename typo
         const string HeroShipPath = Root + "/Prefabs/Ship/Sparrow_blue_URP.prefab";
         const string NoisePath ="Packages/com.unity.cinemachine/Presets/Noise/Handheld_normal_mild.asset";
 
@@ -50,7 +51,10 @@ namespace SpaceRat.EditorTools
             var (globalProfile, wakeProfile) = BuildProfiles();
 
             // ---- Environment -------------------------------------------------
-            RenderSettings.skybox = null;
+            // Skybox: SpaceSkies Free "Green" (2K) if imported, else black + generated starfield.
+            var skybox = AssetDatabase.LoadAssetAtPath<Material>(SkyboxPath);
+            if (!skybox) Debug.LogWarning($"[SpaceRat] {SkyboxPath} not found — using generated starfield.");
+            RenderSettings.skybox = skybox;
             RenderSettings.ambientMode = AmbientMode.Flat;
             RenderSettings.ambientLight = new Color(0.03f, 0.035f, 0.05f);
             RenderSettings.fog = false;
@@ -65,11 +69,14 @@ namespace SpaceRat.EditorTools
             sunLight.shadows = LightShadows.Soft;
             sunLightGo.transform.rotation = Quaternion.LookRotation((ShipStart - Vector3.zero).normalized);
 
-            var stars = new GameObject("Starfield", typeof(MeshFilter), typeof(MeshRenderer), typeof(Starfield));
-            var starRenderer = stars.GetComponent<MeshRenderer>();
-            starRenderer.sharedMaterial = mats["Stars"];
-            starRenderer.shadowCastingMode = ShadowCastingMode.Off;
-            starRenderer.receiveShadows = false;
+            if (!skybox)
+            {
+                var stars = new GameObject("Starfield", typeof(MeshFilter), typeof(MeshRenderer), typeof(Starfield));
+                var starRenderer = stars.GetComponent<MeshRenderer>();
+                starRenderer.sharedMaterial = mats["Stars"];
+                starRenderer.shadowCastingMode = ShadowCastingMode.Off;
+                starRenderer.receiveShadows = false;
+            }
 
             // ---- Ship --------------------------------------------------------
             var ship = new GameObject("Ship");
@@ -124,7 +131,7 @@ namespace SpaceRat.EditorTools
             // ---- Camera + brain ----------------------------------------------
             var camGo = new GameObject("Main Camera") { tag = "MainCamera" };
             var cam = camGo.AddComponent<Camera>();
-            cam.clearFlags = CameraClearFlags.SolidColor;
+            cam.clearFlags = skybox ? CameraClearFlags.Skybox : CameraClearFlags.SolidColor;
             cam.backgroundColor = Color.black;
             cam.nearClipPlane = 0.1f;
             cam.farClipPlane = 20000f;

@@ -13,7 +13,7 @@ A direct continuation of Scene 1, after the pilot narrowly avoids the sun. Move 
 - **Controls:** W = nose down / S = nose up (flight-sim; invert option later), A/D yaw, Q/E roll, ↑/↓ throttle, hold Shift boost. Scene 1 uses the same pitch convention.
 - **Crash ending:** cockpit atmospheric-entry fire → exterior shot of the ship falling → hard cut to black on impact → "Pilot? ... Please respond." No terrain needed in V1.
 - **Cinematics:** keep Scene 1's director pattern (state machine + coroutines); Timeline only for the crash if it helps.
-- **Assets:** planet + atmosphere from Simple Space Starter Kit (Atmosphere/Star shadergraphs); skybox from SpaceSkies Free; ship = same hero ship as Scene 1. Asteroid pack (`Plans/Links.txt`) optional.
+- **Assets:** planet + atmosphere from Simple Space Starter Kit (Atmosphere/Star shadergraphs); skybox from SpaceSkies Free; ship = **blue Sparrow** (same as Scene 1). Asteroid pack (`Plans/Links.txt`) optional.
 - **Ownership:** Claude builds all of Scene 2; Codex is used separately for UI polish on Claude's recommendations (overrides the Codex section below).
 - **Scene 3 note:** the pilot wakes after the crash on foot — that's where the full-body first-person humanoid controller comes in.
 

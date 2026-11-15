@@ -18,7 +18,7 @@ Build a small playable cinematic introduction in Unity. A damaged spacecraft tum
 - **Dialogue:** auto-timed lines (Space skips ahead for testing).
 - **Post FX:** URP Volume — DoF/vignette for wake-up blur, bloom for the sun, heat-driven color tint.
 - **Acceptance (added):** a fresh clone opens with zero compile errors.
-- **Asset packs chosen:** Simple Space Starter Kit, Sparrow Fighter Spacecraft (hero ship candidate), SpaceSkies Free (skybox). See `Plans/Links.txt`.
+- **Asset packs chosen:** Simple Space Starter Kit, Sparrow Fighter Spacecraft (**hero ship: blue Sparrow**, URP prefab `Assets/SpaceRat/Prefabs/Ship/Sparrow_blue_URP.prefab`), SpaceSkies Free (**skybox: Green 2K**). See `Plans/Links.txt`.
 - **Dialogue tone (standing rule):** pilot ↔ computer lines are **sharp, funny, sarcastic** — mostly from the pilot; the computer is a deadpan straight man with the occasional dry jab. Keep plot beats and the identity mystery intact. Beats 1–3 live in `Assets/SpaceRat/ScriptableObjects/Dialogue/`. Planned Beat 4–5 lines:
   - Computer: "Manual control link established." / "Ease us away from the star. Gently. Unlike your wake-up." / "Heat levels critical. Keep turning!"
   - Pilot (while steering): "I'm turning! Is there a faster turning?"
