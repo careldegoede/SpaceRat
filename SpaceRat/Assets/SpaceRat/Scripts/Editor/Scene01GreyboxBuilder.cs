@@ -32,7 +32,15 @@ namespace SpaceRat.EditorTools
         const string SkyboxPath = "Assets/SpaceSkies Free/Skybox_2/Green_2K_Resoution.mat"; // (sic) vendor filename typo
         const string StarPrefabPath = "Assets/Mwester Studios/Simple Space Starter Kit/Prefabs/Planet and Star/Star.prefab";
         const string PilotPrefabPath = Root + "/Prefabs/Characters/" + CharacterViewerBuilder.PilotOutfit + ".prefab";
-        static readonly Vector3 PilotHipsOnSeat = new(0f, -0.36f, 2.45f); // body-local, just above the seat cushion
+        static readonly Vector3 PilotHipsOnGreyboxSeat = new(0f, -0.36f, 2.45f); // body-local, just above the greybox cushion
+
+        // Sci-Fi Styled Modular Pack "pilot_seat" (measured unscaled: cushion top y=0.74 spanning z -0.3..0.3,
+        // backrest face z~-0.5, height 2.55). Modelled oversized, so it is scaled to fit the 1.98 m pilot.
+        const string PilotSeatPath = "Assets/Sci-Fi Styled Modular Pack/Prefabs/Decorative elements/pilot_seat.prefab";
+        const float PilotSeatScale = 0.5f;
+        const float CockpitFloorTop = -0.80f;                                      // body-local
+        static readonly Vector3 PilotSeatPos = new(0f, CockpitFloorTop, 2.58f);    // backrest face lands ~0.12 behind the hips
+        static readonly Vector3 PilotHipsOnPilotSeat = new(0f, CockpitFloorTop + 0.74f * PilotSeatScale + 0.11f, 2.45f);
         const string HeroShipPath = Root + "/Prefabs/Ship/Sparrow_blue_URP.prefab";
         const string CockpitArtPath = Root + "/Art/UI/Cockpit_Overlay.png";
         const string NoisePath ="Packages/com.unity.cinemachine/Presets/Noise/Handheld_normal_mild.asset";
@@ -134,9 +142,27 @@ namespace SpaceRat.EditorTools
                 }
             }
             // Seat ends just behind the knees (z ~2.78) so the shins hang over the front edge.
-            Primitive("Seat", PrimitiveType.Cube, body, new Vector3(0, -0.6f, 2.42f), new Vector3(1.1f, 0.25f, 0.68f), mats["Trim"]);
-            Primitive("CockpitFloor", PrimitiveType.Cube, body, new Vector3(0, -0.84f, 2.7f), new Vector3(1.6f, 0.08f, 1.9f), mats["Trim"]);
-            Primitive("SeatBack", PrimitiveType.Cube, body, new Vector3(0, 0.1f, 2.05f), new Vector3(1.1f, 1.4f, 0.2f), mats["Trim"]);
+            Primitive("CockpitFloor", PrimitiveType.Cube, body, new Vector3(0, CockpitFloorTop - 0.04f, 2.7f), new Vector3(1.6f, 0.08f, 1.9f), mats["Trim"]);
+            Vector3 pilotHips;
+            var seatPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(PilotSeatPath);
+            if (seatPrefab)
+            {
+                var seat = (GameObject)PrefabUtility.InstantiatePrefab(seatPrefab, scene);
+                seat.name = "PilotSeat";
+                seat.transform.SetParent(body, false);
+                seat.transform.localPosition = PilotSeatPos;
+                seat.transform.localRotation = Quaternion.identity;
+                seat.transform.localScale = Vector3.one * PilotSeatScale;
+                foreach (var c in seat.GetComponentsInChildren<Collider>()) Object.DestroyImmediate(c);
+                pilotHips = PilotHipsOnPilotSeat;
+            }
+            else
+            {
+                // Greybox seat: ends just behind the knees so the shins hang over the front edge.
+                Primitive("Seat", PrimitiveType.Cube, body, new Vector3(0, -0.6f, 2.42f), new Vector3(1.1f, 0.25f, 0.68f), mats["Trim"]);
+                Primitive("SeatBack", PrimitiveType.Cube, body, new Vector3(0, 0.1f, 2.05f), new Vector3(1.1f, 1.4f, 0.2f), mats["Trim"]);
+                pilotHips = PilotHipsOnGreyboxSeat;
+            }
             // Pilot: Adventure Character Man_03 (seated, slumped) if converted, else a capsule.
             GameObject pilot;
             var pilotPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(PilotPrefabPath);
@@ -153,7 +179,7 @@ namespace SpaceRat.EditorTools
                 seated.Apply();
                 // Drop the hips onto the seat cushion.
                 var hips = anim.GetBoneTransform(HumanBodyBones.Hips);
-                pilot.transform.position += body.TransformPoint(PilotHipsOnSeat) - hips.position;
+                pilot.transform.position += body.TransformPoint(pilotHips) - hips.position;
             }
             else
             {

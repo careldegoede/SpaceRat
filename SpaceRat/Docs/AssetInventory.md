@@ -13,8 +13,9 @@ Vendor folders are never edited; all customisation lives under `Assets/SpaceRat/
    - **Simple Space Starter Kit:** its `.unitypackage` bundles a Unity 2022 package manifest
      (URP / Shader Graph / VFX Graph **14.0.8**). **Do not accept** any package changes it proposes —
      that would downgrade URP. In the import dialog, keep assets only. (VFX Graph is not needed.)
-3. Run **SpaceRat → Convert Sparrow Fighter to URP** (regenerates `Assets/SpaceRat/Art/Sparrow/Sparrow_MetallicSmoothness.png`).
-4. Run **SpaceRat → Build Scene01 Greybox** if the scene needs rebuilding.
+3. Run **SpaceRat → Fix Sci-Fi Modular Pack Materials (URP, in place)** and **SpaceRat → Convert Adventure Character to URP**.
+4. Run **SpaceRat → Convert Sparrow Fighter to URP** (regenerates `Assets/SpaceRat/Art/Sparrow/Sparrow_MetallicSmoothness.png`).
+5. Run **SpaceRat → Build Scene01 Greybox** if the scene needs rebuilding.
 
 Download cache is redirected off C: via user env vars `ASSETSTORE_CACHE_PATH=D:\UnityCache\AssetStore`
 and `UPM_CACHE_ROOT=D:\UnityCache\upm`.
@@ -49,6 +50,13 @@ PDF included in the pack. No scripts.
 Standard Unity Asset Store EULA (Extension Asset) for all three: use in your projects, including
 commercial; no redistribution of the source assets (hence git-ignored). Credit not required but
 appreciated.
+
+### Also imported
+
+| Asset | Publisher | Path | Pipeline status | Use |
+|---|---|---|---|---|
+| Adventure Character | Maksim Bugrimov | `Assets/Adventure_Character` | Standard → URP **copies** + `Man_*_URP` prefabs (SpaceRat > Convert Adventure Character to URP) | Pilot = **Man_03**; Character Viewer. Humanoid rig, no animations |
+| Sci-Fi Styled Modular Pack | karboosx | `Assets/Sci-Fi Styled Modular Pack` | 173 URP Lit + 24 legacy materials converted **in place** (SpaceRat > Fix Sci-Fi Modular Pack Materials) — re-run after any re-import | `pilot_seat` (scaled 0.5) in the Scene 1 cockpit; modular walls/floors/consoles for later interiors |
 
 ## Planned / not yet imported
 

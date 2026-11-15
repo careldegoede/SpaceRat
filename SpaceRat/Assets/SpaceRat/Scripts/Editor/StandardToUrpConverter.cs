@@ -63,7 +63,69 @@ namespace SpaceRat.EditorTools
             var mat = AssetDatabase.LoadAssetAtPath<Material>(path);
             bool isNew = !mat;
             if (isNew) mat = new Material(lit);
-            else mat.shader = lit;
+            ApplyStandardToLit(src, mat, lit);
+            if (isNew) AssetDatabase.CreateAsset(mat, path);
+            else EditorUtility.SetDirty(mat);
+            return mat;
+        }
+
+        /// <summary>
+        /// Converts Standard materials of a vendor pack to URP Lit IN PLACE (like Unity's render pipeline
+        /// converter). Reversible by re-importing the pack. Use when the pack's own prefabs/scenes must work.
+        /// </summary>
+        public static int ConvertInPlace(string folder)
+        {
+            var lit = Shader.Find("Universal Render Pipeline/Lit");
+            var particles = Shader.Find("Universal Render Pipeline/Particles/Unlit");
+            int n = 0;
+            foreach (var guid in AssetDatabase.FindAssets("t:Material", new[] { folder }))
+            {
+                var path = AssetDatabase.GUIDToAssetPath(guid);
+                var m = AssetDatabase.LoadAssetAtPath<Material>(path);
+                if (!m || !m.shader) continue;
+                string sh = m.shader.name;
+                var snapshot = new Material(m);   // read the original values from a copy
+                if (sh.StartsWith("Standard"))
+                {
+                    ApplyStandardToLit(snapshot, m, lit);
+                }
+                else if (sh.StartsWith("Nature/"))
+                {
+                    m.shader = lit;
+                    m.shaderKeywords = new string[0];
+                    if (snapshot.HasProperty("_MainTex")) m.SetTexture("_BaseMap", snapshot.GetTexture("_MainTex"));
+                    if (snapshot.HasProperty("_Color")) m.SetColor("_BaseColor", snapshot.GetColor("_Color"));
+                    m.SetFloat("_AlphaClip", 1f);
+                    m.SetFloat("_Cutoff", 0.4f);
+                    m.EnableKeyword("_ALPHATEST_ON");
+                    m.renderQueue = (int)RenderQueue.AlphaTest;
+                }
+                else if (sh.StartsWith("Legacy Shaders/Particles") && particles)
+                {
+                    m.shader = particles;
+                    m.SetTexture("_BaseMap", snapshot.HasProperty("_MainTex") ? snapshot.GetTexture("_MainTex") : null);
+                    m.SetColor("_BaseColor", snapshot.HasProperty("_TintColor") ? snapshot.GetColor("_TintColor") : Color.white);
+                    m.SetFloat("_Surface", 1f);
+                    m.SetFloat("_Blend", 2f); // additive
+                    m.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+                    m.renderQueue = (int)RenderQueue.Transparent;
+                }
+                else { Object.DestroyImmediate(snapshot); continue; }
+                Object.DestroyImmediate(snapshot);
+                EditorUtility.SetDirty(m);
+                n++;
+            }
+            AssetDatabase.SaveAssets();
+            Debug.Log($"[SpaceRat] Converted {n} materials in place under {folder}.");
+            return n;
+        }
+
+        [MenuItem("SpaceRat/Fix Sci-Fi Modular Pack Materials (URP, in place)")]
+        public static void FixSciFiModularPack() => ConvertInPlace("Assets/Sci-Fi Styled Modular Pack");
+
+        static void ApplyStandardToLit(Material src, Material mat, Shader lit)
+        {
+            mat.shader = lit;
             mat.shaderKeywords = new string[0];
 
             mat.SetTexture("_BaseMap", src.GetTexture("_MainTex"));
@@ -119,10 +181,6 @@ namespace SpaceRat.EditorTools
             {
                 mat.renderQueue = -1;
             }
-
-            if (isNew) AssetDatabase.CreateAsset(mat, path);
-            else EditorUtility.SetDirty(mat);
-            return mat;
         }
 
         static void EnsureFolder(string path)
