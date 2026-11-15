@@ -1,0 +1,21 @@
+{
+    "name": "SpaceRat.Editor",
+    "rootNamespace": "SpaceRat.EditorTools",
+    "references": [
+        "SpaceRat.Runtime",
+        "Unity.Cinemachine",
+        "Unity.RenderPipelines.Core.Runtime",
+        "Unity.RenderPipelines.Universal.Runtime"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
