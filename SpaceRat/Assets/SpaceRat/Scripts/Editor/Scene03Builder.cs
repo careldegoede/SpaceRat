@@ -88,9 +88,9 @@ namespace SpaceRat.EditorTools
             urp.renderPostProcessing = true;
             urp.antialiasing = AntialiasingMode.SubpixelMorphologicalAntiAliasing;
 
-            // Stand beside the wreck (south-east side), facing north-east toward the ridge.
-            Vector2 standXZ = CraterXZ + new Vector2(8.5f, -5.5f);
-            var pilot = BuildPilot(scene, cam, Ground(terrain, standXZ), 45f);
+            // Start behind the wreck, looking at its engines (spot picked by the user in play).
+            Vector2 standXZ = CraterXZ + new Vector2(3.7f, 5.8f);
+            var pilot = BuildPilot(scene, cam, Ground(terrain, standXZ), 232f);
             if (!pilot)
             {
                 // Fallback: the fly cube, if the character pack isn't available.
