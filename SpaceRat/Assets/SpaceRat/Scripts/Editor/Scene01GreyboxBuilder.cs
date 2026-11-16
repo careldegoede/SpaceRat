@@ -244,7 +244,7 @@ namespace SpaceRat.EditorTools
             var shotWide = FollowShot("CM_Wide", ship.transform, new Vector3(14f, 6f, -38f), 55f, noise, shakers);
             var shotSide = FollowShot("CM_Side", ship.transform, new Vector3(-30f, -4f, 6f), 45f, noise, shakers);
             var shotClose = FollowShot("CM_Close", ship.transform, new Vector3(5f, 2.6f, -8f), 40f, noise, shakers);
-            var shotPilot = LocalShot("CM_PilotInterior", body, new Vector3(0.55f, 0.6f, 4.4f), new Vector3(0, 0.25f, 2.55f), 60f, noise, shakers);
+            var shotPilot = LocalShot("CM_PilotInterior", body, PilotCamPos, PilotCamLookAt, 52f, noise, shakers);
             var shotPov = LocalShot("CM_PilotPOV", body, new Vector3(0, 0.55f, 2.7f), new Vector3(0, 0.45f, 50f), 70f, noise, shakers);
             shotWide.Priority = 20;
 
@@ -462,6 +462,9 @@ namespace SpaceRat.EditorTools
 
         // ---- Cockpit interior shell (Sci-Fi Styled Modular Pack) --------------------------------
         const string Modular = "Assets/Sci-Fi Styled Modular Pack/Prefabs/";
+        // Close-up over the console onto the pilot (was 2 m away at z 4.4).
+        static readonly Vector3 PilotCamPos = new(0.42f, 0.5f, 3.75f);
+        static readonly Vector3 PilotCamLookAt = new(0f, 0.18f, 2.5f);
         const float ShellScale = 0.55f;                 // pack modules are 4 m -> 2.2 m
         const float ShellModule = 4f * ShellScale;
         const float ShellBackZ = 1.1f;                  // back wall (door) behind the pilot
@@ -498,6 +501,9 @@ namespace SpaceRat.EditorTools
             Piece(shell, scene, "Walls/decorative_wall_1.prefab",          new Vector3(-ShellHalfWidth, y0, zMid2), new Vector3(0, 90, 0));
             Piece(shell, scene, "Walls/decorative_wall_3.prefab",          new Vector3( ShellHalfWidth, y0, zMid1), new Vector3(0, -90, 0));
             Piece(shell, scene, "Walls/decorative_wall_1.prefab",          new Vector3( ShellHalfWidth, y0, zMid2), new Vector3(0, -90, 0));
+
+            // Control console in front of the pilot's knees, screen facing him.
+            Piece(shell, scene, "Decorative elements/console.prefab", new Vector3(0, y0, 3.28f), new Vector3(0, 180, 0));
 
             // Lights: ceiling strip + blue wall accents in the back corners.
             Piece(shell, scene, "Lights/light_celing_1.prefab", new Vector3(0, y0 + ShellModule, zMid1 + 0.3f), Vector3.zero);
