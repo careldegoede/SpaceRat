@@ -1,0 +1,2 @@
+use image 1 layout for flying
+use image 3 for walking

@@ -16,9 +16,12 @@ MonoBehaviour:
   - speaker: 0
     text: The planet is the other way. The large, round one.
     duration: 4.1000004
+    voice: {fileID: 8300000, guid: 02dbab532e766cd458a35a4816e8ce98, type: 3}
   - speaker: 0
     text: You are drifting off course. Recalculating my opinion of you.
     duration: 4.1000004
+    voice: {fileID: 8300000, guid: d395ff018536d5a42b4f189787a215af, type: 3}
   - speaker: 0
     text: The glowing marker is the destination. I added it specifically for you.
     duration: 4.7000003
+    voice: {fileID: 8300000, guid: 06f4e47375af4824bbcde9f6b93b976e, type: 3}

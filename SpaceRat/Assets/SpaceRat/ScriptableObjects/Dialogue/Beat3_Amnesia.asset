@@ -14,41 +14,54 @@ MonoBehaviour:
   m_EditorClassIdentifier: SpaceRat.Runtime::SpaceRat.Dialogue.DialogueSequence
   lines:
   - speaker: 1
-    text: 'Ugh... why is everything red? And hot. Why is it hot?'
+    text: Ugh... why is everything red? And hot. Why is it hot?
     duration: 3.2
+    voice: {fileID: 8300000, guid: 5a1f17533b134da4db37386900095be4, type: 3}
   - speaker: 0
-    text: 'We are on a collision course with a star. Red and hot are its main features.'
-    duration: 4.0
+    text: We are on a collision course with a star. Red and hot are its main features.
+    duration: 4
+    voice: {fileID: 8300000, guid: ac04a128efcbd8f4492fcf3b1927cd71, type: 3}
   - speaker: 1
-    text: 'Great. Love that. Who am I?'
+    text: Great. Love that. Who am I?
     duration: 2.4
+    voice: {fileID: 8300000, guid: 513444aa70d651647a21893018fc60b2, type: 3}
   - speaker: 0
-    text: 'Your identity records are currently inaccessible.'
-    duration: 3.0
+    text: Your identity records are currently inaccessible.
+    duration: 3
+    voice: {fileID: 8300000, guid: 3e013ec12260f2b419519f03120b8ecd, type: 3}
   - speaker: 1
-    text: 'Convenient. And who are you?'
+    text: Convenient. And who are you?
     duration: 2.2
+    voice: {fileID: 8300000, guid: ea06e461eca27134eb1530172726d255, type: 3}
   - speaker: 0
-    text: 'The ship''s computer. The one who has been shouting at you for six minutes.'
+    text: The ship's computer. The one who has been shouting at you for six minutes.
     duration: 3.8
+    voice: {fileID: 8300000, guid: e5ad887f67745fd429257cfe15fadd86, type: 3}
   - speaker: 1
-    text: 'Then change course, genius!'
+    text: Then change course, genius!
     duration: 2.2
+    voice: {fileID: 8300000, guid: d675302260b00f04696d71b9fd8502f6, type: 3}
   - speaker: 0
-    text: 'Unable to comply. Flight controls are ignoring me.'
-    duration: 3.0
+    text: Unable to comply. Flight controls are ignoring me.
+    duration: 3
+    voice: {fileID: 8300000, guid: 7c7ee56b06442d840afc9a23c46cccd3, type: 3}
   - speaker: 1
-    text: 'Relatable.'
+    text: Relatable.
     duration: 1.6
+    voice: {fileID: 8300000, guid: aa329a7ef170e4b4fa203e1d735d3b06, type: 3}
   - speaker: 1
-    text: 'Can I steer it?'
+    text: Can I steer it?
     duration: 1.8
+    voice: {fileID: 8300000, guid: 59d029e4267236a4280f35f8900fb9ce, type: 3}
   - speaker: 0
-    text: 'Manual controls may still function. Statistically, you are our best option.'
+    text: Manual controls may still function. Statistically, you are our best option.
     duration: 3.8
+    voice: {fileID: 8300000, guid: 4ae7c12f4273d9a41bfcedc324ca271b, type: 3}
   - speaker: 1
-    text: 'That''s the most terrifying thing anyone has ever said to me.'
-    duration: 3.0
+    text: That's the most terrifying thing anyone has ever said to me.
+    duration: 3
+    voice: {fileID: 8300000, guid: df045cd24d09bf442868127c14ab2254, type: 3}
   - speaker: 0
-    text: 'You have no memories to compare it to.'
+    text: You have no memories to compare it to.
     duration: 2.8
+    voice: {fileID: 8300000, guid: b1551cfa05d43c94697de551741ebf4f, type: 3}

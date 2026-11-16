@@ -16,6 +16,8 @@ MonoBehaviour:
   - speaker: 0
     text: Heat levels critical. Keep turning!
     duration: 2.4
+    voice: {fileID: 8300000, guid: 0cde8a445b5d4dc4c960b7eff67f1e60, type: 3}
   - speaker: 1
     text: I'm turning! Is there a faster turning?
     duration: 2.4
+    voice: {fileID: 8300000, guid: 1ab77d4611b3c3b4d9f22e6cebb7ebaa, type: 3}

@@ -16,9 +16,12 @@ MonoBehaviour:
   - speaker: 0
     text: Thruster overdrive available. Hold Shift. Do not hold it forever.
     duration: 4.1000004
+    voice: {fileID: 8300000, guid: bdd4a55313bfa8d47b819e95e58abd15, type: 3}
   - speaker: 1
     text: What happens if I hold it forever?
     duration: 3.2
+    voice: {fileID: 8300000, guid: ff447b135dd54be42b0d0dddc794f008, type: 3}
   - speaker: 0
     text: It stops. Then you are disappointed.
     duration: 2.9
+    voice: {fileID: 8300000, guid: 86eef8baf0f9c5e438db53a9fb00ded6, type: 3}

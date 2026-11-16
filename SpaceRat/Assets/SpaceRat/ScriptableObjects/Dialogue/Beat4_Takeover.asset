@@ -16,6 +16,8 @@ MonoBehaviour:
   - speaker: 0
     text: Manual control link established.
     duration: 2.4
+    voice: {fileID: 8300000, guid: 15a09a4f6a37b8c4db832230ac88a837, type: 3}
   - speaker: 0
     text: Ease us away from the star. Gently. Unlike your wake-up.
     duration: 3.4
+    voice: {fileID: 8300000, guid: ec42b8ebde57e27459443cd683528c4a, type: 3}

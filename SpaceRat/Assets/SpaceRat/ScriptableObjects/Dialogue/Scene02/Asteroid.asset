@@ -16,6 +16,8 @@ MonoBehaviour:
   - speaker: 0
     text: Minor impact. Please stop hitting rocks.
     duration: 2.9
+    voice: {fileID: 8300000, guid: 75a54f6cf27ec5247818c9286f971f43, type: 3}
   - speaker: 1
     text: The rock hit me.
     duration: 2.3000002
+    voice: {fileID: 8300000, guid: 21c363aea073fec4f8f65743a4f8b91a, type: 3}

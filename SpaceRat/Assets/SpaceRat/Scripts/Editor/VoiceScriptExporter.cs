@@ -70,6 +70,38 @@ namespace SpaceRat.EditorTools
             Debug.Log($"[SpaceRat] Voice script exported: {full}");
         }
 
+        const string VoiceDir = "Assets/SpaceRat/Audio/Voices";
+
+        /// <summary>
+        /// Assigns each DialogueLine.voice from Audio/Voices by the same file name the voice script lists
+        /// (generate the WAVs with Audio/Kokoro/generate_voices.py first). Lines without a file are cleared.
+        /// </summary>
+        [MenuItem("SpaceRat/Link Voice Clips")]
+        public static void LinkVoiceClips()
+        {
+            int linked = 0, missing = 0;
+            foreach (var path in AssetDatabase.FindAssets("t:DialogueSequence", new[] { "Assets/SpaceRat" })
+                         .Select(AssetDatabase.GUIDToAssetPath))
+            {
+                var seq = AssetDatabase.LoadAssetAtPath<DialogueSequence>(path);
+                if (!seq) continue;
+                string scene = SceneTag(path), beat = Path.GetFileNameWithoutExtension(path);
+                bool dirty = false;
+                for (int i = 0; i < seq.lines.Count; i++)
+                {
+                    var l = seq.lines[i];
+                    string file = $"{VoiceDir}/{scene}_{beat}_{i + 1:00}_{l.speaker.ToString().ToLowerInvariant()}.wav";
+                    var clip = AssetDatabase.LoadAssetAtPath<AudioClip>(file);
+                    if (clip) linked++;
+                    else { missing++; Debug.LogWarning($"[SpaceRat] No voice clip for {file}"); }
+                    if (l.voice != clip) { l.voice = clip; dirty = true; }
+                }
+                if (dirty) EditorUtility.SetDirty(seq);
+            }
+            AssetDatabase.SaveAssets();
+            Debug.Log($"[SpaceRat] Voice clips linked: {linked}, missing: {missing}");
+        }
+
         static string SceneTag(string path)
         {
             // Assets/SpaceRat/ScriptableObjects/Dialogue[/SceneXX]/... -> S01 by default

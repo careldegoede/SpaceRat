@@ -16,12 +16,16 @@ MonoBehaviour:
   - speaker: 0
     text: Collision course avoided.
     duration: 2.6
+    voice: {fileID: 8300000, guid: fb6872757ef7dda4a8622c9fa4d6283d, type: 3}
   - speaker: 1
     text: You're welcome. Now tell me who I am.
     duration: 3
+    voice: {fileID: 8300000, guid: adcdb5d179bfef143ae5a423953075fb, type: 3}
   - speaker: 0
     text: I am unable to answer that question.
     duration: 2.8
+    voice: {fileID: 8300000, guid: aac97eb91dcf5b844aa4b591a7a82341, type: 3}
   - speaker: 1
     text: Of course you are.
     duration: 2.4
+    voice: {fileID: 8300000, guid: 0ff29ec542539914c86e80ca7a624f9a, type: 3}

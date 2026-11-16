@@ -14,14 +14,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: SpaceRat.Runtime::SpaceRat.Dialogue.DialogueSequence
   lines:
   - speaker: 0
-    text: 'Warning. Stellar collision trajectory detected.'
-    duration: 3.0
+    text: Warning. Stellar collision trajectory detected.
+    duration: 3
+    voice: {fileID: 8300000, guid: 4cc395f08d0c7e74eb5ca300e4edcc30, type: 3}
   - speaker: 0
-    text: 'Attempting automatic course correction.'
+    text: Attempting automatic course correction.
     duration: 2.8
+    voice: {fileID: 8300000, guid: a0e0bef0e30f0744eb315a7e6df541ef, type: 3}
   - speaker: 0
-    text: 'Course correction failed. Flight control interface unavailable. Again.'
+    text: Course correction failed. Flight control interface unavailable. Again.
     duration: 3.6
+    voice: {fileID: 8300000, guid: a63331bf3600e3a4b812ad04cb3f6404, type: 3}
   - speaker: 0
-    text: 'Pilot response required. Pilot response... strongly encouraged.'
+    text: Pilot response required. Pilot response... strongly encouraged.
     duration: 3.6
+    voice: {fileID: 8300000, guid: 6668406421954e9468ab794c0a2832e5, type: 3}

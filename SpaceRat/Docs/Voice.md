@@ -11,6 +11,7 @@ Every spoken line in the game, ready for text-to-speech / voice tools.
 ## Characters & voice direction
 
 ### COMPUTER — the ship's onboard AI
+- **Cast (Kokoro):** `bf_alice` (British female), speed 0.92.
 - **Voice:** calm, precise, synthetic but warm underneath; neutral accent; medium-low pitch.
 - **Delivery:** deadpan and literal. Never jokes on purpose — the humour comes from total sincerity
   ("Red and hot are its main features."). Slight pause before the punchline-ish clause.
@@ -21,7 +22,8 @@ Every spoken line in the game, ready for text-to-speech / voice tools.
   ship-speaker feel.
 
 ### PILOT — amnesiac, identity unknown
-- **Voice:** gender not yet decided (keep it open — identity is the mystery). Late 20s–40s, a bit
+- **Cast (Kokoro):** `am_puck` (American male), speed 1.05.
+- **Voice:** male (matches the in-game avatar and poster); his name and past are the mystery. Late 20s–40s, a bit
   hoarse from just waking up in Scene 1.
 - **Delivery:** quick, sarcastic, exasperated; jokes as a coping mechanism. Groggy and slurred for the
   first lines of Beat 3, sharper as adrenaline kicks in.
@@ -34,10 +36,14 @@ Every spoken line in the game, ready for text-to-speech / voice tools.
 Treat them as starting points; adjust per line.
 
 ## Audio file conventions
-- **Format:** WAV, 48 kHz, 16-bit, mono. Normalise to about −16 LUFS, peaks below −1 dBTP.
+- **Format:** WAV, 24 kHz (Kokoro native), 16-bit, mono, peaks normalised to about −1 dB.
+- **Generate:** `Audio/Kokoro/.venv/Scripts/python.exe Audio/Kokoro/generate_voices.py` from the repo root
+  (missing files only; `--all` regenerates). Cast and speeds live at the top of that script.
+  Model + venv are local only (git-ignored); see `Audio/Kokoro/README.md`.
 - **Naming:** `<ID>_<speaker>.wav`, e.g. `S01_Beat3_Amnesia_07_pilot.wav` (IDs below are stable per
   asset + line index; re-export after reordering lines).
-- **Location (when added):** `Assets/SpaceRat/Audio/Voices/`.
+- **Location:** `Assets/SpaceRat/Audio/Voices/`. After generating, run **SpaceRat > Link Voice Clips** so each
+  DialogueLine gets its clip. A line holds until its clip has finished (Space skips and cuts the clip).
 - **Pacing:** in-game lines are auto-timed; if a recording runs longer than its `duration`, raise the
   duration in the DialogueSequence asset.
 

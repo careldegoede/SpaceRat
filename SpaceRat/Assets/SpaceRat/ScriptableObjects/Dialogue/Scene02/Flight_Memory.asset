@@ -16,12 +16,16 @@ MonoBehaviour:
   - speaker: 1
     text: Any idea what wiped our memories?
     duration: 2.9
+    voice: {fileID: 8300000, guid: c77aff45a55062841a46c2322cd28c3f, type: 3}
   - speaker: 0
     text: No. The missing records are remarkably thorough.
     duration: 3.2
+    voice: {fileID: 8300000, guid: 6be837d416d842641ad4adc91b7492bc, type: 3}
   - speaker: 1
     text: That's not reassuring.
     duration: 2
+    voice: {fileID: 8300000, guid: 1769c455810517f429af97724bdbacc1, type: 3}
   - speaker: 0
     text: It was not intended to be.
     duration: 2.9
+    voice: {fileID: 8300000, guid: fab8fba39b737a14a8cb7d5459a33f65, type: 3}

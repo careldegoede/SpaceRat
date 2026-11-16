@@ -16,3 +16,4 @@ MonoBehaviour:
   - speaker: 0
     text: Pilot? ... Please respond.
     duration: 4.5
+    voice: {fileID: 8300000, guid: ee846a125ba84944d9868bed631c7ed0, type: 3}

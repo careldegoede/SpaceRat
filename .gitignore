@@ -73,3 +73,8 @@ SpaceRat/Assets/_DLNK/
 SpaceRat/Assets/_DLNK.meta
 SpaceRat/Assets/TerrainSampleAssets/
 SpaceRat/Assets/TerrainSampleAssets.meta
+
+# Kokoro TTS: model weights, Python env and audition samples stay local
+Audio/Kokoro/models/
+Audio/Kokoro/.venv/
+Audio/Samples/

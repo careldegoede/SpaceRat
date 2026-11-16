@@ -16,3 +16,4 @@ MonoBehaviour:
   - speaker: 0
     text: Impact.
     duration: 1.6
+    voice: {fileID: 8300000, guid: 440fd8ef3ba8d4b4683ee1fc80114713, type: 3}

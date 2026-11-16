@@ -16,30 +16,40 @@ MonoBehaviour:
   - speaker: 0
     text: Warning. Uncommanded power fluctuation.
     duration: 2.3000002
+    voice: {fileID: 8300000, guid: bd52cd74d43c1dc4cb4369d7829ef528, type: 3}
   - speaker: 1
     text: Oh, come ON.
     duration: 2
+    voice: {fileID: 8300000, guid: 7bd4c59096c19504fad2446c3a18cc09, type: 3}
   - speaker: 0
     text: Flight controls are no longer responding. Engine output unstable.
     duration: 3.8000002
+    voice: {fileID: 8300000, guid: 9b14f77483c90a840bc2d57fc0a3e80a, type: 3}
   - speaker: 1
     text: Give me manual override!
     duration: 2.3000002
+    voice: {fileID: 8300000, guid: c7ee7677fe3b8f24e86ca2a9c6c5b58d, type: 3}
   - speaker: 0
     text: Manual override unavailable.
     duration: 2
+    voice: {fileID: 8300000, guid: a0d3bde5a90c58242a2ce05962ed1870, type: 3}
   - speaker: 1
     text: You said we could make it!
     duration: 2.9
+    voice: {fileID: 8300000, guid: 2f2e031c34be47443a0a2de6d0f37944, type: 3}
   - speaker: 0
     text: I said we could attempt to reach the planet.
     duration: 3.8000002
+    voice: {fileID: 8300000, guid: 4a7f1fc14cace3443a5c3bfc008062ac, type: 3}
   - speaker: 1
     text: This is a terrible time to be precise!
     duration: 3.5
+    voice: {fileID: 8300000, guid: 698e7966efe67e94bb857a8717d57985, type: 3}
   - speaker: 0
     text: Atmospheric entry imminent. Brace for impact.
     duration: 2.9
+    voice: {fileID: 8300000, guid: e4f218418bff0824abdfe04da15d7a63, type: 3}
   - speaker: 1
     text: Bracing! Whatever that means!
     duration: 2.3000002
+    voice: {fileID: 8300000, guid: 336cde23a2d72484e9c02b1154887fa9, type: 3}

@@ -19,7 +19,7 @@ namespace SpaceRat.Scene01
         [SerializeField] float flashRateMin = 0.8f;
         [SerializeField] float flashRateMax = 2.2f;
         [SerializeField] float maxShake = 1.6f;
-        [SerializeField] float maxVolume = 0.35f;
+        [SerializeField] float maxVolume = 0.15f;
         [Tooltip("How fast Intensity eases toward its target (per second).")]
         [SerializeField] float easeSpeed = 0.5f;
 

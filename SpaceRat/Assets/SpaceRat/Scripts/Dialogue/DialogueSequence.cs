@@ -17,6 +17,11 @@ namespace SpaceRat.Dialogue
         [TextArea(1, 3)] public string text;
         [Tooltip("Seconds the line stays on screen before auto-advancing.")]
         [Min(0.5f)] public float duration = 3f;
+        [Tooltip("Voice-over clip. Filled by SpaceRat > Link Voice Clips.")]
+        public AudioClip voice;
+
+        /// <summary>How long the line holds: never shorter than its voice clip, so audio always completes.</summary>
+        public float Seconds => voice ? Mathf.Max(duration, voice.length + 0.25f) : duration;
     }
 
     /// <summary>Ordered, auto-timed lines for one beat of a scene.</summary>

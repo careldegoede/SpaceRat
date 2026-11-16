@@ -16,3 +16,4 @@ MonoBehaviour:
   - speaker: 0
     text: We have already tried the star. I did not enjoy it.
     duration: 4.4
+    voice: {fileID: 8300000, guid: 2b41caa852954a64a8d92ed6457f6483, type: 3}

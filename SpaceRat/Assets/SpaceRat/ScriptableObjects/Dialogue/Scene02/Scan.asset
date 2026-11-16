@@ -16,33 +16,44 @@ MonoBehaviour:
   - speaker: 1
     text: Scan the area. Anything that helps us not die.
     duration: 3.8000002
+    voice: {fileID: 8300000, guid: 04672e4db82ad1546b3764fad2f07ed8, type: 3}
   - speaker: 0
     text: Initiating passive scan. Sensors operating below nominal capacity.
     duration: 3.5
+    voice: {fileID: 8300000, guid: 92af4815e1e22b6478fcab128ba4ebd4, type: 3}
   - speaker: 1
     text: Join the club.
     duration: 2
+    voice: {fileID: 8300000, guid: ef8093785b43b774382ff72fdcbfb3ee, type: 3}
   - speaker: 0
     text: '...One signal detected. Extremely weak. Origin: a nearby planetary body.'
     duration: 4.1000004
+    voice: {fileID: 8300000, guid: 901b253df62dc4546a5d15d4ea51accd, type: 3}
   - speaker: 1
     text: A distress beacon?
     duration: 2
+    voice: {fileID: 8300000, guid: bf5f49ecf7402234eb4e6a891204b597, type: 3}
   - speaker: 0
     text: Unknown. It may be artificial. It may also be interference.
     duration: 4.1000004
+    voice: {fileID: 8300000, guid: e67e4b216757edf41b52777a380a3844, type: 3}
   - speaker: 1
     text: '"Maybe help, maybe static." Still better odds than the star. Can we get there?'
     duration: 4.8
+    voice: {fileID: 8300000, guid: 339045aaec8719148830758bd12927c6, type: 3}
   - speaker: 0
     text: Warp drive offline. Conventional thrusters available, with limitations.
     duration: 3.5
+    voice: {fileID: 8300000, guid: ae64adc76898b7644aeb3788facd5cb3, type: 3}
   - speaker: 1
     text: Of course they are. Mark the bearing.
     duration: 3.2
+    voice: {fileID: 8300000, guid: cd773804c39d74449b6ea6d03db5fdab, type: 3}
   - speaker: 0
     text: Bearing marked. I recommend avoiding further stellar encounters.
     duration: 3.5
+    voice: {fileID: 8300000, guid: 9288b63d8a73c35448ab3e268260d067, type: 3}
   - speaker: 1
     text: Wow. Wish I'd thought of that.
     duration: 2.9
+    voice: {fileID: 8300000, guid: 869535b534751514eb0373eb4c9d41aa, type: 3}

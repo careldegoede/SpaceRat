@@ -16,15 +16,20 @@ MonoBehaviour:
   - speaker: 1
     text: So... got any music in there?
     duration: 2.9
+    voice: {fileID: 8300000, guid: ed760bf13c50d0d48a40a2455380bcd6, type: 3}
   - speaker: 0
     text: Audio archives missing.
     duration: 2
+    voice: {fileID: 8300000, guid: f7c1cf7ba6cfcdb48be92847e06503bb, type: 3}
   - speaker: 1
     text: Of course they are.
     duration: 2.3000002
+    voice: {fileID: 8300000, guid: 0f27f887b71227040ab3a3b0fbaeebc9, type: 3}
   - speaker: 0
     text: I can play the collision alarm.
     duration: 2.9
+    voice: {fileID: 8300000, guid: 3a9eeae3acdeae545a74d034dab30931, type: 3}
   - speaker: 1
     text: Please don't.
     duration: 1.7
+    voice: {fileID: 8300000, guid: 30f936ba4191576418a5f2890b60f552, type: 3}

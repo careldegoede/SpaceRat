@@ -30,7 +30,7 @@ namespace SpaceRat.Scene02
     public class Scene02Director : MonoBehaviour
     {
         [Header("Dialogue")]
-        [SerializeField] GreyboxSubtitles subtitles;
+        [SerializeField] DialogueBox subtitles;
         [SerializeField] DialogueSequence recovery;
         [SerializeField] DialogueSequence scan;
         [SerializeField] DialogueSequence tutorial;
@@ -307,8 +307,8 @@ namespace SpaceRat.Scene02
         {
             _talking = true;
             int token = _lineToken;
-            subtitles.Show(line.speaker, line.text);
-            yield return new WaitForSeconds(line.duration);
+            subtitles.Show(line);
+            yield return new WaitForSeconds(line.Seconds);
             if (token == _lineToken) { subtitles.Clear(); _talking = false; }
         }
 
@@ -321,8 +321,8 @@ namespace SpaceRat.Scene02
             for (int i = from; i < end; i++)
             {
                 if (token != _lineToken) yield break;
-                subtitles.Show(seq.lines[i].speaker, seq.lines[i].text);
-                yield return new WaitForSeconds(seq.lines[i].duration);
+                subtitles.Show(seq.lines[i]);
+                yield return new WaitForSeconds(seq.lines[i].Seconds);
                 if (token != _lineToken) yield break;
                 subtitles.Clear();
                 yield return new WaitForSeconds(pauseBetweenLines);
@@ -340,8 +340,8 @@ namespace SpaceRat.Scene02
         IEnumerator PlayLine(DialogueSequence seq, int i)
         {
             if (!seq || i >= seq.lines.Count) yield break;
-            subtitles.Show(seq.lines[i].speaker, seq.lines[i].text);
-            yield return Wait(seq.lines[i].duration);
+            subtitles.Show(seq.lines[i]);
+            yield return Wait(seq.lines[i].Seconds);
             subtitles.Clear();
             yield return Wait(pauseBetweenLines);
         }

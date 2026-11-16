@@ -272,7 +272,7 @@ namespace SpaceRat.EditorTools
             var overlay = BuildCockpitOverlay();
 
             var directorGo = new GameObject("Scene01Director");
-            var subtitles = directorGo.AddComponent<GreyboxSubtitles>();
+            var subtitles = directorGo.AddComponent<DialogueBox>();
             var evaluator = directorGo.AddComponent<CollisionCourseEvaluator>();
             SetRefs(evaluator, ("ship", ship.transform), ("sun", sun.transform));
             var director = directorGo.AddComponent<Scene01Director>();

@@ -16,6 +16,8 @@ MonoBehaviour:
   - speaker: 0
     text: Signal strength increasing. We are approaching the source.
     duration: 3.5
+    voice: {fileID: 8300000, guid: e6f547bbfab34804390837180ffd243c, type: 3}
   - speaker: 1
     text: Finally, good news. Write that down. Oh wait, you can't.
     duration: 4.1000004
+    voice: {fileID: 8300000, guid: 91d7504707ee1914ba9e9256ab8dc386, type: 3}

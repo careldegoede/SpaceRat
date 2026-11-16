@@ -171,7 +171,7 @@ namespace SpaceRat.EditorTools
 
             // ---- Director ------------------------------------------------------------
             var directorGo = new GameObject("Scene02Director");
-            var subtitles = directorGo.AddComponent<GreyboxSubtitles>();
+            var subtitles = directorGo.AddComponent<DialogueBox>();
             var director = directorGo.AddComponent<Scene02Director>();
             B.SetRefs(director,
                 ("subtitles", subtitles),

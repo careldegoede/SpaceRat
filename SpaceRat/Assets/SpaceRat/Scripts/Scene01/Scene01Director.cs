@@ -37,7 +37,7 @@ namespace SpaceRat.Scene01
         [SerializeField] DialogueSequence beat4HeatCritical;
         [SerializeField] DialogueSequence beat5Escape;
         [SerializeField] DialogueSequence failureImpact;
-        [SerializeField] GreyboxSubtitles subtitles;
+        [SerializeField] DialogueBox subtitles;
 
         [Header("Cameras")]
         [SerializeField] CinemachineBrain brain;
@@ -303,8 +303,8 @@ namespace SpaceRat.Scene01
         {
             if (!seq || index < 0 || index >= seq.lines.Count) yield break;
             var line = seq.lines[index];
-            subtitles.Show(line.speaker, line.text);
-            yield return Wait(line.duration);
+            subtitles.Show(line);
+            yield return Wait(line.Seconds);
             subtitles.Clear();
             yield return Wait(pauseBetweenLines);
         }
@@ -317,8 +317,8 @@ namespace SpaceRat.Scene01
             foreach (var line in seq.lines)
             {
                 if (token != _lineToken) yield break;
-                subtitles.Show(line.speaker, line.text);
-                yield return new WaitForSeconds(line.duration);
+                subtitles.Show(line);
+                yield return new WaitForSeconds(line.Seconds);
                 if (token != _lineToken) yield break;
                 subtitles.Clear();
                 yield return new WaitForSeconds(pauseBetweenLines);

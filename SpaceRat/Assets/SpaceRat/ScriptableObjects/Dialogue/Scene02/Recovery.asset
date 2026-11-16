@@ -16,48 +16,64 @@ MonoBehaviour:
   - speaker: 1
     text: Okay. Not on fire. Small wins.
     duration: 2.9
+    voice: {fileID: 8300000, guid: 0c08164ecdb38654ea8600656d51573f, type: 3}
   - speaker: 0
     text: Hull temperature returning to survivable levels.
     duration: 2.9
+    voice: {fileID: 8300000, guid: 2d0ef8fe5df103f408440cd3b31a6d0d, type: 3}
   - speaker: 1
     text: '"Survivable." Love the bar we''re setting.'
     duration: 2.9
+    voice: {fileID: 8300000, guid: a1b13e39d96448544a38eaa25e6aedde, type: 3}
   - speaker: 1
     text: Fine. Forget who I am. Where are we?
     duration: 3.5
+    voice: {fileID: 8300000, guid: 9363788fc84d9b347b802954796c5715, type: 3}
   - speaker: 0
     text: Current position unknown. Navigation database inaccessible.
     duration: 2.9
+    voice: {fileID: 8300000, guid: 43da17acfcf587e419845aab40848fd4, type: 3}
   - speaker: 1
     text: So you don't know who I am, where we are, or why we're here.
     duration: 4.8
+    voice: {fileID: 8300000, guid: 1687bf8818e22a1419cf8f81dc0bd3ff, type: 3}
   - speaker: 0
     text: That is an accurate summary.
     duration: 2.6000001
+    voice: {fileID: 8300000, guid: 8c430f8afe3f4d94582384a9bb50917f, type: 3}
   - speaker: 1
     text: Fantastic. What do you know?
     duration: 2.6000001
+    voice: {fileID: 8300000, guid: 533b6c7b53c52e04f867337f5ffbd8b9, type: 3}
   - speaker: 0
     text: We were recently on a collision course with a star.
     duration: 4.1000004
+    voice: {fileID: 8300000, guid: 41534cf9fc0f98f4db4f4d86b86f8248, type: 3}
   - speaker: 1
     text: Yeah, I was there for that part.
     duration: 3.2
+    voice: {fileID: 8300000, guid: 36931aecd0acaed4099fae6e2b0fb0c6, type: 3}
   - speaker: 0
     text: I appear to have initialised shortly before the collision warning. My earlier operational history is also missing.
     duration: 4.8
+    voice: {fileID: 8300000, guid: 8414dcd6302e955439067237868aa6ae, type: 3}
   - speaker: 1
     text: So we both just woke up.
     duration: 2.9
+    voice: {fileID: 8300000, guid: a7ac7963dc05618448de370624ec6b30, type: 3}
   - speaker: 0
     text: That is a reasonable hypothesis. I cannot verify it.
     duration: 3.8000002
+    voice: {fileID: 8300000, guid: 46da03dec05523346b0e054e71e4422b, type: 3}
   - speaker: 1
     text: Great. Two amnesiacs in a broken spaceship. Sounds like the start of a bad joke.
     duration: 4.8
+    voice: {fileID: 8300000, guid: b96a2507b42d55d41ae0a34b82c1d6a1, type: 3}
   - speaker: 0
     text: I do not know any jokes. That data is also missing.
     duration: 4.4
+    voice: {fileID: 8300000, guid: df230418cb5a7ec43a20472fd7d93943, type: 3}
   - speaker: 1
     text: Somehow that's the saddest thing you've said.
     duration: 3.2
+    voice: {fileID: 8300000, guid: 407e79ad8b9bff642a47be77bf0bd5d7, type: 3}
