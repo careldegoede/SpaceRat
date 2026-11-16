@@ -142,7 +142,9 @@ namespace SpaceRat.EditorTools
                 }
             }
             // Seat ends just behind the knees (z ~2.78) so the shins hang over the front edge.
-            Primitive("CockpitFloor", PrimitiveType.Cube, body, new Vector3(0, CockpitFloorTop - 0.04f, 2.7f), new Vector3(1.6f, 0.08f, 1.9f), mats["Trim"]);
+            var cockpitShell = BuildCockpitShell(body, scene);
+            if (!cockpitShell)
+                Primitive("CockpitFloor", PrimitiveType.Cube, body, new Vector3(0, CockpitFloorTop - 0.04f, 2.7f), new Vector3(1.6f, 0.08f, 1.9f), mats["Trim"]);
             Vector3 pilotHips;
             var seatPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(PilotSeatPath);
             if (seatPrefab)
@@ -282,7 +284,7 @@ namespace SpaceRat.EditorTools
                 ("subtitles", subtitles), ("brain", brain),
                 ("shotWide", shotWide), ("shotSide", shotSide), ("shotClose", shotClose),
                 ("shotPilot", shotPilot), ("shotPilotPov", shotPov),
-                ("shipMotion", motion), ("effects", effects), ("pilotModel", pilot), ("exteriorModel", exterior),
+                ("shipMotion", motion), ("effects", effects), ("pilotModel", pilot), ("exteriorModel", exterior), ("interiorShell", cockpitShell),
                 ("wakeVolume", wakeVol));
 
             foreach (var seq in dialogue)
@@ -456,6 +458,76 @@ namespace SpaceRat.EditorTools
             perlin.NoiseProfile = noise;
             perlin.AmplitudeGain = 0f;
             shakers.Add(perlin);
+        }
+
+        // ---- Cockpit interior shell (Sci-Fi Styled Modular Pack) --------------------------------
+        const string Modular = "Assets/Sci-Fi Styled Modular Pack/Prefabs/";
+        const float ShellScale = 0.55f;                 // pack modules are 4 m -> 2.2 m
+        const float ShellModule = 4f * ShellScale;
+        const float ShellBackZ = 1.1f;                  // back wall (door) behind the pilot
+        const float ShellHalfWidth = ShellModule * 0.5f;
+
+        /// <summary>
+        /// Small cockpit room around the pilot seat: door wall behind, decorated side walls (one with a
+        /// computer), floor and ceiling tiles, a ceiling light strip and blue wall lights. Only shown in the
+        /// pilot interior shot (it would poke through the Sparrow hull in exterior shots).
+        /// Returns null if the pack isn't imported.
+        /// </summary>
+        static GameObject BuildCockpitShell(Transform body, UnityEngine.SceneManagement.Scene scene)
+        {
+            if (!AssetDatabase.IsValidFolder("Assets/Sci-Fi Styled Modular Pack")) return null;
+            var shell = new GameObject("CockpitShell").transform;
+            shell.SetParent(body, false);
+
+            float y0 = CockpitFloorTop;
+            float zMid1 = ShellBackZ + ShellModule * 0.5f;   // first module centre
+            float zMid2 = ShellBackZ + ShellModule * 1.5f;   // second module centre
+
+            // Floor + ceiling tiles (pivot at tile centre, base at y=0).
+            foreach (float z in new[] { zMid1, zMid2 })
+            {
+                Piece(shell, scene, "Floors/floor_3.prefab", new Vector3(0, y0 - 0.16f * ShellScale, z), Vector3.zero);
+                Piece(shell, scene, "Floors/floor_2_blank.prefab", new Vector3(0, y0 + ShellModule + 0.08f * ShellScale, z), new Vector3(180, 0, 0));
+            }
+
+            // Back wall: door, facing the pilot.
+            Piece(shell, scene, "Doors/door_2.prefab", new Vector3(0, y0, ShellBackZ), new Vector3(0, 180, 0));
+
+            // Side walls (two modules each), decorated faces inward.
+            Piece(shell, scene, "Walls/decorative_wall_4_computer.prefab", new Vector3(-ShellHalfWidth, y0, zMid1), new Vector3(0, 90, 0));
+            Piece(shell, scene, "Walls/decorative_wall_1.prefab",          new Vector3(-ShellHalfWidth, y0, zMid2), new Vector3(0, 90, 0));
+            Piece(shell, scene, "Walls/decorative_wall_3.prefab",          new Vector3( ShellHalfWidth, y0, zMid1), new Vector3(0, -90, 0));
+            Piece(shell, scene, "Walls/decorative_wall_1.prefab",          new Vector3( ShellHalfWidth, y0, zMid2), new Vector3(0, -90, 0));
+
+            // Lights: ceiling strip + blue wall accents in the back corners.
+            Piece(shell, scene, "Lights/light_celing_1.prefab", new Vector3(0, y0 + ShellModule, zMid1 + 0.3f), Vector3.zero);
+            Piece(shell, scene, "Lights/light_wall_1_blue.prefab", new Vector3(-ShellHalfWidth + 0.1f, y0, ShellBackZ + 0.15f), new Vector3(0, 45, 0));
+            Piece(shell, scene, "Lights/light_wall_1_blue.prefab", new Vector3( ShellHalfWidth - 0.1f, y0, ShellBackZ + 0.15f), new Vector3(0, -45, 0));
+
+            var fillGo = new GameObject("CockpitFill");
+            fillGo.transform.SetParent(shell, false);
+            fillGo.transform.localPosition = new Vector3(0, y0 + ShellModule - 0.4f, zMid1 + 0.6f);
+            var fill = fillGo.AddComponent<Light>();
+            fill.type = LightType.Point;
+            fill.color = new Color(0.55f, 0.75f, 1f);
+            fill.intensity = 1.6f;
+            fill.range = 4.5f;
+            fill.shadows = LightShadows.None;
+
+            foreach (var c in shell.GetComponentsInChildren<Collider>(true)) Object.DestroyImmediate(c);
+            return shell.gameObject;
+        }
+
+        static GameObject Piece(Transform parent, UnityEngine.SceneManagement.Scene scene, string rel, Vector3 localPos, Vector3 localEuler)
+        {
+            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(Modular + rel);
+            if (!prefab) { Debug.LogWarning($"[SpaceRat] Modular piece missing: {rel}"); return null; }
+            var go = (GameObject)PrefabUtility.InstantiatePrefab(prefab, scene);
+            go.transform.SetParent(parent, false);
+            go.transform.localPosition = localPos;
+            go.transform.localRotation = Quaternion.Euler(localEuler);
+            go.transform.localScale = Vector3.one * ShellScale;
+            return go;
         }
 
         static GameObject Primitive(string name, PrimitiveType type, Transform parent, Vector3 localPos,

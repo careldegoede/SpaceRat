@@ -56,6 +56,8 @@ namespace SpaceRat.Scene01
         [SerializeField] GameObject pilotModel;
         [Tooltip("Ship exterior mesh; hidden during interior shots so it doesn't block the cockpit cameras.")]
         [SerializeField] GameObject exteriorModel;
+        [Tooltip("Cockpit room around the seat; only shown in the pilot interior shot.")]
+        [SerializeField] GameObject interiorShell;
         [SerializeField] float cockpitRollRate = 8f;
 
         [Header("Presentation")]
@@ -338,6 +340,8 @@ namespace SpaceRat.Scene01
 
             if (exteriorModel)
                 exteriorModel.SetActive(shot != shotPilot && shot != shotPilotPov);
+            if (interiorShell)
+                interiorShell.SetActive(shot == shotPilot);
         }
     }
 }
