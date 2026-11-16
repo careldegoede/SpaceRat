@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61f06bce5c9f0074bbc487a97ddc96f0, type: 3}
+  m_Name: Flight_Music
+  m_EditorClassIdentifier: SpaceRat.Runtime::SpaceRat.Dialogue.DialogueSequence
+  lines:
+  - speaker: 1
+    text: So... got any music in there?
+    duration: 2.9
+  - speaker: 0
+    text: Audio archives missing.
+    duration: 2
+  - speaker: 1
+    text: Of course they are.
+    duration: 2.3000002
+  - speaker: 0
+    text: I can play the collision alarm.
+    duration: 2.9
+  - speaker: 1
+    text: Please don't.
+    duration: 1.7

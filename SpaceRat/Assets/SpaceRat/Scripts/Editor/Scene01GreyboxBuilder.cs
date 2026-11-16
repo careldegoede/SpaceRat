@@ -24,13 +24,13 @@ namespace SpaceRat.EditorTools
     /// </summary>
     public static class Scene01GreyboxBuilder
     {
-        const string Root = "Assets/SpaceRat";
+        internal const string Root = "Assets/SpaceRat";
         const string ScenePath = Root + "/Scenes/Scene01_Awakening.unity";
-        const string MatDir = Root + "/Art/Greybox";
-        const string SettingsDir = Root + "/Settings";
-        const string DialogueDir = Root + "/ScriptableObjects/Dialogue";
-        const string SkyboxPath = "Assets/SpaceSkies Free/Skybox_2/Green_2K_Resoution.mat"; // (sic) vendor filename typo
-        const string StarPrefabPath = "Assets/Mwester Studios/Simple Space Starter Kit/Prefabs/Planet and Star/Star.prefab";
+        internal const string MatDir = Root + "/Art/Greybox";
+        internal const string SettingsDir = Root + "/Settings";
+        internal const string DialogueDir = Root + "/ScriptableObjects/Dialogue";
+        internal const string SkyboxPath = "Assets/SpaceSkies Free/Skybox_2/Green_2K_Resoution.mat"; // (sic) vendor filename typo
+        internal const string StarPrefabPath = "Assets/Mwester Studios/Simple Space Starter Kit/Prefabs/Planet and Star/Star.prefab";
         const string PilotPrefabPath = Root + "/Prefabs/Characters/" + CharacterViewerBuilder.PilotOutfit + ".prefab";
         static readonly Vector3 PilotHipsOnGreyboxSeat = new(0f, -0.36f, 2.45f); // body-local, just above the greybox cushion
 
@@ -41,13 +41,13 @@ namespace SpaceRat.EditorTools
         const float CockpitFloorTop = -0.80f;                                      // body-local
         static readonly Vector3 PilotSeatPos = new(0f, CockpitFloorTop, 2.58f);    // backrest face lands ~0.12 behind the hips
         static readonly Vector3 PilotHipsOnPilotSeat = new(0f, CockpitFloorTop + 0.74f * PilotSeatScale + 0.11f, 2.45f);
-        const string HeroShipPath = Root + "/Prefabs/Ship/Sparrow_blue_URP.prefab";
-        const string CockpitArtPath = Root + "/Art/UI/Cockpit_Overlay.png";
-        const string NoisePath ="Packages/com.unity.cinemachine/Presets/Noise/Handheld_normal_mild.asset";
+        internal const string HeroShipPath = Root + "/Prefabs/Ship/Sparrow_blue_URP.prefab";
+        internal const string CockpitArtPath = Root + "/Art/UI/Cockpit_Overlay.png";
+        internal const string NoisePath ="Packages/com.unity.cinemachine/Presets/Noise/Handheld_normal_mild.asset";
 
         static readonly Vector3 ShipStart = new(260f, 70f, -2600f);
         static readonly Vector3 ShipAim = new(80f, 20f, 0f);
-        const float SunDiameter = 600f;
+        internal const float SunDiameter = 600f;
 
         [MenuItem("SpaceRat/Build Scene01 Greybox")]
         public static void Build()
@@ -297,7 +297,7 @@ namespace SpaceRat.EditorTools
 
         // ---------------------------------------------------------------------
 
-        static CockpitOverlay BuildCockpitOverlay()
+        internal static CockpitOverlay BuildCockpitOverlay()
         {
             var font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
 
@@ -370,7 +370,7 @@ namespace SpaceRat.EditorTools
             return overlay;
         }
 
-        static Image UiImage(string name, Transform parent, Color color)
+        internal static Image UiImage(string name, Transform parent, Color color)
         {
             var go = new GameObject(name, typeof(RectTransform), typeof(Image));
             var rt = (RectTransform)go.transform;
@@ -384,7 +384,7 @@ namespace SpaceRat.EditorTools
             return img;
         }
 
-        static Text UiText(string name, Transform parent, Font font, int size, TextAnchor anchor, Color color)
+        internal static Text UiText(string name, Transform parent, Font font, int size, TextAnchor anchor, Color color)
         {
             var go = new GameObject(name, typeof(RectTransform), typeof(Text));
             var rt = (RectTransform)go.transform;
@@ -404,7 +404,7 @@ namespace SpaceRat.EditorTools
             return t;
         }
 
-        static CinemachineCamera FollowShot(string name, Transform target, Vector3 offset, float fov,
+        internal static CinemachineCamera FollowShot(string name, Transform target, Vector3 offset, float fov,
             NoiseSettings noise, List<CinemachineBasicMultiChannelPerlin> shakers)
         {
             var go = new GameObject(name);
@@ -426,7 +426,7 @@ namespace SpaceRat.EditorTools
             return cm;
         }
 
-        static CinemachineCamera LocalShot(string name, Transform parent, Vector3 localPos, Vector3 localLookAt,
+        internal static CinemachineCamera LocalShot(string name, Transform parent, Vector3 localPos, Vector3 localLookAt,
             float fov, NoiseSettings noise, List<CinemachineBasicMultiChannelPerlin> shakers)
         {
             var go = new GameObject(name);
@@ -442,7 +442,7 @@ namespace SpaceRat.EditorTools
             return cm;
         }
 
-        static LensSettings Lens(float fov)
+        internal static LensSettings Lens(float fov)
         {
             var lens = LensSettings.Default;
             lens.FieldOfView = fov;
@@ -451,7 +451,7 @@ namespace SpaceRat.EditorTools
             return lens;
         }
 
-        static void AddNoise(GameObject go, NoiseSettings noise, List<CinemachineBasicMultiChannelPerlin> shakers)
+        internal static void AddNoise(GameObject go, NoiseSettings noise, List<CinemachineBasicMultiChannelPerlin> shakers)
         {
             if (!noise) return;
             var perlin = go.AddComponent<CinemachineBasicMultiChannelPerlin>();
@@ -536,7 +536,7 @@ namespace SpaceRat.EditorTools
             return go;
         }
 
-        static GameObject Primitive(string name, PrimitiveType type, Transform parent, Vector3 localPos,
+        internal static GameObject Primitive(string name, PrimitiveType type, Transform parent, Vector3 localPos,
             Vector3 localScale, Material mat, Vector3? localEuler = null)
         {
             var go = GameObject.CreatePrimitive(type);
@@ -550,7 +550,7 @@ namespace SpaceRat.EditorTools
             return go;
         }
 
-        static void SetRefs(Object target, params (string field, Object value)[] refs)
+        internal static void SetRefs(Object target, params (string field, Object value)[] refs)
         {
             var so = new SerializedObject(target);
             foreach (var (field, value) in refs)
@@ -564,7 +564,7 @@ namespace SpaceRat.EditorTools
 
         // ---- Assets -----------------------------------------------------------
 
-        static Dictionary<string, Material> BuildMaterials()
+        internal static Dictionary<string, Material> BuildMaterials()
         {
             var lit = Shader.Find("Universal Render Pipeline/Lit");
             var unlit = Shader.Find("Universal Render Pipeline/Unlit");
@@ -589,14 +589,14 @@ namespace SpaceRat.EditorTools
             return m;
         }
 
-        static Material Unlit(Shader s, Color c)
+        internal static Material Unlit(Shader s, Color c)
         {
             var mat = new Material(s);
             mat.SetColor("_BaseColor", c);
             return mat;
         }
 
-        static Material Lit(Shader s, Color c, float metallic, float smoothness)
+        internal static Material Lit(Shader s, Color c, float metallic, float smoothness)
         {
             var mat = new Material(s);
             mat.SetColor("_BaseColor", c);
@@ -605,7 +605,7 @@ namespace SpaceRat.EditorTools
             return mat;
         }
 
-        static (VolumeProfile global, VolumeProfile wake) BuildProfiles()
+        internal static (VolumeProfile global, VolumeProfile wake) BuildProfiles()
         {
             var global = NewProfile($"{SettingsDir}/Scene01_GlobalVolume.asset");
             var bloom = AddOverride<Bloom>(global);
@@ -639,7 +639,7 @@ namespace SpaceRat.EditorTools
             return (global, wake);
         }
 
-        static VolumeProfile NewProfile(string path)
+        internal static VolumeProfile NewProfile(string path)
         {
             AssetDatabase.DeleteAsset(path);
             var p = ScriptableObject.CreateInstance<VolumeProfile>();
@@ -647,7 +647,7 @@ namespace SpaceRat.EditorTools
             return p;
         }
 
-        static T AddOverride<T>(VolumeProfile profile) where T : VolumeComponent
+        internal static T AddOverride<T>(VolumeProfile profile) where T : VolumeComponent
         {
             var c = profile.Add<T>(false);
             c.hideFlags = HideFlags.HideInInspector | HideFlags.HideInHierarchy;
@@ -700,7 +700,7 @@ namespace SpaceRat.EditorTools
             };
         }
 
-        static DialogueSequence EnsureSequence(string name, params (Speaker s, string text, float dur)[] lines)
+        internal static DialogueSequence EnsureSequence(string name, params (Speaker s, string text, float dur)[] lines)
         {
             string path = $"{DialogueDir}/{name}.asset";
             var seq = AssetDatabase.LoadAssetAtPath<DialogueSequence>(path);
@@ -712,7 +712,7 @@ namespace SpaceRat.EditorTools
             return seq;
         }
 
-        static void EnsureFolder(string path)
+        internal static void EnsureFolder(string path)
         {
             if (AssetDatabase.IsValidFolder(path)) return;
             string parent = Path.GetDirectoryName(path)!.Replace('\\', '/');

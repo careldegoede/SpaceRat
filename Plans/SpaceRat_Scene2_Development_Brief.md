@@ -15,6 +15,9 @@ A direct continuation of Scene 1, after the pilot narrowly avoids the sun. Move 
 - **Cinematics:** keep Scene 1's director pattern (state machine + coroutines); Timeline only for the crash if it helps.
 - **Assets:** planet + atmosphere from Simple Space Starter Kit (Atmosphere/Star shadergraphs); skybox from SpaceSkies Free; ship = **blue Sparrow** (same as Scene 1). Asteroid pack (`Plans/Links.txt`) optional.
 - **Ownership:** Claude builds all of Scene 2; Codex is used separately for UI polish on Claude's recommendations (overrides the Codex section below).
+- **Planet (2026-11-16):** NOT in view at the start — it sits behind-right of the starting heading; the pilot finds it with the radar. Muted teal-green tint (not yellow/orange) via copies of the Starter Kit materials.
+- **Radar:** `Images/Futuristic Neon Radar HUD Interface.png` top-right (black cut out → `Assets/SpaceRat/Art/UI/Radar_HUD.png`). Nose radar: centre = where the nose points, rim = behind. The signal source gets a pulsing **dot** once the scan finds it; distance shows in the radar's side tab. The on-screen diamond only appears when the planet is actually in view.
+- **Build:** SpaceRat > Build Scene02 The Signal. Dev keys: Space skip line, R restart, J jump near the planet.
 - **Scene 3 note:** the pilot wakes after the crash on foot — that's where the full-body first-person humanoid controller comes in.
 
 ## Scene outline

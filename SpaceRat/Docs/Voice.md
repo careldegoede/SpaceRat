@@ -45,7 +45,7 @@ Treat them as starting points; adjust per line.
 
 <!-- BEGIN GENERATED: in-game lines (SpaceRat > Export Voice Script) -->
 
-_Generated from 7 DialogueSequence assets. Do not edit by hand — edit the assets, then re-export._
+_Generated from 18 DialogueSequence assets. Do not edit by hand — edit the assets, then re-export._
 
 ### S01 · Beat1_ExteriorEmergency
 
@@ -111,71 +111,124 @@ _Generated from 7 DialogueSequence assets. Do not edit by hand — edit the asse
 |---|---|---|---|---|
 | `S01_Failure_Impact_01` | Computer | Impact. | deadpan | `S01_Failure_Impact_01_computer.wav` |
 
-**Totals:** Computer 19, Pilot 10
+### S02 · Asteroid
+
+| ID | Speaker | Line | Delivery | File |
+|---|---|---|---|---|
+| `S02_Asteroid_01` | Computer | Minor impact. Please stop hitting rocks. | deadpan | `S02_Asteroid_01_computer.wav` |
+| `S02_Asteroid_02` | Pilot | The rock hit me. | dry | `S02_Asteroid_02_pilot.wav` |
+
+### S02 · Crash
+
+| ID | Speaker | Line | Delivery | File |
+|---|---|---|---|---|
+| `S02_Crash_01` | Computer | Pilot? ... Please respond. | hesitant | `S02_Crash_01_computer.wav` |
+
+### S02 · Flight_Memory
+
+| ID | Speaker | Line | Delivery | File |
+|---|---|---|---|---|
+| `S02_Flight_Memory_01` | Pilot | Any idea what wiped our memories? | dry | `S02_Flight_Memory_01_pilot.wav` |
+| `S02_Flight_Memory_02` | Computer | No. The missing records are remarkably thorough. | deadpan | `S02_Flight_Memory_02_computer.wav` |
+| `S02_Flight_Memory_03` | Pilot | That's not reassuring. | dry | `S02_Flight_Memory_03_pilot.wav` |
+| `S02_Flight_Memory_04` | Computer | It was not intended to be. | deadpan | `S02_Flight_Memory_04_computer.wav` |
+
+### S02 · Flight_Music
+
+| ID | Speaker | Line | Delivery | File |
+|---|---|---|---|---|
+| `S02_Flight_Music_01` | Pilot | So... got any music in there? | hesitant | `S02_Flight_Music_01_pilot.wav` |
+| `S02_Flight_Music_02` | Computer | Audio archives missing. | deadpan | `S02_Flight_Music_02_computer.wav` |
+| `S02_Flight_Music_03` | Pilot | Of course they are. | dry | `S02_Flight_Music_03_pilot.wav` |
+| `S02_Flight_Music_04` | Computer | I can play the collision alarm. | deadpan | `S02_Flight_Music_04_computer.wav` |
+| `S02_Flight_Music_05` | Pilot | Please don't. | dry | `S02_Flight_Music_05_pilot.wav` |
+
+### S02 · Flight_Signal
+
+| ID | Speaker | Line | Delivery | File |
+|---|---|---|---|---|
+| `S02_Flight_Signal_01` | Computer | Signal strength increasing. We are approaching the source. | deadpan | `S02_Flight_Signal_01_computer.wav` |
+| `S02_Flight_Signal_02` | Pilot | Finally, good news. Write that down. Oh wait, you can't. | dry | `S02_Flight_Signal_02_pilot.wav` |
+
+### S02 · Malfunction
+
+| ID | Speaker | Line | Delivery | File |
+|---|---|---|---|---|
+| `S02_Malfunction_01` | Computer | Warning. Uncommanded power fluctuation. | deadpan | `S02_Malfunction_01_computer.wav` |
+| `S02_Malfunction_02` | Pilot | Oh, come ON. | dry | `S02_Malfunction_02_pilot.wav` |
+| `S02_Malfunction_03` | Computer | Flight controls are no longer responding. Engine output unstable. | deadpan | `S02_Malfunction_03_computer.wav` |
+| `S02_Malfunction_04` | Pilot | Give me manual override! | urgent | `S02_Malfunction_04_pilot.wav` |
+| `S02_Malfunction_05` | Computer | Manual override unavailable. | deadpan | `S02_Malfunction_05_computer.wav` |
+| `S02_Malfunction_06` | Pilot | You said we could make it! | urgent | `S02_Malfunction_06_pilot.wav` |
+| `S02_Malfunction_07` | Computer | I said we could attempt to reach the planet. | deadpan | `S02_Malfunction_07_computer.wav` |
+| `S02_Malfunction_08` | Pilot | This is a terrible time to be precise! | urgent | `S02_Malfunction_08_pilot.wav` |
+| `S02_Malfunction_09` | Computer | Atmospheric entry imminent. Brace for impact. | deadpan | `S02_Malfunction_09_computer.wav` |
+| `S02_Malfunction_10` | Pilot | Bracing! Whatever that means! | urgent | `S02_Malfunction_10_pilot.wav` |
+
+### S02 · Nag_Sun
+
+| ID | Speaker | Line | Delivery | File |
+|---|---|---|---|---|
+| `S02_Nag_Sun_01` | Computer | We have already tried the star. I did not enjoy it. | deadpan | `S02_Nag_Sun_01_computer.wav` |
+
+### S02 · Nags
+
+| ID | Speaker | Line | Delivery | File |
+|---|---|---|---|---|
+| `S02_Nags_01` | Computer | The planet is the other way. The large, round one. | deadpan | `S02_Nags_01_computer.wav` |
+| `S02_Nags_02` | Computer | You are drifting off course. Recalculating my opinion of you. | deadpan | `S02_Nags_02_computer.wav` |
+| `S02_Nags_03` | Computer | The glowing marker is the destination. I added it specifically for you. | deadpan | `S02_Nags_03_computer.wav` |
+
+### S02 · Recovery
+
+| ID | Speaker | Line | Delivery | File |
+|---|---|---|---|---|
+| `S02_Recovery_01` | Pilot | Okay. Not on fire. Small wins. | dry | `S02_Recovery_01_pilot.wav` |
+| `S02_Recovery_02` | Computer | Hull temperature returning to survivable levels. | deadpan | `S02_Recovery_02_computer.wav` |
+| `S02_Recovery_03` | Pilot | "Survivable." Love the bar we're setting. | dry | `S02_Recovery_03_pilot.wav` |
+| `S02_Recovery_04` | Pilot | Fine. Forget who I am. Where are we? | dry | `S02_Recovery_04_pilot.wav` |
+| `S02_Recovery_05` | Computer | Current position unknown. Navigation database inaccessible. | deadpan | `S02_Recovery_05_computer.wav` |
+| `S02_Recovery_06` | Pilot | So you don't know who I am, where we are, or why we're here. | dry | `S02_Recovery_06_pilot.wav` |
+| `S02_Recovery_07` | Computer | That is an accurate summary. | deadpan | `S02_Recovery_07_computer.wav` |
+| `S02_Recovery_08` | Pilot | Fantastic. What do you know? | dry | `S02_Recovery_08_pilot.wav` |
+| `S02_Recovery_09` | Computer | We were recently on a collision course with a star. | deadpan | `S02_Recovery_09_computer.wav` |
+| `S02_Recovery_10` | Pilot | Yeah, I was there for that part. | dry | `S02_Recovery_10_pilot.wav` |
+| `S02_Recovery_11` | Computer | I appear to have initialised shortly before the collision warning. My earlier operational history is also missing. | deadpan | `S02_Recovery_11_computer.wav` |
+| `S02_Recovery_12` | Pilot | So we both just woke up. | dry | `S02_Recovery_12_pilot.wav` |
+| `S02_Recovery_13` | Computer | That is a reasonable hypothesis. I cannot verify it. | deadpan | `S02_Recovery_13_computer.wav` |
+| `S02_Recovery_14` | Pilot | Great. Two amnesiacs in a broken spaceship. Sounds like the start of a bad joke. | dry | `S02_Recovery_14_pilot.wav` |
+| `S02_Recovery_15` | Computer | I do not know any jokes. That data is also missing. | deadpan | `S02_Recovery_15_computer.wav` |
+| `S02_Recovery_16` | Pilot | Somehow that's the saddest thing you've said. | dry | `S02_Recovery_16_pilot.wav` |
+
+### S02 · Scan
+
+| ID | Speaker | Line | Delivery | File |
+|---|---|---|---|---|
+| `S02_Scan_01` | Pilot | Scan the area. Anything that helps us not die. | dry | `S02_Scan_01_pilot.wav` |
+| `S02_Scan_02` | Computer | Initiating passive scan. Sensors operating below nominal capacity. | deadpan | `S02_Scan_02_computer.wav` |
+| `S02_Scan_03` | Pilot | Join the club. | dry | `S02_Scan_03_pilot.wav` |
+| `S02_Scan_04` | Computer | ...One signal detected. Extremely weak. Origin: a nearby planetary body. | hesitant | `S02_Scan_04_computer.wav` |
+| `S02_Scan_05` | Pilot | A distress beacon? | dry | `S02_Scan_05_pilot.wav` |
+| `S02_Scan_06` | Computer | Unknown. It may be artificial. It may also be interference. | deadpan | `S02_Scan_06_computer.wav` |
+| `S02_Scan_07` | Pilot | "Maybe help, maybe static." Still better odds than the star. Can we get there? | dry | `S02_Scan_07_pilot.wav` |
+| `S02_Scan_08` | Computer | Warp drive offline. Conventional thrusters available, with limitations. | deadpan | `S02_Scan_08_computer.wav` |
+| `S02_Scan_09` | Pilot | Of course they are. Mark the bearing. | dry | `S02_Scan_09_pilot.wav` |
+| `S02_Scan_10` | Computer | Bearing marked. I recommend avoiding further stellar encounters. | deadpan | `S02_Scan_10_computer.wav` |
+| `S02_Scan_11` | Pilot | Wow. Wish I'd thought of that. | dry | `S02_Scan_11_pilot.wav` |
+
+### S02 · Tutorial
+
+| ID | Speaker | Line | Delivery | File |
+|---|---|---|---|---|
+| `S02_Tutorial_01` | Computer | Thruster overdrive available. Hold Shift. Do not hold it forever. | deadpan | `S02_Tutorial_01_computer.wav` |
+| `S02_Tutorial_02` | Pilot | What happens if I hold it forever? | dry | `S02_Tutorial_02_pilot.wav` |
+| `S02_Tutorial_03` | Computer | It stops. Then you are disappointed. | deadpan | `S02_Tutorial_03_computer.wav` |
+
+**Totals:** Computer 49, Pilot 38
 
 <!-- END GENERATED -->
 
 ## Planned lines (not in game yet)
 
-### Scene 2 — The Signal (from `Plans/SpaceRat_Scene2_Development_Brief.md`)
-
-| ID | Speaker | Line | Delivery |
-|---|---|---|---|
-| `S02_Recovery_01` | Pilot | Okay. Not on fire. Small wins. | dry, relieved |
-| `S02_Recovery_02` | Computer | Hull temperature returning to survivable levels. | deadpan |
-| `S02_Recovery_03` | Pilot | "Survivable." Love the bar we're setting. | dry |
-| `S02_Recovery_04` | Pilot | Fine. Forget who I am. Where are we? | dry |
-| `S02_Recovery_05` | Computer | Current position unknown. Navigation database inaccessible. | deadpan |
-| `S02_Recovery_06` | Pilot | So you don't know who I am, where we are, or why we're here. | incredulous |
-| `S02_Recovery_07` | Computer | That is an accurate summary. | deadpan |
-| `S02_Recovery_08` | Pilot | Fantastic. What *do* you know? | dry |
-| `S02_Recovery_09` | Computer | We were recently on a collision course with a star. | deadpan |
-| `S02_Recovery_10` | Pilot | Yeah, I was there for that part. | dry |
-| `S02_Recovery_11` | Computer | I appear to have initialised shortly before the collision warning. My earlier operational history is also missing. | deadpan |
-| `S02_Recovery_12` | Pilot | So we both just woke up. | flat |
-| `S02_Recovery_13` | Computer | That is a reasonable hypothesis. I cannot verify it. | deadpan |
-| `S02_Recovery_14` | Pilot | Great. Two amnesiacs in a broken spaceship. Sounds like the start of a bad joke. | dry |
-| `S02_Recovery_15` | Computer | I do not know any jokes. That data is also missing. | deadpan |
-| `S02_Recovery_16` | Pilot | Somehow that's the saddest thing you've said. | dry, soft |
-| `S02_Scan_01` | Pilot | Scan the area. Anything that helps us not die. | dry |
-| `S02_Scan_02` | Computer | Initiating passive scan. Sensors operating below nominal capacity. | deadpan |
-| `S02_Scan_03` | Pilot | Join the club. | dry |
-| `S02_Scan_04` | Computer | ...One signal detected. Extremely weak. Origin: a nearby planetary body. | hesitant |
-| `S02_Scan_05` | Pilot | A distress beacon? | hopeful |
-| `S02_Scan_06` | Computer | Unknown. It may be artificial. It may also be interference. | deadpan |
-| `S02_Scan_07` | Pilot | "Maybe help, maybe static." Still better odds than the star. Can we get there? | dry |
-| `S02_Scan_08` | Computer | Warp drive offline. Conventional thrusters available, with limitations. | deadpan |
-| `S02_Scan_09` | Pilot | Of course they are. Mark the bearing. | dry |
-| `S02_Scan_10` | Computer | Bearing marked. I recommend avoiding further stellar encounters. | deadpan |
-| `S02_Scan_11` | Pilot | Wow. Wish I'd thought of that. | sarcastic |
-| `S02_Tutorial_01` | Computer | Thruster overdrive available. Hold Shift. Do not hold it forever. | deadpan |
-| `S02_Tutorial_02` | Pilot | What happens if I hold it forever? | curious |
-| `S02_Tutorial_03` | Computer | It stops. Then you are disappointed. | deadpan |
-| `S02_Flight_01` | Pilot | Any idea what wiped our memories? | serious |
-| `S02_Flight_02` | Computer | No. The missing records are remarkably thorough. | deadpan |
-| `S02_Flight_03` | Pilot | That's not reassuring. | dry |
-| `S02_Flight_04` | Computer | It was not intended to be. | deadpan |
-| `S02_Flight_05` | Pilot | So... got any music in there? | hesitant |
-| `S02_Flight_06` | Computer | Audio archives missing. | deadpan |
-| `S02_Flight_07` | Pilot | Of course they are. | dry |
-| `S02_Flight_08` | Computer | I can play the collision alarm. | deadpan |
-| `S02_Flight_09` | Pilot | Please don't. | quick |
-| `S02_Flight_10` | Computer | Signal strength increasing. We are approaching the source. | deadpan |
-| `S02_Flight_11` | Pilot | Finally, good news. Write that down. Oh wait — you can't. | sarcastic |
-| `S02_Nag_01` | Computer | The planet is the other way. The large, round one. | deadpan |
-| `S02_Nag_02` | Computer | You are drifting off course. Recalculating my opinion of you. | deadpan |
-| `S02_Nag_03` | Computer | The glowing marker is the destination. I added it specifically for you. | deadpan |
-| `S02_Nag_04` | Computer | We have already tried the star. I did not enjoy it. | deadpan |
-| `S02_Asteroid_01` | Computer | Minor impact. Please stop hitting rocks. | deadpan |
-| `S02_Asteroid_02` | Pilot | The rock hit *me*. | indignant |
-| `S02_Malfunction_01` | Computer | Warning. Uncommanded power fluctuation. | urgent |
-| `S02_Malfunction_02` | Pilot | Oh, come ON. | exasperated |
-| `S02_Malfunction_03` | Computer | Flight controls are no longer responding. Engine output unstable. | urgent |
-| `S02_Malfunction_04` | Pilot | Give me manual override! | urgent |
-| `S02_Malfunction_05` | Computer | Manual override unavailable. | deadpan |
-| `S02_Malfunction_06` | Pilot | You said we could make it! | urgent |
-| `S02_Malfunction_07` | Computer | I said we could attempt to reach the planet. | deadpan |
-| `S02_Malfunction_08` | Pilot | This is a terrible time to be precise! | yelling |
-| `S02_Malfunction_09` | Computer | Atmospheric entry imminent. Brace for impact. | urgent |
-| `S02_Malfunction_10` | Pilot | Bracing! Whatever that means! | panicked, funny |
-| `S02_Crash_01` | Computer | Pilot? ... Please respond. | damaged, glitchy, quiet |
+_None right now — Scene 1 and Scene 2 lines are all in the generated section above. Add Scene 3 lines here
+until their DialogueSequence assets exist._

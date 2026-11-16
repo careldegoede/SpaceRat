@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61f06bce5c9f0074bbc487a97ddc96f0, type: 3}
+  m_Name: Malfunction
+  m_EditorClassIdentifier: SpaceRat.Runtime::SpaceRat.Dialogue.DialogueSequence
+  lines:
+  - speaker: 0
+    text: Warning. Uncommanded power fluctuation.
+    duration: 2.3000002
+  - speaker: 1
+    text: Oh, come ON.
+    duration: 2
+  - speaker: 0
+    text: Flight controls are no longer responding. Engine output unstable.
+    duration: 3.8000002
+  - speaker: 1
+    text: Give me manual override!
+    duration: 2.3000002
+  - speaker: 0
+    text: Manual override unavailable.
+    duration: 2
+  - speaker: 1
+    text: You said we could make it!
+    duration: 2.9
+  - speaker: 0
+    text: I said we could attempt to reach the planet.
+    duration: 3.8000002
+  - speaker: 1
+    text: This is a terrible time to be precise!
+    duration: 3.5
+  - speaker: 0
+    text: Atmospheric entry imminent. Brace for impact.
+    duration: 2.9
+  - speaker: 1
+    text: Bracing! Whatever that means!
+    duration: 2.3000002

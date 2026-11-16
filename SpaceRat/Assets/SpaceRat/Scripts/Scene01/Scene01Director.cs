@@ -65,6 +65,9 @@ namespace SpaceRat.Scene01
         [Tooltip("Volume holding the blurred/dark 'eyes closed' look. Weight 1 = eyes closed.")]
         [SerializeField] Volume wakeVolume;
 
+        [Header("Flow")]
+        [SerializeField] string NextScene = "Scene02_TheSignal";
+
         [Header("Timing")]
         [SerializeField] float pauseBetweenLines = 0.4f;
         [Tooltip("Heat level at which the 'heat critical' exchange plays.")]
@@ -215,7 +218,10 @@ namespace SpaceRat.Scene01
             }
             overlay.SetTitle(1f);
             StopCoroutine(cruise);
-            // Scene 2 handoff goes here once Scene02_TheSignal exists.
+
+            // Hand off to Scene 2 (if it's in the build settings).
+            yield return new WaitForSeconds(3f);
+            if (Application.CanStreamedLevelBeLoaded(NextScene)) SceneManager.LoadScene(NextScene);
         }
 
         IEnumerator Cruise()
