@@ -3070,7 +3070,7 @@ MonoBehaviour:
   flashRateMin: 0.8
   flashRateMax: 2.2
   maxShake: 1.6
-  maxVolume: 0.35
+  maxVolume: 0.15
   easeSpeed: 0.5
 --- !u!82 &1973285156
 AudioSource:

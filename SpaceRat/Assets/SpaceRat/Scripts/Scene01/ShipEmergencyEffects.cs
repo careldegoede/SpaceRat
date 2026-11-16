@@ -29,6 +29,9 @@ namespace SpaceRat.Scene01
 
         public float Intensity => _intensity;
 
+        /// <summary>Silences the alarm beep while keeping the light and shake (Scene 2 before the malfunction).</summary>
+        public bool AlarmMuted { get; set; }
+
         public void SetTarget(float value) => _target = Mathf.Clamp01(value);
 
         public void SetImmediate(float value) => _intensity = _target = Mathf.Clamp01(value);
@@ -56,9 +59,10 @@ namespace SpaceRat.Scene01
 
             if (alarmSource)
             {
+                bool audible = !AlarmMuted && _intensity > 0.01f;
                 alarmSource.volume = maxVolume * _intensity;
-                if (_intensity > 0.01f && !alarmSource.isPlaying) alarmSource.Play();
-                else if (_intensity <= 0.01f && alarmSource.isPlaying) alarmSource.Stop();
+                if (audible && !alarmSource.isPlaying) alarmSource.Play();
+                else if (!audible && alarmSource.isPlaying) alarmSource.Stop();
             }
 
             foreach (var s in shakers)

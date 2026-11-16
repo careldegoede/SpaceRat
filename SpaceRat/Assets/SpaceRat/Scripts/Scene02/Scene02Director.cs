@@ -135,8 +135,9 @@ namespace SpaceRat.Scene02
             Show(shotPov);
             overlay.ShowCockpit(true);
             overlay.SetFlash(Color.black, 1f);
+            effects.AlarmMuted = true;          // no beeping until flight control is lost
             effects.SetImmediate(0.45f);
-            effects.SetTarget(0.12f);           // alarms wind down, warning lights stay
+            effects.SetTarget(0.12f);           // warning lights wind down
             flight.SetSpeed(5f);                // barely drifting away from the star
             yield return Fade(Color.black, 1f, 0f, 2.5f);
             yield return PlayLines(recovery);
@@ -170,6 +171,7 @@ namespace SpaceRat.Scene02
             flight.ControlsEnabled = false;
             flight.BoostAvailable = false;
             _autoTurn = 9f; _autoSpeed = 75f;
+            effects.AlarmMuted = false;         // the alarm starts as the controls go
             effects.SetTarget(1f);
             hud.SetStatus("WARNING: POWER FLUCTUATION\nWARP DRIVE: OFFLINE");
             overlay.SetPrompt("FLIGHT CONTROL LOST", 3f, 5f);
