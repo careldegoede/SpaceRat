@@ -7,9 +7,9 @@ using UnityEngine.UI;
 namespace SpaceRat.UI
 {
     /// <summary>
-    /// Main menu: poster on the left, a sci-fi menu panel on the right (PLAY NOW) and a deadpan
-    /// line from the ship's computer. Keyboard (arrows/W/S, Enter/Space, Esc quits), mouse and
-    /// gamepad. Works with any number of buttons; button 0 starts the game, the rest quit.
+    /// Main menu: poster, a sci-fi menu panel (PLAY NOW, CHAPTERS) and a deadpan line from the
+    /// ship's computer. CHAPTERS swaps the panel for a chapter list that loads any scene directly
+    /// (for play-testing). Keyboard (arrows/W/S, Enter/Space, Esc = back / quit), mouse and gamepad.
     /// No EventSystem needed.
     /// All elements are created by TitleScreenBuilder and only driven from here.
     /// </summary>
@@ -17,12 +17,23 @@ namespace SpaceRat.UI
     {
         [SerializeField] RectTransform poster;
         [SerializeField] RectTransform backdrop;
-        [SerializeField] Image[] buttons;
-        [SerializeField] Text[] labels;
+        [System.Serializable]
+        public class MenuButton
+        {
+            public Image image;
+            public Text label;
+            [Tooltip("play, chapters, back, quit, or scene:<SceneName>")]
+            public string action;
+        }
+
+        [SerializeField] GameObject mainPanel;
+        [SerializeField] MenuButton[] mainButtons;
+        [SerializeField] GameObject chaptersPanel;
+        [SerializeField] MenuButton[] chapterButtons;
         [SerializeField] Sprite buttonIdle;
         [SerializeField] Sprite buttonSelected;
         [SerializeField] Text quip;
-        [SerializeField] Text prompt;
+        [SerializeField] Text[] prompts;
         [SerializeField] Image fade;
         [SerializeField] RectTransform starsRoot;
         [SerializeField] Sprite starDot;
@@ -44,7 +55,7 @@ namespace SpaceRat.UI
         int _selected;
         bool _leaving;
         Vector2 _lastMouse;
-        Vector2[] _buttonHome;
+        MenuButton[] _buttons;
         Image[] _stars;
         float[] _starPhase, _starSpeed;
 
@@ -54,9 +65,7 @@ namespace SpaceRat.UI
             Cursor.visible = true;
             if (quip) quip.text = $"COMPUTER:  “{Quips[Random.Range(0, Quips.Length)]}”";
             BuildStars();
-            _buttonHome = new Vector2[buttons.Length];
-            for (int i = 0; i < buttons.Length; i++) _buttonHome[i] = buttons[i].rectTransform.anchoredPosition;
-            Select(0);
+            ShowPanel(false);
             if (Mouse.current != null) _lastMouse = Mouse.current.position.ReadValue();
             StartCoroutine(FadeTo(0f, 1.6f));
         }
@@ -104,16 +113,9 @@ namespace SpaceRat.UI
                     _stars[i].color = c;
                 }
 
-            if (prompt) prompt.color = new Color(Pale.r, Pale.g, Pale.b, 0.45f + 0.35f * Mathf.Sin(t * 2.4f));
-
-            // With several buttons, nudge the selected one left of its home position.
-            if (buttons.Length > 1)
-                for (int i = 0; i < buttons.Length; i++)
-                {
-                    var rt = buttons[i].rectTransform;
-                    var target = _buttonHome[i] + (i == _selected ? new Vector2(-18f, 0f) : Vector2.zero);
-                    rt.anchoredPosition = Vector2.Lerp(rt.anchoredPosition, target, 1f - Mathf.Exp(-Time.deltaTime * 14f));
-                }
+            if (prompts != null)
+                foreach (var pr in prompts)
+                    if (pr) pr.color = new Color(Pale.r, Pale.g, Pale.b, 0.45f + 0.35f * Mathf.Sin(t * 2.4f));
 
             if (_leaving) return;
             HandleInput();
@@ -135,46 +137,77 @@ namespace SpaceRat.UI
                 confirm |= pad.buttonSouth.wasPressedThisFrame || pad.startButton.wasPressedThisFrame;
             }
 
-            if (up) Select((_selected + buttons.Length - 1) % buttons.Length);
-            if (down) Select((_selected + 1) % buttons.Length);
+            int n = _buttons.Length;
+            if (up) Select((_selected + n - 1) % n);
+            if (down) Select((_selected + 1) % n);
 
             if (mouse != null)
             {
                 var pos = mouse.position.ReadValue();
                 int hover = -1;
-                for (int i = 0; i < buttons.Length; i++)
-                    if (RectTransformUtility.RectangleContainsScreenPoint(buttons[i].rectTransform, pos, null)) hover = i;
+                for (int i = 0; i < n; i++)
+                    if (RectTransformUtility.RectangleContainsScreenPoint(_buttons[i].image.rectTransform, pos, null)) hover = i;
                 if (hover >= 0 && (pos - _lastMouse).sqrMagnitude > 1f) Select(hover);
                 if (hover >= 0 && mouse.leftButton.wasPressedThisFrame) { Select(hover); confirm = true; }
                 _lastMouse = pos;
             }
 
+            bool back = (kb != null && kb.escapeKey.wasPressedThisFrame) || (pad != null && pad.buttonEast.wasPressedThisFrame);
             if (confirm) Activate(_selected);
-            else if (kb != null && kb.escapeKey.wasPressedThisFrame) { _leaving = true; StartCoroutine(Leave(Quit, false)); }
+            else if (back && _buttons == chapterButtons) ShowPanel(false);
+            else if (back && kb != null && kb.escapeKey.wasPressedThisFrame) { _leaving = true; StartCoroutine(Leave(Quit, false)); }
+        }
+
+        /// <summary>Main menu or chapter list.</summary>
+        void ShowPanel(bool chapters)
+        {
+            if (mainPanel) mainPanel.SetActive(!chapters);
+            if (chaptersPanel) chaptersPanel.SetActive(chapters);
+            _buttons = chapters ? chapterButtons : mainButtons;
+            Select(0);
         }
 
         void Select(int index)
         {
             _selected = index;
-            for (int i = 0; i < buttons.Length; i++)
+            for (int i = 0; i < _buttons.Length; i++)
             {
                 bool on = i == index;
-                buttons[i].sprite = on ? buttonSelected : buttonIdle;
-                if (i < labels.Length) labels[i].color = on ? Gold : Pale;
+                _buttons[i].image.sprite = on ? buttonSelected : buttonIdle;
+                if (_buttons[i].label) _buttons[i].label.color = on ? Gold : Pale;
             }
         }
 
         /// <summary>Starts the game (same as choosing PLAY NOW).</summary>
         public void PlayNow()
         {
-            if (!_leaving) Activate(0);
+            if (!_leaving) Run("play");
         }
 
-        void Activate(int index)
+        /// <summary>Loads a chapter's scene by name (same as picking it in CHAPTERS).</summary>
+        public void PlayChapter(string sceneName)
         {
-            _leaving = true;
-            if (index == 0) StartCoroutine(Leave(() => SceneManager.LoadScene(firstScene)));
-            else StartCoroutine(Leave(Quit));
+            if (!_leaving) Run("scene:" + sceneName);
+        }
+
+        void Activate(int index) => Run(_buttons[index].action);
+
+        void Run(string action)
+        {
+            switch (action)
+            {
+                case "chapters": ShowPanel(true); return;
+                case "back": ShowPanel(false); return;
+                case "quit": _leaving = true; StartCoroutine(Leave(Quit)); return;
+                case "play": _leaving = true; StartCoroutine(Leave(() => SceneManager.LoadScene(firstScene))); return;
+            }
+            if (action != null && action.StartsWith("scene:"))
+            {
+                string scene = action.Substring(6);
+                if (!Application.CanStreamedLevelBeLoaded(scene)) { Debug.LogWarning($"[SpaceRat] Chapter scene not in build: {scene}"); return; }
+                _leaving = true;
+                StartCoroutine(Leave(() => SceneManager.LoadScene(scene)));
+            }
         }
 
         static void Quit()
@@ -189,8 +222,8 @@ namespace SpaceRat.UI
         IEnumerator Leave(System.Action then, bool flash = true)
         {
             // Quick gold flash on the chosen button, then fade to black.
-            var label = labels[_selected];
-            for (int i = 0; flash && i < 3; i++)
+            var label = _buttons[_selected].label;
+            for (int i = 0; flash && label && i < 3; i++)
             {
                 label.color = Color.white; yield return new WaitForSeconds(0.06f);
                 label.color = Gold; yield return new WaitForSeconds(0.06f);

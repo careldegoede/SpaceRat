@@ -65,33 +65,34 @@ namespace SpaceRat.EditorTools
             prt.sizeDelta = new Vector2(pw, ph);
             prt.anchoredPosition = new Vector2(-110f, 0f);
 
-            // ---- Menu panel (compact, bottom-right corner) --------------------------------
-            var panel = Img("MenuPanel", root, null, new Color(0.02f, 0.04f, 0.09f, 0.55f));
-            var mrt = panel.rectTransform;
-            mrt.anchorMin = mrt.anchorMax = mrt.pivot = new Vector2(1f, 0f);
-            mrt.sizeDelta = new Vector2(500f, 300f);
-            mrt.anchoredPosition = new Vector2(-48f, 72f);
-            CornerBrackets(mrt, 26f, 3f, new Color(Cyan.r, Cyan.g, Cyan.b, 0.7f));
-
-            var header = Txt("Header", mrt, "SPARROW  //  FLIGHT SYSTEMS", "Orbitron", 19, new Color(0.75f, 0.88f, 1f), TextAnchor.MiddleLeft);
-            Place(header.rectTransform, new Vector2(34f, -22f), new Vector2(432f, 30f));
-            var rule = Img("HeaderRule", mrt, null, new Color(Gold.r, Gold.g, Gold.b, 0.85f));
-            Place(rule.rectTransform, new Vector2(34f, -54f), new Vector2(432f, 2f));
-
-            var button = Img("PlayNow", mrt, Spr("ButtonSelected"), Color.white);
-            button.type = Image.Type.Sliced;
-            button.raycastTarget = false;
-            Place(button.rectTransform, new Vector2(40f, -72f), new Vector2(420f, 92f));
-            var label = Txt("Label", button.rectTransform, "PLAY NOW", "Orbitron", 36, Gold, TextAnchor.MiddleCenter);
-            Stretch(label.rectTransform, 0f);
-            label.fontStyle = FontStyle.Bold;
-
-            var prompt = Txt("Prompt", mrt, "PRESS ENTER", "Rajdhani-SemiBold", 21, Color.white, TextAnchor.MiddleCenter);
-            Place(prompt.rectTransform, new Vector2(40f, -170f), new Vector2(420f, 26f));
-
-            var quip = Txt("Quip", mrt, "", "Rajdhani-Medium", 22, Cyan, TextAnchor.UpperLeft);
-            Place(quip.rectTransform, new Vector2(34f, -210f), new Vector2(432f, 76f));
+            // ---- Menu panels (compact, bottom-right corner): main + chapter select ---------------
+            var mainPanel = MenuPanel(root, "MenuPanel", "SPARROW  //  FLIGHT SYSTEMS");
+            var play = MenuButton(mainPanel, "PlayNow", "PLAY NOW", new Vector2(40f, -72f), new Vector2(420f, 88f), 36);
+            var chaptersBtn = MenuButton(mainPanel, "Chapters", "CHAPTERS", new Vector2(70f, -172f), new Vector2(360f, 62f), 26);
+            var prompt = Txt("Prompt", mainPanel, "PRESS ENTER", "Rajdhani-SemiBold", 21, Color.white, TextAnchor.MiddleCenter);
+            Place(prompt.rectTransform, new Vector2(40f, -246f), new Vector2(420f, 26f));
+            var quip = Txt("Quip", mainPanel, "", "Rajdhani-Medium", 22, Cyan, TextAnchor.UpperLeft);
+            Place(quip.rectTransform, new Vector2(34f, -284f), new Vector2(432f, 76f));
             quip.horizontalOverflow = HorizontalWrapMode.Wrap;
+
+            var chapterPanel = MenuPanel(root, "ChaptersPanel", "CHAPTER SELECT");
+            var chapters = new (string label, string scene)[]
+            {
+                ("1  ·  AWAKENING", "Scene01_Awakening"),
+                ("2  ·  THE SIGNAL", "Scene02_TheSignal"),
+                ("3  ·  THE CRASH SITE", "Scene03_Terrain"),
+            };
+            var chapterButtons = new List<(Image, Text, string)>();
+            for (int i = 0; i < chapters.Length; i++)
+            {
+                var (img, txt) = MenuButton(chapterPanel, "Chapter" + (i + 1), chapters[i].label, new Vector2(40f, -70f - i * 62f), new Vector2(420f, 56f), 24);
+                chapterButtons.Add((img, txt, "scene:" + chapters[i].scene));
+            }
+            var backBtn = MenuButton(chapterPanel, "Back", "BACK", new Vector2(100f, -268f), new Vector2(300f, 50f), 22);
+            chapterButtons.Add((backBtn.img, backBtn.txt, "back"));
+            var chapterPrompt = Txt("Prompt", chapterPanel, "ENTER  PLAY   ·   ESC  BACK", "Rajdhani-SemiBold", 20, Color.white, TextAnchor.MiddleCenter);
+            Place(chapterPrompt.rectTransform, new Vector2(40f, -334f), new Vector2(420f, 26f));
+            chapterPanel.gameObject.SetActive(false);
 
             var version = Txt("Version", root, "PROTOTYPE  ·  ESC TO QUIT", "Rajdhani-Medium", 20, new Color(0.55f, 0.62f, 0.75f, 0.8f), TextAnchor.LowerRight);
             var vrt = version.rectTransform;
@@ -106,12 +107,21 @@ namespace SpaceRat.EditorTools
             var so = new SerializedObject(title);
             so.FindProperty("poster").objectReferenceValue = prt;
             so.FindProperty("backdrop").objectReferenceValue = backdrop.rectTransform;
-            var b = so.FindProperty("buttons"); b.arraySize = 1; b.GetArrayElementAtIndex(0).objectReferenceValue = button;
-            var l = so.FindProperty("labels"); l.arraySize = 1; l.GetArrayElementAtIndex(0).objectReferenceValue = label;
+            so.FindProperty("mainPanel").objectReferenceValue = mainPanel.gameObject;
+            so.FindProperty("chaptersPanel").objectReferenceValue = chapterPanel.gameObject;
+            SetButtons(so.FindProperty("mainButtons"), new List<(Image, Text, string)>
+            {
+                (play.img, play.txt, "play"),
+                (chaptersBtn.img, chaptersBtn.txt, "chapters"),
+            });
+            SetButtons(so.FindProperty("chapterButtons"), chapterButtons);
+            var pr = so.FindProperty("prompts");
+            pr.arraySize = 2;
+            pr.GetArrayElementAtIndex(0).objectReferenceValue = prompt;
+            pr.GetArrayElementAtIndex(1).objectReferenceValue = chapterPrompt;
             so.FindProperty("buttonIdle").objectReferenceValue = Spr("ButtonIdle");
             so.FindProperty("buttonSelected").objectReferenceValue = Spr("ButtonSelected");
             so.FindProperty("quip").objectReferenceValue = quip;
-            so.FindProperty("prompt").objectReferenceValue = prompt;
             so.FindProperty("fade").objectReferenceValue = fade;
             so.FindProperty("starsRoot").objectReferenceValue = stars;
             so.FindProperty("starDot").objectReferenceValue = Spr("StarDot");
@@ -161,6 +171,44 @@ namespace SpaceRat.EditorTools
         }
 
         // ---- UI helpers -----------------------------------------------------------------
+
+        static RectTransform MenuPanel(RectTransform root, string name, string title)
+        {
+            var panel = Img(name, root, null, new Color(0.02f, 0.04f, 0.09f, 0.55f));
+            var rt = panel.rectTransform;
+            rt.anchorMin = rt.anchorMax = rt.pivot = new Vector2(1f, 0f);
+            rt.sizeDelta = new Vector2(500f, 380f);
+            rt.anchoredPosition = new Vector2(-48f, 72f);
+            CornerBrackets(rt, 26f, 3f, new Color(Cyan.r, Cyan.g, Cyan.b, 0.7f));
+            var header = Txt("Header", rt, title, "Orbitron", 19, new Color(0.75f, 0.88f, 1f), TextAnchor.MiddleLeft);
+            Place(header.rectTransform, new Vector2(34f, -22f), new Vector2(432f, 30f));
+            var rule = Img("HeaderRule", rt, null, new Color(Gold.r, Gold.g, Gold.b, 0.85f));
+            Place(rule.rectTransform, new Vector2(34f, -54f), new Vector2(432f, 2f));
+            return rt;
+        }
+
+        static (Image img, Text txt) MenuButton(RectTransform parent, string name, string text, Vector2 topLeft, Vector2 size, int fontSize)
+        {
+            var img = Img(name, parent, Spr("ButtonIdle"), Color.white);
+            img.type = Image.Type.Sliced;
+            Place(img.rectTransform, topLeft, size);
+            var label = Txt("Label", img.rectTransform, text, "Orbitron", fontSize, Gold, TextAnchor.MiddleCenter);
+            Stretch(label.rectTransform, 0f);
+            label.fontStyle = FontStyle.Bold;
+            return (img, label);
+        }
+
+        static void SetButtons(SerializedProperty list, List<(Image img, Text txt, string action)> items)
+        {
+            list.arraySize = items.Count;
+            for (int i = 0; i < items.Count; i++)
+            {
+                var e = list.GetArrayElementAtIndex(i);
+                e.FindPropertyRelative("image").objectReferenceValue = items[i].img;
+                e.FindPropertyRelative("label").objectReferenceValue = items[i].txt;
+                e.FindPropertyRelative("action").stringValue = items[i].action;
+            }
+        }
 
         static Sprite Spr(string name) => AssetDatabase.LoadAssetAtPath<Sprite>(Art + name + ".png");
 
