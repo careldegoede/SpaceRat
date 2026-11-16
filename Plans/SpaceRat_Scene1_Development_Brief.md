@@ -193,16 +193,20 @@ Place downloaded image files into these paths, with descriptive filenames:
 6. **Polish:** artwork, lighting, sound, transitions and tuning.
 
 ## Acceptance checklist
-- [ ] Project compiles cleanly with Unity AI integration intact where feasible.
-- [ ] Existing compatible Asset Store assets reused where appropriate.
-- [ ] Opening camera clearly shows ship spiraling toward a sun.
-- [ ] Computer alarms and wake-up attempts occur in order.
-- [ ] Pilot appears confused and does not know their identity.
-- [ ] Dialogue panel swaps computer/pilot portraits and text correctly.
-- [ ] Manual takeover is explicit and transition is smooth.
-- [ ] Player can steer to safety using documented controls.
-- [ ] Success, failure and retry work reliably.
-- [ ] Scene can be run from a fresh editor launch without hidden setup.
+**Status (2026-11-16): Scene 1 signed off by the user as done.**
+
+- [x] Project compiles cleanly with Unity AI integration intact (embedded URP Core CLI asmdef fix).
+- [x] Existing compatible Asset Store assets reused (blue Sparrow, Starter Kit star, SpaceSkies Green, Adventure Character Man_03, modular pilot seat + cockpit room, Mixamo Sitting Idle).
+- [x] Opening camera clearly shows ship spiraling toward a sun.
+- [x] Computer alarms and wake-up attempts occur in order.
+- [x] Pilot appears confused and does not know their identity (sarcastic tone).
+- [ ] Dialogue panel swaps computer/pilot portraits and text correctly — **partial**: greybox subtitles show speaker name + colour; portrait panel (computer/pilot art) still to do (Codex UI polish).
+- [x] Manual takeover is explicit and transition is smooth (TAKE MANUAL CONTROL prompt, cockpit overlay, levelled roll).
+- [x] Player can steer to safety using documented controls (W/S pitch, A/D yaw).
+- [x] Success, failure and retry work reliably (escape → title; crash → "Impact." → restart).
+- [~] Scene can be run from a fresh editor launch without hidden setup — **with documented setup**: Asset Store packs + Mixamo files are git-ignored; restore steps in `SpaceRat/Docs/AssetInventory.md`, then SpaceRat menu converters + Build Scene01.
+
+**Open items carried forward:** portrait dialogue panel; real voice audio from `SpaceRat/Docs/Voice.md`; Scene 1 → Scene 2 handoff once `Scene02_TheSignal` exists.
 
 ## Reference
 Use the generated **Space Rat Scene 1 cockpit mockup** from the conversation as a *visual direction reference*. The user will download that image separately and supply it to Codex. Do not treat the mockup's text or controls as a binding implementation specification.
