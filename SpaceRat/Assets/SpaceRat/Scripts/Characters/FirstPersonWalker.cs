@@ -21,6 +21,12 @@ namespace SpaceRat.Characters
         [SerializeField] float acceleration = 12f;
         [SerializeField] float gravity = -18f;
 
+        [Header("Water")]
+        [Tooltip("Optional: with a terrain set, the pilot can wade only this deep below the water level.")]
+        [SerializeField] Terrain terrain;
+        [SerializeField] float waterLevel = 0f;
+        [SerializeField] float maxWadeDepth = 0.4f;
+
         [Header("Look")]
         [SerializeField] float mouseSensitivity = 0.12f;
         [SerializeField] Vector2 pitchLimits = new(-75f, 80f);
@@ -96,6 +102,13 @@ namespace SpaceRat.Characters
             float speed = running ? runSpeed : walkSpeed;
             Vector3 wish = (transform.forward * input.y + transform.right * input.x) * speed;
             Vector3 horizontal = Vector3.MoveTowards(new Vector3(_velocity.x, 0f, _velocity.z), wish, acceleration * dt);
+            if (terrain && horizontal.sqrMagnitude > 0f)
+            {
+                // Don't walk into the sea: block moves whose ground is deeper than wading depth.
+                Vector3 next = transform.position + horizontal * Mathf.Max(dt, 0.1f);
+                float ground = terrain.SampleHeight(next) + terrain.transform.position.y;
+                if (ground < waterLevel - maxWadeDepth) horizontal = Vector3.zero;
+            }
             _velocity = new Vector3(horizontal.x, _cc.isGrounded ? -2f : _velocity.y + gravity * dt, horizontal.z);
             _cc.Move(_velocity * dt);
 

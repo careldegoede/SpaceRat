@@ -242,7 +242,7 @@ namespace SpaceRat.EditorTools
             cc.stepOffset = 0.45f;
             cc.slopeLimit = 50f;
             var walker = pilot.AddComponent<SpaceRat.Characters.FirstPersonWalker>();
-            B.SetRefs(walker, ("cam", cam), ("animator", anim));
+            B.SetRefs(walker, ("cam", cam), ("animator", anim), ("terrain", Object.FindAnyObjectByType<Terrain>()));
             return pilot;
         }
 
@@ -293,13 +293,20 @@ namespace SpaceRat.EditorTools
             var mat = AssetDatabase.LoadAssetAtPath<Material>(matPath);
             if (!mat) { mat = new Material(shader); AssetDatabase.CreateAsset(mat, matPath); }
             mat.shader = shader;
-            mat.SetColor("_BaseColor", new Color(0.10f, 0.42f, 0.40f, 0.50f));   // teal-green shallows
-            mat.SetColor("_DeepColor", new Color(0.02f, 0.10f, 0.13f, 0.80f));
-            mat.SetColor("_ReflectionColor", new Color(0.65f, 0.75f, 0.85f, 0.25f)); // soft, cool reflections
-            mat.SetFloat("_DepthMax", 14f);
-            mat.SetFloat("_RippleScale", 0.25f);                                 // broad swells, not corduroy
-            mat.SetFloat("_RippleStrength", 0.3f);
-            mat.SetFloat("_Opacity", 0.9f);
+            // "Dark glossy" look picked in play: teal shallows, deep blue-black, violet dusk reflections.
+            mat.SetColor("_BaseColor", new Color(0.08f, 0.38f, 0.42f, 0.45f));
+            mat.SetColor("_DeepColor", new Color(0.01f, 0.07f, 0.11f, 0.92f));
+            mat.SetColor("_ReflectionColor", new Color(0.85f, 0.75f, 1f, 0.7f));
+            mat.SetFloat("_FresnelPower", 2.2f);
+            mat.SetFloat("_Shininess", 300f);
+            mat.SetFloat("_ShoreDepth", 3f);
+            mat.SetFloat("_EdgeFoamIntensity", 0.25f);
+            mat.SetFloat("_FoamIntensity", 0.4f);
+            mat.SetFloat("_RippleScale", 1.4f);
+            mat.SetFloat("_RippleStrength", 0.45f);
+            mat.SetFloat("_GerstnerIntensity", 0f);   // vertex waves need a much finer grid; ripples carry the motion
+            mat.SetFloat("_Opacity", 0.88f);
+            mat.SetFloat("_DepthMax", 8f);
             EditorUtility.SetDirty(mat);
 
             // Grid mesh so the Gerstner waves have vertices to move (16 km square, 100 m cells).
@@ -366,7 +373,7 @@ namespace SpaceRat.EditorTools
                 if (!mat) { mat = new Material(terrainShader); AssetDatabase.CreateAsset(mat, mp); }
                 terrain.materialTemplate = mat;
             }
-            terrain.heightmapPixelError = 4f;
+            terrain.heightmapPixelError = 1f;   // flat beaches: coarser LOD dips below sea level and the water shows through
             return terrain;
         }
 
@@ -430,7 +437,11 @@ namespace SpaceRat.EditorTools
                 f *= 1f - bay;
 
                 float seabed = SeaH - 0.14f + 0.04f * n;                                        // ~-36 m
-                h[zi, xi] = Mathf.Clamp01(Mathf.Lerp(seabed, land, f));
+                float hh = Mathf.Lerp(seabed, land, f);
+                // Shelve steeply below the waterline: no wide ankle-deep flats (they show terrain LOD seams
+                // through the water and look like a slab).
+                if (hh < SeaH) hh = Mathf.Max(seabed, SeaH - (SeaH - hh) * 4f);
+                h[zi, xi] = Mathf.Clamp01(hh);
             }
             return h;
         }
