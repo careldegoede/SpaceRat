@@ -50,7 +50,7 @@ namespace SpaceRat.EditorTools
             // ---- Dusk sky, sun, fog ------------------------------------------------------
             RenderSettings.skybox = DuskSky();
             RenderSettings.ambientMode = AmbientMode.Skybox;
-            RenderSettings.ambientIntensity = 1.0f;
+            RenderSettings.ambientIntensity = 1.4f;
             RenderSettings.fog = true;
             RenderSettings.fogMode = FogMode.Linear;
             RenderSettings.fogColor = new Color(0.36f, 0.30f, 0.33f);
@@ -62,7 +62,7 @@ namespace SpaceRat.EditorTools
             sun.color = new Color(1f, 0.6f, 0.38f);
             sun.intensity = 1.7f;
             sun.shadows = LightShadows.Soft;
-            sun.transform.rotation = Quaternion.Euler(13f, 75f, 0f);    // low, from the west
+            sun.transform.rotation = Quaternion.Euler(19f, 75f, 0f);    // low, from the west
             RenderSettings.sun = sun;
 
             // ---- Island + ocean ------------------------------------------------------------
@@ -75,17 +75,10 @@ namespace SpaceRat.EditorTools
             var crashSite = new GameObject("CrashSite");
             crashSite.transform.position = Ground(terrain, CraterXZ);
 
-            // ---- Player cube + chase camera ----------------------------------------------------
-            var cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            cube.name = "PlayerCube";
-            Object.DestroyImmediate(cube.GetComponent<Collider>());
-            cube.GetComponent<Renderer>().sharedMaterial = CubeMaterial();
-            Vector2 startXZ = CraterXZ + new Vector2(70f, 70f);            // on the crater rim, facing the ridge
-            var start = Ground(terrain, startXZ) + Vector3.up * 20f;
-            cube.transform.SetPositionAndRotation(start, Quaternion.Euler(0f, 45f, 0f));
-            var fly = cube.AddComponent<FlyController>();
-            B.SetRefs(fly, ("terrain", terrain));
+            // ---- Crashed Sparrow in the crater ------------------------------------------------
+            BuildCrashedShip(terrain, scene);
 
+            // ---- Pilot on foot (full-body first person) ------------------------------------------
             var camGo = new GameObject("Main Camera") { tag = "MainCamera" };
             var cam = camGo.AddComponent<Camera>();
             cam.clearFlags = CameraClearFlags.Skybox;
@@ -94,22 +87,22 @@ namespace SpaceRat.EditorTools
             var urp = cam.GetUniversalAdditionalCameraData();
             urp.renderPostProcessing = true;
             urp.antialiasing = AntialiasingMode.SubpixelMorphologicalAntiAliasing;
-            camGo.AddComponent<CinemachineBrain>();
 
-            var chase = new GameObject("CM_Chase").AddComponent<CinemachineCamera>();
-            chase.Target.TrackingTarget = cube.transform;
-            var lens = LensSettings.Default;
-            lens.FieldOfView = 60f;
-            lens.NearClipPlane = 0.1f;
-            lens.FarClipPlane = 9000f;
-            chase.Lens = lens;
-            var follow = chase.gameObject.AddComponent<CinemachineFollow>();
-            follow.FollowOffset = new Vector3(0f, 3.5f, -10f);
-            var ts = follow.TrackerSettings;
-            ts.BindingMode = BindingMode.LockToTargetWithWorldUp;
-            ts.PositionDamping = new Vector3(0.4f, 0.4f, 0.4f);
-            follow.TrackerSettings = ts;
-            chase.gameObject.AddComponent<CinemachineRotationComposer>().TargetOffset = new Vector3(0f, 1f, 4f);
+            // Stand beside the wreck (south-east side), facing north-east toward the ridge.
+            Vector2 standXZ = CraterXZ + new Vector2(8.5f, -5.5f);
+            var pilot = BuildPilot(scene, cam, Ground(terrain, standXZ), 45f);
+            if (!pilot)
+            {
+                // Fallback: the fly cube, if the character pack isn't available.
+                var cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                cube.name = "PlayerCube";
+                Object.DestroyImmediate(cube.GetComponent<Collider>());
+                cube.GetComponent<Renderer>().sharedMaterial = CubeMaterial();
+                cube.transform.SetPositionAndRotation(Ground(terrain, standXZ) + Vector3.up * 20f, Quaternion.Euler(0f, 45f, 0f));
+                B.SetRefs(cube.AddComponent<FlyController>(), ("terrain", terrain));
+                cam.transform.SetParent(cube.transform, false);
+                cam.transform.localPosition = new Vector3(0f, 3.5f, -10f);
+            }
 
             var profile = AssetDatabase.LoadAssetAtPath<VolumeProfile>(B.SettingsDir + "/Scene01_GlobalVolume.asset");
             if (profile)
@@ -133,6 +126,124 @@ namespace SpaceRat.EditorTools
             var p = new Vector3(xz.x, 0f, xz.y);
             p.y = t.SampleHeight(p) + t.transform.position.y;
             return p;
+        }
+
+        // ---- Crashed ship ------------------------------------------------------------------------
+
+        static GameObject BuildCrashedShip(Terrain terrain, UnityEngine.SceneManagement.Scene scene)
+        {
+            var root = new GameObject("CrashedShip");
+            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(B.HeroShipPath);
+            GameObject hull;
+            if (prefab)
+            {
+                hull = (GameObject)PrefabUtility.InstantiatePrefab(prefab, scene);
+                hull.name = "Sparrow_Wreck";
+            }
+            else
+            {
+                hull = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+                hull.transform.localScale = new Vector3(3.6f, 6f, 3.2f);
+            }
+            hull.transform.SetParent(root.transform, false);
+            // Nose dug in, rolled onto one wing, sunk into the crater floor.
+            hull.transform.localRotation = Quaternion.Euler(16f, 0f, -14f);
+            // Pivot is at the hull centre (~3 m above its belly): lift it so only the nose and one wing dig in.
+            root.transform.SetPositionAndRotation(Ground(terrain, CraterXZ) + Vector3.up * 2.2f, Quaternion.Euler(0f, 205f, 0f));
+
+            // Simple collider so the pilot cannot walk through the wreck.
+            foreach (var c in hull.GetComponentsInChildren<Collider>()) Object.DestroyImmediate(c);
+            var bounds = new Bounds(hull.transform.position, Vector3.zero);
+            foreach (var r in hull.GetComponentsInChildren<Renderer>()) bounds.Encapsulate(r.bounds);
+            var box = root.AddComponent<BoxCollider>();
+            box.center = root.transform.InverseTransformPoint(bounds.center);
+            box.size = new Vector3(9f, 3.2f, 11f);
+
+            // Smoke plume from the engines.
+            var smoke = new GameObject("Smoke");
+            smoke.transform.SetParent(root.transform, false);
+            smoke.transform.localPosition = new Vector3(0f, 2.5f, -4f);
+            smoke.transform.localRotation = Quaternion.Euler(-90f, 0f, 0f);
+            var ps = smoke.AddComponent<ParticleSystem>();
+            var main = ps.main;
+            main.startLifetime = 9f;
+            main.startSpeed = 2.2f;
+            main.startSize = new ParticleSystem.MinMaxCurve(3f, 6f);
+            main.startColor = new Color(0.22f, 0.21f, 0.22f, 0.55f);
+            main.simulationSpace = ParticleSystemSimulationSpace.World;
+            main.maxParticles = 300;
+            main.prewarm = true;
+            var em = ps.emission;
+            em.rateOverTime = 9f;
+            var shape = ps.shape;
+            shape.shapeType = ParticleSystemShapeType.Cone;
+            shape.angle = 12f;
+            shape.radius = 1.2f;
+            var size = ps.sizeOverLifetime;
+            size.enabled = true;
+            size.size = new ParticleSystem.MinMaxCurve(1f, AnimationCurve.Linear(0, 0.6f, 1, 3f));
+            var col = ps.colorOverLifetime;
+            col.enabled = true;
+            var g = new Gradient();
+            g.SetKeys(new[] { new GradientColorKey(new Color(0.3f, 0.28f, 0.28f), 0f), new GradientColorKey(new Color(0.45f, 0.42f, 0.44f), 1f) },
+                      new[] { new GradientAlphaKey(0f, 0f), new GradientAlphaKey(0.55f, 0.15f), new GradientAlphaKey(0f, 1f) });
+            col.color = g;
+            var vel = ps.velocityOverLifetime;
+            vel.enabled = true;
+            vel.space = ParticleSystemSimulationSpace.World;
+            vel.x = new ParticleSystem.MinMaxCurve(1.2f);
+            vel.y = new ParticleSystem.MinMaxCurve(0f);
+            vel.z = new ParticleSystem.MinMaxCurve(0f);
+            smoke.GetComponent<ParticleSystemRenderer>().sharedMaterial = SmokeMaterial();
+            return root;
+        }
+
+        static Material SmokeMaterial()
+        {
+            string path = TerrainDir + "/M_Smoke.mat";
+            var mat = AssetDatabase.LoadAssetAtPath<Material>(path);
+            var shader = Shader.Find("Universal Render Pipeline/Particles/Unlit");
+            if (!mat) { mat = new Material(shader); AssetDatabase.CreateAsset(mat, path); }
+            mat.shader = shader;
+            mat.SetTexture("_BaseMap", AssetDatabase.GetBuiltinExtraResource<Texture2D>("Default-Particle.psd"));
+            mat.SetColor("_BaseColor", Color.white);
+            mat.SetFloat("_Surface", 1f);
+            mat.SetFloat("_Blend", 0f);
+            mat.SetFloat("_SrcBlend", (float)BlendMode.SrcAlpha);
+            mat.SetFloat("_DstBlend", (float)BlendMode.OneMinusSrcAlpha);
+            mat.SetFloat("_ZWrite", 0f);
+            mat.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+            mat.renderQueue = (int)RenderQueue.Transparent;
+            EditorUtility.SetDirty(mat);
+            return mat;
+        }
+
+        // ---- Pilot ------------------------------------------------------------------------------
+
+        static GameObject BuildPilot(UnityEngine.SceneManagement.Scene scene, Camera cam, Vector3 groundPos, float yaw)
+        {
+            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>($"{B.Root}/Prefabs/Characters/{CharacterViewerBuilder.PilotOutfit}.prefab");
+            if (!prefab) return null;
+            var pilot = (GameObject)PrefabUtility.InstantiatePrefab(prefab, scene);
+            pilot.name = "Pilot_FPS";
+            pilot.transform.SetPositionAndRotation(groundPos + Vector3.up * 0.05f, Quaternion.Euler(0f, yaw, 0f));
+            var anim = pilot.GetComponentInChildren<Animator>();
+            var controller = AssetDatabase.IsValidFolder("Assets/Kevin Iglesias") ? CharacterAnimatorBuilder.Build() : null;
+            if (anim)
+            {
+                anim.runtimeAnimatorController = controller;
+                anim.applyRootMotion = false;
+                anim.cullingMode = AnimatorCullingMode.AlwaysAnimate;
+            }
+            var cc = pilot.AddComponent<CharacterController>();
+            cc.height = 1.9f;
+            cc.radius = 0.32f;
+            cc.center = new Vector3(0f, 0.95f, 0f);
+            cc.stepOffset = 0.45f;
+            cc.slopeLimit = 50f;
+            var walker = pilot.AddComponent<SpaceRat.Characters.FirstPersonWalker>();
+            B.SetRefs(walker, ("cam", cam), ("animator", anim));
+            return pilot;
         }
 
         // ---- Sky / materials ------------------------------------------------------------------
@@ -298,7 +409,7 @@ namespace SpaceRat.EditorTools
                 float dc = Vector2.Distance(p, CraterXZ);
                 float bowl = Mathf.Clamp01(1f - dc / CraterRadius);
                 float rim = Mathf.Exp(-Mathf.Pow((dc - CraterRadius - 5f) / 22f, 2f));
-                land = land - bowl * bowl * 0.09f + rim * 0.05f;
+                land = land - bowl * bowl * 0.06f + rim * 0.04f;
                 land = Mathf.Max(land, SeaH + 0.015f + (1f - bowl) * 0.0f);
 
                 // Outpost pad: flatten to the local height, blend out.
