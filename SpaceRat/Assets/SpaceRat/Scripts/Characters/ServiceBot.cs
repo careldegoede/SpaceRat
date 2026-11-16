@@ -20,6 +20,8 @@ namespace SpaceRat.Characters
         [SerializeField] float catchUpSpeed = 8f;
         [SerializeField] float turnSpeed = 360f;
         [SerializeField] float hoverHeight = 0f;
+        [Tooltip("Personal space: never closer than this to the pilot (slides around him instead of through him).")]
+        [SerializeField] float keepAway = 2f;
 
         public bool Active { get; private set; }
         public bool Following { get; set; }
@@ -57,7 +59,7 @@ namespace SpaceRat.Characters
             {
                 Vector3 to = follow.position - transform.position;
                 to.y = 0f;
-                if (to.magnitude < 1.4f) break;
+                if (to.magnitude < keepAway) break;
                 transform.position += to.normalized * walkSpeed * 0.6f * Time.deltaTime;
                 transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(to.normalized, Vector3.up), turnSpeed * Time.deltaTime);
                 StickToGround();
@@ -141,7 +143,7 @@ namespace SpaceRat.Characters
             {
                 float speed = dist > 6f ? catchUpSpeed : walkSpeed;
                 Vector3 step = to.normalized * Mathf.Min(dist, speed * Time.deltaTime);
-                transform.position += step;
+                transform.position = KeepClear(transform.position + step);
                 var look = Quaternion.LookRotation(to.normalized, Vector3.up);
                 transform.rotation = Quaternion.RotateTowards(transform.rotation, look, turnSpeed * Time.deltaTime);
             }
@@ -151,8 +153,23 @@ namespace SpaceRat.Characters
                 var look = Quaternion.LookRotation(flatFwd, Vector3.up);
                 transform.rotation = Quaternion.RotateTowards(transform.rotation, look, turnSpeed * 0.4f * Time.deltaTime);
             }
+            transform.position = KeepClear(transform.position);
             StickToGround();
             SetAnim(true, moving);
+        }
+
+        /// <summary>Pushes a position out of the pilot's personal-space circle (flat), so the bot goes around him.</summary>
+        Vector3 KeepClear(Vector3 pos)
+        {
+            if (!follow) return pos;
+            Vector3 away = pos - follow.position;
+            away.y = 0f;
+            float d = away.magnitude;
+            if (d >= keepAway) return pos;
+            Vector3 dir = d > 0.01f ? away / d : -follow.forward;
+            Vector3 fixedPos = follow.position + dir * keepAway;
+            fixedPos.y = pos.y;
+            return fixedPos;
         }
 
         void RollTowards(Vector3 goal)

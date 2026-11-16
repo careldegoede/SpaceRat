@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using SpaceRat.Dialogue;
 using SpaceRat.Scene03;
 using Unity.Cinemachine;
@@ -211,11 +212,13 @@ namespace SpaceRat.EditorTools
                 ("navReminder", dlg["Nav_Reminder"]), ("outro", dlg["Outro"]), ("botFarewell", dlg["Bot_Farewell"]),
                 ("inventory", inventory),
                 ("navPickup", Find<SpaceRat.Characters.Interactable>("NavModule")),
+                ("doors", Find<SpaceRat.Environment.DoorOpener>("OutpostGameplay")),
                 ("captainChair", Find<SpaceRat.Characters.Interactable>("CaptainChair")),
                 ("botSwitch", Find<SpaceRat.Characters.Interactable>("ServiceBot")),
                 ("serviceBot", Find<SpaceRat.Characters.ServiceBot>("ServiceBot")),
                 ("consoleCamera", Find<Camera>("ConsoleCamera")),
                 ("consoleScreenGlow", GameObject.Find("ConsoleScreenGlow")),
+                ("terminal", Find<SpaceRat.UI.TerminalScreen>("TerminalScreen_Main")),
                 ("botPortrait", HudTexture("BotPortrait")));
             var dso = new SerializedObject(director);
             var hide = dso.FindProperty("hideOnStart");
@@ -278,8 +281,9 @@ namespace SpaceRat.EditorTools
 
                 // Seated view towards the desk / terminal.
                 var desk = Child("desk");
-                Vector3 eye = seatPh.position + Vector3.up * 0.25f;
-                Vector3 look = desk ? desk.position + Vector3.up * 1.05f : eye + seatPh.forward;
+                Vector3 look = desk ? desk.position + Vector3.up * 1.05f : seatPh.position + seatPh.forward;
+                Vector3 back = new Vector3(seatPh.position.x - look.x, 0f, seatPh.position.z - look.z).normalized;
+                Vector3 eye = seatPh.position + Vector3.up * 0.42f + back * 0.45f;
                 var camGo = new GameObject("ConsoleCamera");
                 camGo.transform.SetParent(root, false);
                 camGo.transform.SetPositionAndRotation(eye, Quaternion.LookRotation(look - eye, Vector3.up));
@@ -299,6 +303,12 @@ namespace SpaceRat.EditorTools
                 gl.color = new Color(1f, 0.7f, 0.3f);
                 gl.intensity = 2.2f;
                 gl.range = 3.5f;
+
+                // Sci-fi text on the monitors: find their faces by casting from the seated view.
+                Physics.SyncTransforms();
+                var main = PlaceScreen(root, cam, new Vector2(0.5f, 0.735f), "TerminalScreen_Main", false, my.transform, 0.00185f);
+                PlaceScreen(root, cam, new Vector2(0.905f, 0.70f), "TerminalScreen_Status", true, my.transform, 0.00115f);
+                if (!main) Debug.LogWarning("[SpaceRat] Terminal monitor not found by raycast — screen placed in front of the seat.");
             }
 
             // Navigation module on the lounge table (a small capacitor with a cyan glow).
@@ -343,6 +353,86 @@ namespace SpaceRat.EditorTools
 
             FlattenUnder(my, terrain);
             return (entrance, hide);
+        }
+
+        /// <summary>
+        /// A glowing world-space text screen on whatever monitor is under the given point of the seated view
+        /// (raycast against the outpost's colliders); falls back to floating 0.8 m in front of the seat.
+        /// </summary>
+        static GameObject PlaceScreen(Transform parent, Camera view, Vector2 viewport, string name, bool status, Transform outpost, float scale)
+        {
+            var ray = view.ViewportPointToRay(new Vector3(viewport.x, viewport.y, 0f));
+            Vector3 pos, normal;
+            bool hit = false;
+            pos = ray.origin + ray.direction * 0.8f;
+            normal = -ray.direction;
+            foreach (var h in Physics.RaycastAll(ray, 3f).OrderBy(h => h.distance))
+            {
+                if (!h.collider.transform.IsChildOf(outpost)) continue;
+                pos = h.point;
+                normal = h.normal;
+                hit = true;
+                break;
+            }
+
+            const float pxW = 560f, pxH = 330f;    // × scale → metres
+            var go = new GameObject(name, typeof(RectTransform), typeof(Canvas), typeof(UnityEngine.UI.CanvasScaler));
+            go.transform.SetParent(parent, false);
+            go.transform.SetPositionAndRotation(pos + normal * 0.012f, Quaternion.LookRotation(-normal, Vector3.up));
+            var canvas = go.GetComponent<Canvas>();
+            canvas.renderMode = RenderMode.WorldSpace;
+            var rt = (RectTransform)go.transform;
+            rt.sizeDelta = new Vector2(pxW, pxH);
+            rt.localScale = Vector3.one * scale;
+            go.GetComponent<UnityEngine.UI.CanvasScaler>().dynamicPixelsPerUnit = 4f;
+
+            Color amber = new(1f, 0.72f, 0.32f), cyan = new(0.45f, 0.9f, 1f);
+            var bg = new GameObject("Background", typeof(RectTransform), typeof(UnityEngine.UI.Image));
+            bg.transform.SetParent(go.transform, false);
+            var bgRt = (RectTransform)bg.transform;
+            bgRt.anchorMin = Vector2.zero; bgRt.anchorMax = Vector2.one; bgRt.offsetMin = bgRt.offsetMax = Vector2.zero;
+            bg.GetComponent<UnityEngine.UI.Image>().color = new Color(0.01f, 0.04f, 0.05f, 0.94f);
+
+            UnityEngine.UI.Text Line(string n, string font, int size, Color c, Vector2 min, Vector2 max, TextAnchor anchor)
+            {
+                var t = new GameObject(n, typeof(RectTransform), typeof(UnityEngine.UI.Text));
+                t.transform.SetParent(go.transform, false);
+                var r = (RectTransform)t.transform;
+                r.anchorMin = min; r.anchorMax = max; r.offsetMin = new Vector2(18f, 6f); r.offsetMax = new Vector2(-18f, -6f);
+                var tx = t.GetComponent<UnityEngine.UI.Text>();
+                tx.font = Resources.Load<Font>("Fonts/" + font);
+                tx.fontSize = size;
+                tx.color = c;
+                tx.alignment = anchor;
+                tx.horizontalOverflow = HorizontalWrapMode.Wrap;
+                tx.verticalOverflow = VerticalWrapMode.Truncate;
+                tx.raycastTarget = false;
+                return tx;
+            }
+            var header = Line("Header", "Orbitron", 20, amber, new Vector2(0f, 0.84f), new Vector2(1f, 1f), TextAnchor.MiddleLeft);
+            var rule = new GameObject("Rule", typeof(RectTransform), typeof(UnityEngine.UI.Image));
+            rule.transform.SetParent(go.transform, false);
+            var rr = (RectTransform)rule.transform;
+            rr.anchorMin = new Vector2(0f, 0.83f); rr.anchorMax = new Vector2(1f, 0.83f);
+            rr.offsetMin = new Vector2(18f, -1f); rr.offsetMax = new Vector2(-18f, 1f);
+            rule.GetComponent<UnityEngine.UI.Image>().color = new Color(amber.r, amber.g, amber.b, 0.6f);
+            var body = Line("Body", "Rajdhani-SemiBold", 21, cyan, new Vector2(0f, 0.12f), new Vector2(1f, 0.82f), TextAnchor.UpperLeft);
+            var footer = Line("Footer", "Rajdhani-Medium", 16, new Color(cyan.r, cyan.g, cyan.b, 0.6f), new Vector2(0f, 0f), new Vector2(1f, 0.13f), TextAnchor.MiddleLeft);
+
+            var screen = go.AddComponent<SpaceRat.UI.TerminalScreen>();
+            var so = new SerializedObject(screen);
+            so.FindProperty("header").objectReferenceValue = header;
+            so.FindProperty("body").objectReferenceValue = body;
+            so.FindProperty("footer").objectReferenceValue = footer;
+            if (status)
+            {
+                so.FindProperty("statusScreen").boolValue = true;
+                so.FindProperty("idleHeader").stringValue = "STATION STATUS";
+                so.FindProperty("statusText").stringValue =
+                    "BEACON ........ TRANSMITTING\nCREW ABOARD ... 0 / 4\nROVER ......... DEPLOYED\nFUSION CELLS .. 0\nNAV MODULE .... LOUNGE\nSURVEY TEAM ... NO SIGNAL";
+            }
+            so.ApplyModifiedPropertiesWithoutUndo();
+            return hit ? go : null;
         }
 
         /// <summary>Flattens the terrain under a structure to its base height, blending out over a margin.</summary>

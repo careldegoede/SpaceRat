@@ -18,6 +18,10 @@ namespace SpaceRat.UI
         [Tooltip("Dial diameter at 1080p.")]
         [SerializeField] float dialSize = 230f;
         [SerializeField] Color blipColor = new(1f, 0.55f, 0.12f);
+        [Tooltip("Radar range: at this distance (or more) the blip sits on the outer ring; it moves in as you approach.")]
+        [SerializeField] float radarRange = 1400f;
+        [Tooltip("Closer than this, the target is reached: blip and readout disappear.")]
+        [SerializeField] float hideWithin = 50f;
 
         public bool Visible { get; set; }
         public Transform Target { get => target; set => target = value; }
@@ -34,6 +38,7 @@ namespace SpaceRat.UI
         {
             if (_dot) Destroy(_dot);
             if (_ring) Destroy(_ring);
+            if (_backing) Destroy(_backing);
         }
 
         /// <summary>Editor preview: show fully, without waiting for the fade.</summary>
@@ -56,8 +61,13 @@ namespace SpaceRat.UI
             var prevMatrix = GUI.matrix;
             GUI.color = new Color(1f, 1f, 1f, _alpha);
 
-            // Side panel (fixed), tucked against the dial's right edge.
+            // Side panel (fixed), tucked against the dial's right edge, on a solid dark backing so the
+            // readout stays legible over bright sky.
             var panelRect = new Rect(center.x + d * 0.42f, center.y - ph * 0.5f, pw, ph);
+            var inner = new Rect(panelRect.x + pw * 0.11f, panelRect.y + ph * 0.23f, pw * 0.72f, ph * 0.43f);
+            GUI.color = new Color(0.02f, 0.05f, 0.07f, 0.92f * _alpha);
+            GUI.DrawTexture(new Rect(inner.x - pw * 0.05f, inner.y - ph * 0.03f, inner.width + pw * 0.1f, inner.height + ph * 0.06f), BackingTex());
+            GUI.color = new Color(1f, 1f, 1f, _alpha);
             if (panel) GUI.DrawTexture(panelRect, panel);
 
             // Dial turns with heading: facing east puts N on the left.
@@ -66,12 +76,16 @@ namespace SpaceRat.UI
             GUI.DrawTexture(new Rect(center.x - d * 0.5f, center.y - d * 0.5f, d, d), dial);
             GUI.matrix = prevMatrix;
 
-            if (target)
+            Vector3 toTarget = target ? target.position - viewer.position : Vector3.zero;
+            float flatDist = new Vector2(toTarget.x, toTarget.z).magnitude;
+            if (target && flatDist > hideWithin)
             {
-                Vector3 to = target.position - viewer.position;
+                Vector3 to = toTarget;
                 float bearing = Mathf.Atan2(to.x, to.z) * Mathf.Rad2Deg;
                 float rel = (bearing - yaw) * Mathf.Deg2Rad;
-                var p = center + new Vector2(Mathf.Sin(rel), -Mathf.Cos(rel)) * d * 0.3f;
+                // Radar: far away = near the outer ring, closing in = towards the centre.
+                float radius = Mathf.Lerp(0.08f, 0.33f, Mathf.Clamp01(flatDist / radarRange));
+                var p = center + new Vector2(Mathf.Sin(rel), -Mathf.Cos(rel)) * d * radius;
 
                 float t = Time.unscaledTime;
                 float ping = Mathf.Repeat(t / 1.6f, 1f);
@@ -86,10 +100,9 @@ namespace SpaceRat.UI
                 GUI.color = new Color(1f, 0.92f, 0.75f, _alpha);
                 GUI.DrawTexture(new Rect(p.x - bs * 0.22f, p.y - bs * 0.22f, bs * 0.44f, bs * 0.44f), DotTex());   // hot core
 
-                float km = new Vector2(to.x, to.z).magnitude / 1000f;
+                float km = flatDist / 1000f;
                 GUI.color = new Color(1f, 1f, 1f, _alpha);
                 // Text inside the panel's dark window (art: x 8..86 %, y 22..66 %), shrunk to fit.
-                var inner = new Rect(panelRect.x + pw * 0.11f, panelRect.y + ph * 0.23f, pw * 0.72f, ph * 0.43f);
                 string dist = km >= 1f ? km.ToString("0.0", CultureInfo.InvariantCulture) + " KM"
                                        : Mathf.RoundToInt(km * 1000f) + " M";
                 _label.fontSize = Fit(_label, targetLabel, inner.width, inner.height * 0.34f);
@@ -130,6 +143,16 @@ namespace SpaceRat.UI
                 font = orbitron ? orbitron : GUI.skin.font, fontStyle = FontStyle.Bold,
                 normal = { textColor = new Color(1f, 0.72f, 0.35f) }
             };
+        }
+
+        Texture2D _backing;
+        Texture2D BackingTex()
+        {
+            if (_backing) return _backing;
+            _backing = new Texture2D(1, 1);
+            _backing.SetPixel(0, 0, Color.white);
+            _backing.Apply();
+            return _backing;
         }
 
         Texture2D DotTex() => _dot ? _dot : _dot = Radial(64, r => 1f - Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(0.55f, 1f, r)));

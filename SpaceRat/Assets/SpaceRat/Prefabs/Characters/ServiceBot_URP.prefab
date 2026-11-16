@@ -2537,6 +2537,7 @@ MonoBehaviour:
   catchUpSpeed: 8
   turnSpeed: 360
   hoverHeight: 0
+  keepAway: 2
 --- !u!135 &911860089972805811
 SphereCollider:
   m_ObjectHideFlags: 0

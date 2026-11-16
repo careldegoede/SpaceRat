@@ -71,6 +71,8 @@ namespace SpaceRat.Scene03
         [SerializeField] Inventory inventory;
         [Tooltip("The spare navigation module on the lounge table.")]
         [SerializeField] Interactable navPickup;
+        [Tooltip("Outpost doors: locked once the pilot is inside, until he has the navigation module.")]
+        [SerializeField] SpaceRat.Environment.DoorOpener doors;
         [Tooltip("Placeholders and closed door leaves hidden when the scene starts.")]
         [SerializeField] GameObject[] hideOnStart;
         [SerializeField] Interactable captainChair;
@@ -79,6 +81,8 @@ namespace SpaceRat.Scene03
         [Tooltip("Seated view of the captain's terminal while the logs play.")]
         [SerializeField] Camera consoleCamera;
         [SerializeField] GameObject consoleScreenGlow;
+        [Tooltip("Main terminal monitor: mirrors the manifest scan and the captain's logs as they play.")]
+        [SerializeField] TerminalScreen terminal;
         [Tooltip("Round portrait of the bot: the computer's dialogue icon once it lives in the bot.")]
         [SerializeField] Texture2D botPortrait;
         [SerializeField] float arriveRange = 16f;          // metres from the hub centre
@@ -126,6 +130,9 @@ namespace SpaceRat.Scene03
                 int signal = Mathf.RoundToInt(Mathf.Clamp01(1f - fromShip / signalRange) * 70f + 25f);
                 dialogue.comsetStatus = string.Format(CultureInfo.InvariantCulture, "DIST {0:0.0} KM  ·  SIGNAL {1}%", dist / 1000f, signal);
             }
+            // Inside the station the door stays shut until the navigation module is in hand.
+            if (doors && !doors.Locked && doors.PlayerInside && !(inventory && inventory.Has(NavModule)) && !_navEverTaken)
+                doors.Locked = true;
             if (!_walking || _ended || _busy) { _lastPos = pos; return; }
 
             float progress = _startDist > 1f ? 1f - dist / _startDist : 0f;
@@ -222,12 +229,15 @@ namespace SpaceRat.Scene03
         // ---- Outpost ------------------------------------------------------------------------
 
         const string NavModule = "nav_module";
+        bool _navEverTaken;
 
         /// <summary>The spare navigation module goes into the inventory (no UI yet).</summary>
         IEnumerator TakeNavModule()
         {
             if (navPickup) { navPickup.Available = false; navPickup.gameObject.SetActive(false); }
             if (inventory) inventory.Add(NavModule, "Navigation Module");
+            _navEverTaken = true;
+            if (doors) doors.Locked = false;
             StopBackground();
             yield return PlayBackground(pickup);
             if (_botAwake) yield return Outro();          // the bot was already waiting for it
@@ -250,13 +260,21 @@ namespace SpaceRat.Scene03
             if (dialogue) dialogue.Style = DialogueBoxStyle.HoloCapsule;
             yield return Fade(0f, 0.8f);
 
+            if (terminal) terminal.Boot("SHIP AI LINK  //  MANIFEST SCAN");
+            _lineHook = line =>
+            {
+                if (!terminal || line.speaker == Speaker.Pilot) return;
+                terminal.ShowLine(line.speaker == Speaker.Captain ? "STATION LOG  ·  CAPT. VOSS" : "SHIP AI LINK  //  MANIFEST SCAN", line.text);
+            };
             yield return PlaySkippable(terminalScan);
             yield return PlaySkippable(captainLogs);
+            _lineHook = null;
             yield return PlaySkippable(logsReaction);
 
             yield return Fade(1f, 0.5f);
             if (consoleCamera) consoleCamera.enabled = false;
             if (consoleScreenGlow) consoleScreenGlow.SetActive(false);
+            if (terminal) terminal.ShowIdle();
             if (mainCamera) mainCamera.enabled = true;
             if (dialogue) dialogue.Style = DialogueBoxStyle.Comset;
             if (compass) compass.Visible = true;
@@ -403,12 +421,15 @@ namespace SpaceRat.Scene03
             if (dialogue) dialogue.Clear();
         }
 
+        System.Action<DialogueLine> _lineHook;
+
         IEnumerator PlaySkippable(DialogueSequence seq)
         {
             if (!seq) yield break;
             foreach (var line in seq.lines)
             {
                 dialogue.Show(line);
+                _lineHook?.Invoke(line);
                 yield return Wait(line.Seconds);
                 dialogue.Clear();
                 yield return Wait(pauseBetweenLines);

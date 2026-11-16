@@ -329,16 +329,19 @@ namespace SpaceRat.Dialogue
 
         void EnsureStyles()
         {
-            if (_nameStyle != null) return;
+            // Rebuild if missing or if a font got lost (falls back to Unity's default label = no wrap, wrong font).
+            if (_capsuleBody != null && _capsuleBody.font && _capsuleBody.wordWrap) return;
             Font Load(string n) => Resources.Load<Font>("Fonts/" + n);
             var orbitron = Load("Orbitron");
             var rajdhani = Load("Rajdhani-SemiBold");
             var rajdhaniMed = Load("Rajdhani-Medium");
             var exo = Load("Exo2");
-            GUIStyle Make(Font f, bool wrap) => new(GUI.skin.label)
+            // Built from scratch (not GUI.skin.label) so no skin can switch off wrapping or swap the font.
+            GUIStyle Make(Font f, bool wrap) => new()
             {
-                font = f ? f : GUI.skin.font, wordWrap = wrap, richText = false,
-                alignment = TextAnchor.UpperLeft, padding = new RectOffset(), margin = new RectOffset()
+                font = f ? f : GUI.skin.font, wordWrap = wrap, richText = false, clipping = TextClipping.Clip,
+                alignment = TextAnchor.UpperLeft, padding = new RectOffset(), margin = new RectOffset(),
+                normal = { textColor = Color.white }
             };
             _nameStyle = Make(orbitron, false);
             _nameStyle.fontStyle = FontStyle.Bold;
