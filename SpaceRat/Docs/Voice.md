@@ -230,5 +230,47 @@ _Generated from 18 DialogueSequence assets. Do not edit by hand — edit the ass
 
 ## Planned lines (not in game yet)
 
-_None right now — Scene 1 and Scene 2 lines are all in the generated section above. Add Scene 3 lines here
-until their DialogueSequence assets exist._
+### Scene 3 — The Crash Site (from `Plans/SpaceRat_Scene3_Development_Brief.md`, draft)
+
+"Computer (comset)" lines are the same COMPUTER voice through the comset — apply a radio filter (band-pass + light
+crackle) in Unity; record clean.
+
+| ID | Speaker | Line | Delivery |
+|---|---|---|---|
+| `S03_Wake_01` | Computer | Pilot? ... Please respond. | damaged, quiet |
+| `S03_Wake_02` | Pilot | Ow. Everything. Ow. | groggy |
+| `S03_Wake_03` | Computer | You are alive. Statistically, that was not the expected outcome. | deadpan |
+| `S03_Wake_04` | Pilot | Thanks for the vote of confidence. Where are we? | dry |
+| `S03_Wake_05` | Computer | On the planet. Specifically, in a hole we made in the planet. | deadpan |
+| `S03_Wake_06` | Pilot | Comforting. Anything out there? People? Help? A bar? | dry |
+| `S03_Wake_07` | Computer | During descent I detected structures roughly two kilometres north-east. Possibly a settlement. | deadpan |
+| `S03_Wake_08` | Pilot | Possibly? | incredulous |
+| `S03_Wake_09` | Computer | I was busy crashing. | deadpan |
+| `S03_Wake_10` | Pilot | Fair. Can you call them? | dry |
+| `S03_Wake_11` | Computer | Long-range communications are damaged. Take the comset from the console. I can reach you through it. It may also reach whoever lives there. | deadpan |
+| `S03_Wake_12` | Pilot | Great. A walkie-talkie and a ship that hates me. | sarcastic |
+| `S03_Wake_13` | Computer | I do not hate you. I have not decided yet. | deadpan |
+| `S03_Exit_01` | Computer (comset) | Comset link established. Can you hear me? | radio |
+| `S03_Exit_02` | Pilot | Loud and unfortunately clear. | dry |
+| `S03_Exit_03` | Computer (comset) | Head north-east. Follow your compass. Try not to fall into anything. | radio, deadpan |
+| `S03_Walk_01` | Pilot | So... how the heck are we getting off this rock? | exasperated |
+| `S03_Walk_02` | Computer (comset) | The ship requires a new reactor regulator. Ours is currently in three pieces. Two of them are on fire. | radio, deadpan |
+| `S03_Walk_03` | Pilot | And where do we get one of those? | dry |
+| `S03_Walk_04` | Computer (comset) | Settlements tend to have spare parts. Or people who will sell them. | radio, deadpan |
+| `S03_Walk_05` | Pilot | With what money? | dry |
+| `S03_Walk_06` | Computer (comset) | You have charm. | radio, deadpan |
+| `S03_Walk_07` | Pilot | Do I? | genuinely unsure |
+| `S03_Walk_08` | Computer (comset) | Unknown. Your records are missing. | radio, deadpan |
+| `S03_Walk_09` | Pilot | ...That was uncalled for. | wounded |
+| `S03_Walk_10` | Computer (comset) | I will also need a new navigation core. Mine currently identifies this planet as "Error". | radio, deadpan |
+| `S03_Walk_11` | Pilot | Honestly? Fitting. | dry |
+| `S03_Walk_12` | Computer (comset) | One more thing. The signal we followed. It originates from the settlement. | radio, serious |
+| `S03_Walk_13` | Pilot | So we crash-landed next to the one thing calling us. Coincidence? | suspicious |
+| `S03_Walk_14` | Computer (comset) | I am not programmed for suspicion. | radio, deadpan |
+| `S03_Walk_15` | Pilot | Lucky for you, I am. | dry |
+| `S03_Nag_01` | Computer (comset) | North-east. It is the direction you are not walking in. | radio, deadpan |
+| `S03_Nag_02` | Computer (comset) | The compass is the round thing at the top of your vision. It is there to help. | radio, deadpan |
+| `S03_Nag_03` | Computer (comset) | You are walking back to the ship. I am flattered, but no. | radio, deadpan |
+| `S03_End_01` | Computer (comset) | Structures ahead. Life signs: inconclusive. | radio, cautious |
+| `S03_End_02` | Pilot | "Inconclusive" is my least favourite word. | dry |
+| `S03_End_03` | Computer (comset) | Noted. I will use it more often. | radio, deadpan |
