@@ -10,3 +10,6 @@
 *.wav binary
 *.mp3 binary
 *.ogg binary
+
+# Terrain data is binary-serialized: never eol-convert or text-merge it.
+*TerrainData.asset binary

@@ -1342,6 +1342,44 @@ namespace SpaceRat.EditorTools
 
         // ---- Terrain -------------------------------------------------------------------------------
 
+        /// <summary>
+        /// Regenerates Scene03_TerrainData.asset in place (same file + .meta GUID, so the scene keeps its
+        /// references), re-links the terrain + collider and re-flattens under MyOutpost. For when the
+        /// binary terrain file gets damaged (e.g. by git text/eol conversion before it was marked binary).
+        /// </summary>
+        [MenuItem("SpaceRat/Repair Scene03 Terrain Data")]
+        public static void RepairTerrainData()
+        {
+            string path = TerrainDir + "/Scene03_TerrainData.asset";
+            string tmp = TerrainDir + "/Scene03_TerrainData_rebuild.asset";
+            var data = new TerrainData { heightmapResolution = Res, alphamapResolution = 512, baseMapResolution = 1024 };
+            data.size = new Vector3(Size, Height, Size);
+            data.SetHeights(0, 0, GenerateHeights());
+            data.terrainLayers = BuildLayers();
+            Paint(data);
+            AssetDatabase.DeleteAsset(tmp);
+            AssetDatabase.CreateAsset(data, tmp);
+            AssetDatabase.SaveAssets();
+            System.IO.File.Copy(System.IO.Path.GetFullPath(tmp), System.IO.Path.GetFullPath(path), true);   // keeps path's .meta
+            AssetDatabase.DeleteAsset(tmp);
+            AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
+
+            var td = AssetDatabase.LoadAssetAtPath<TerrainData>(path);
+            var terrain = Object.FindAnyObjectByType<Terrain>();
+            if (td && terrain)
+            {
+                terrain.terrainData = td;
+                var col = terrain.GetComponent<TerrainCollider>();
+                if (col) col.terrainData = td;
+                var my = GameObject.Find("MyOutpost");
+                if (my) FlattenUnder(my, terrain);
+                AssetDatabase.SaveAssets();
+                EditorSceneManager.MarkSceneDirty(terrain.gameObject.scene);
+                EditorSceneManager.SaveScene(terrain.gameObject.scene);
+            }
+            Debug.Log($"[SpaceRat] Terrain data repaired: {(td ? "ok" : "FAILED")}");
+        }
+
         static Terrain BuildTerrain()
         {
             var data = new TerrainData { heightmapResolution = Res, alphamapResolution = 512, baseMapResolution = 1024 };
