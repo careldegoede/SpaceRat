@@ -51,6 +51,13 @@ namespace SpaceRat.Characters
 
         public bool InputEnabled { get; set; } = true;
 
+        /// <summary>Set false (e.g. out of stamina) to block running; walking still works.</summary>
+        public bool RunAllowed { get; set; } = true;
+        /// <summary>True while actually running (holding run, moving forward, allowed).</summary>
+        public bool IsRunning { get; private set; }
+        /// <summary>True while walking or running.</summary>
+        public bool IsMoving { get; private set; }
+
         void Awake()
         {
             _cc = GetComponent<CharacterController>();
@@ -98,7 +105,9 @@ namespace SpaceRat.Characters
 
             // Move relative to facing.
             Vector2 input = InputEnabled ? Vector2.ClampMagnitude(_move.ReadValue<Vector2>(), 1f) : Vector2.zero;
-            bool running = InputEnabled && _run.IsPressed() && input.y > 0.1f;
+            bool running = InputEnabled && RunAllowed && _run.IsPressed() && input.y > 0.1f;
+            IsRunning = running;
+            IsMoving = input.sqrMagnitude > 0.01f;
             float speed = running ? runSpeed : walkSpeed;
             Vector3 wish = (transform.forward * input.y + transform.right * input.x) * speed;
             Vector3 horizontal = Vector3.MoveTowards(new Vector3(_velocity.x, 0f, _velocity.z), wish, acceleration * dt);

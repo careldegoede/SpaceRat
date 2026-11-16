@@ -15,6 +15,7 @@ namespace SpaceRat.EditorTools
         string _status = "DIST 1.2 KM  ·  SIGNAL 74%";
         DialogueBox _box;
         SpaceRat.UI.CompassHud _compass;
+        SpaceRat.UI.PlayerHud _hud;
         static readonly System.Collections.Generic.Queue<(DialogueBoxStyle, Speaker, string, string)> Pending = new();
         [System.NonSerialized] string _pendingCapture;
 
@@ -32,6 +33,7 @@ namespace SpaceRat.EditorTools
         {
             if (_box) DestroyImmediate(_box.gameObject);
             if (_compass) DestroyImmediate(_compass.gameObject);
+            if (_hud) DestroyImmediate(_hud.gameObject);
         }
 
         /// <summary>Comset preview also shows the compass: viewer facing north-ish, station to the north-east.</summary>
@@ -53,6 +55,15 @@ namespace SpaceRat.EditorTools
             so.FindProperty("target").objectReferenceValue = target;
             so.ApplyModifiedPropertiesWithoutUndo();
             _compass.ShowImmediately();
+
+            // Status bar with sample values: health 70 % (a hit still trailing), stamina 45 %.
+            var hudGo = new GameObject("HudPreview") { hideFlags = HideFlags.HideAndDontSave };
+            _hud = hudGo.AddComponent<SpaceRat.UI.PlayerHud>();
+            var hso = new SerializedObject(_hud);
+            hso.FindProperty("frame").objectReferenceValue = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/SpaceRat/Art/HUD/HudBar.png");
+            hso.ApplyModifiedPropertiesWithoutUndo();
+            void SetF(string f, float v) => typeof(SpaceRat.UI.PlayerHud).GetField(f, BindingFlags.NonPublic | BindingFlags.Instance)!.SetValue(_hud, v);
+            SetF("_alpha", 1f); SetF("_health", 0.7f); SetF("_healthLag", 0.85f); SetF("_stamina", 0.45f);
         }
 
         void OnGUI()
@@ -75,7 +86,7 @@ namespace SpaceRat.EditorTools
 
             EditorGUI.DrawRect(new Rect(0, 0, position.width, position.height), new Color(0.02f, 0.02f, 0.05f));
             _box.Draw(position.width, position.height);
-            if (_style == DialogueBoxStyle.Comset) _compass.Draw(position.width, position.height);
+            if (_style == DialogueBoxStyle.Comset) { _compass.Draw(position.width, position.height); _hud.Draw(position.width, position.height); }
 
             GUILayout.BeginArea(new Rect(8, 8, 420, 140));
             _style = (DialogueBoxStyle)EditorGUILayout.EnumPopup("Style", _style);
@@ -97,7 +108,7 @@ namespace SpaceRat.EditorTools
                 GL.PushMatrix();
                 GL.LoadPixelMatrix(0, w, h, 0);
                 _box.Draw(w, h);
-                if (_style == DialogueBoxStyle.Comset) _compass.Draw(w, h);
+                if (_style == DialogueBoxStyle.Comset) { _compass.Draw(w, h); _hud.Draw(w, h); }
                 GL.PopMatrix();
                 var tex = new Texture2D(w, h, TextureFormat.RGB24, false);
                 tex.ReadPixels(new Rect(0, 0, w, h), 0, 0);
