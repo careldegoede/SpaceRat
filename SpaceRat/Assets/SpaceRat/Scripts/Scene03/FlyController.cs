@@ -17,6 +17,8 @@ namespace SpaceRat.Scene03
         [SerializeField] float response = 6f;           // velocity smoothing
         [SerializeField] float groundClearance = 1f;
         [SerializeField] Terrain terrain;
+        [Tooltip("Sea level (world y). The cube never goes below it.")]
+        [SerializeField] float waterLevel = 0f;
 
         InputAction _turn, _climb, _move, _fast;
         Vector3 _velocity;
@@ -58,7 +60,7 @@ namespace SpaceRat.Scene03
 
             if (terrain)
             {
-                float ground = terrain.SampleHeight(p) + terrain.transform.position.y + groundClearance;
+                float ground = Mathf.Max(terrain.SampleHeight(p) + terrain.transform.position.y, waterLevel) + groundClearance;
                 if (p.y < ground) { p.y = ground; _velocity.y = Mathf.Max(0f, _velocity.y); }
             }
             transform.position = p;
