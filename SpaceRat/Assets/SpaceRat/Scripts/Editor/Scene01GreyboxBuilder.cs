@@ -175,9 +175,25 @@ namespace SpaceRat.EditorTools
                 pilot.transform.localPosition = new Vector3(0f, -1.2f, 2.45f);
                 pilot.transform.localRotation = Quaternion.identity;
                 var anim = pilot.GetComponentInChildren<Animator>();
-                var seated = anim.gameObject.AddComponent<SeatedPose>();
-                seated.Apply();
-                // Drop the hips onto the seat cushion.
+                var seatedController = CharacterAnimatorBuilder.BuildPilotSeated();
+                if (seatedController)
+                {
+                    // Mixamo "Sitting Idle" + slump layered on top; hips re-anchored to the cushion at runtime.
+                    anim.runtimeAnimatorController = seatedController;
+                    anim.applyRootMotion = false;
+                    anim.cullingMode = AnimatorCullingMode.AlwaysAnimate;
+                    CharacterAnimatorBuilder.LoadClip(CharacterAnimatorBuilder.SittingIdleFbx, "Sitting Idle").SampleAnimation(anim.gameObject, 0f);
+                    var anchor = new GameObject("PilotHipsAnchor").transform;
+                    anchor.SetParent(body, false);
+                    anchor.localPosition = pilotHips;
+                    var seating = anim.gameObject.AddComponent<PilotSeating>();
+                    SetRefs(seating, ("hipsAnchor", anchor));
+                }
+                else
+                {
+                    anim.gameObject.AddComponent<SeatedPose>().Apply();
+                }
+                // Drop the hips onto the seat cushion (editor preview; PilotSeating re-checks at runtime).
                 var hips = anim.GetBoneTransform(HumanBodyBones.Hips);
                 pilot.transform.position += body.TransformPoint(pilotHips) - hips.position;
             }

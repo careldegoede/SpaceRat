@@ -132,7 +132,8 @@ namespace SpaceRat.Scene01
             yield return Blink();
 
             // The pilot is awake now: un-slump (visible again in the exterior escape shot).
-            if (pilotModel && pilotModel.GetComponentInChildren<SeatedPose>() is { } seated) seated.Slump = 0f;
+            if (pilotModel && pilotModel.GetComponentInChildren<PilotSeating>() is { } seating) seating.Slump = 0f;
+            else if (pilotModel && pilotModel.GetComponentInChildren<SeatedPose>() is { } seated) seated.Slump = 0f;
 
             // ---- Beat 3: amnesia dialogue in the cockpit ------------------------
             State = Scene01State.Dialogue;

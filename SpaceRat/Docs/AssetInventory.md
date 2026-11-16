@@ -61,6 +61,10 @@ appreciated.
 | Human Basic Motions FREE | Kevin Iglesias | `Assets/Kevin Iglesias` | Humanoid FBX clips (no materials needed) | Idle, walk, run, sprint, jump, turn, talk (male/female, in-place + root motion) |
 | Basic Character Animations FREE | Burak Uzun | `Assets/Burak Uzun` | Humanoid FBX clips | Idle alt, crouch, jump phases, swim, run-climb |
 
+| Mixamo: Sitting Idle, Pistol Idle, Pistol Walk | Adobe Mixamo (X Bot, without skin) | `Assets/SpaceRat/Animation/Mixamo/*.fbx` (files git-ignored, `.meta` tracked) | Humanoid, loop, root baked into pose | Seated pilot in Scene 1 (`PilotSeated.controller`); pistol states in the viewer |
+
+Mixamo restore: copy the FBX files from the repo-root `Mixamo/` folder (or re-download: FBX for Unity, Without Skin) into `Assets/SpaceRat/Animation/Mixamo/` with the same names — the tracked `.meta` files restore import settings and GUIDs.
+
 Preview animator: **SpaceRat > Build Character Preview Animator** → `Assets/SpaceRat/Animation/CharacterPreview.controller` (built automatically by the Character Viewer builder).
 
 ## Planned / not yet imported

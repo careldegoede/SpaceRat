@@ -62,8 +62,8 @@ namespace SpaceRat.Characters
             {
                 if (kb.fKey.wasPressedThisFrame) SetFirstPerson(!_firstPerson);
                 if (kb.cKey.wasPressedThisFrame) Cycle();
-                for (int i = 0; i < animStates.Length && i < 9; i++)
-                    if (kb[(UnityEngine.InputSystem.Key)((int)UnityEngine.InputSystem.Key.Digit1 + i)].wasPressedThisFrame)
+                for (int i = 0; i < animStates.Length && i < 10; i++)
+                    if (kb[i < 9 ? (UnityEngine.InputSystem.Key)((int)UnityEngine.InputSystem.Key.Digit1 + i) : UnityEngine.InputSystem.Key.Digit0].wasPressedThisFrame)
                         PlayAnim(i);
                 if (kb.rKey.wasPressedThisFrame) { yaw = 200f; pitch = 8f; distance = 3.2f; _fpYaw = _fpPitch = 0f; }
             }
@@ -165,7 +165,7 @@ namespace SpaceRat.Characters
         void OnGUI()
         {
             GUI.Label(new Rect(16, 12, 900, 24),
-                $"{(Current ? Current.name : "-")}{(animStates.Length > 0 ? "  [" + animStates[_anim] + "]  1-" + Mathf.Min(9, animStates.Length) + ": anims" : "")}   ·   drag: look/orbit   ·   scroll: zoom   ·   F: {(_firstPerson ? "orbit view" : "first person")}   ·   C: next outfit   ·   R: reset");
+                $"{(Current ? Current.name : "-")}{(animStates.Length > 0 ? "  [" + animStates[_anim] + "]  " + (animStates.Length >= 10 ? "1-0" : "1-" + animStates.Length) + ": anims" : "")}   ·   drag: look/orbit   ·   scroll: zoom   ·   F: {(_firstPerson ? "orbit view" : "first person")}   ·   C: next outfit   ·   R: reset");
         }
     }
 }

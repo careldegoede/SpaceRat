@@ -16,6 +16,9 @@ namespace SpaceRat.EditorTools
         public const string ControllerPath = "Assets/SpaceRat/Animation/CharacterPreview.controller";
         const string Kevin = "Assets/Kevin Iglesias/Human Animations/Animations/Male/";
         const string Burak = "Assets/Burak Uzun/BasicCharacterAnimations/Character Animations/";
+        public const string Mixamo = "Assets/SpaceRat/Animation/Mixamo/";
+        public const string SittingIdleFbx = Mixamo + "X Bot@Sitting Idle.fbx";
+        public const string PilotControllerPath = "Assets/SpaceRat/Animation/PilotSeated.controller";
 
         // (state name, fbx path, clip name, returns to idle)
         static readonly (string state, string fbx, string clip, bool oneShot)[] States =
@@ -28,10 +31,29 @@ namespace SpaceRat.EditorTools
             ("Crouch Walk", Burak + "Movement/Crouch/Crouch_InPlace.fbx",         "Rig|Crouch_Walk_Forward",  false),
             ("Jump",        Kevin + "Movement/Jump/HumanM@Jump01.fbx",            "HumanM@Jump01",            true),
             ("Talk",        Kevin + "Social/Conversation/HumanM@Talk01.fbx",      "HumanM@Talk01",            true),
-            ("Swim",        Burak + "Movement/Swim/Swim_InPlace.fbx",             "Rig|Swim_Forward_InPlace", false),
+            ("Pistol Idle", Mixamo + "X Bot@Pistol Idle.fbx",                     "Pistol Idle",              false),
+            ("Pistol Walk", Mixamo + "X Bot@Pistol Walk.fbx",                     "Pistol Walk",              false),
         };
 
         public static string[] StateNames => States.Select(s => s.state).ToArray();
+
+        public static AnimationClip LoadClip(string fbx, string clipName) =>
+            AssetDatabase.LoadAllAssetsAtPath(fbx).OfType<AnimationClip>().FirstOrDefault(c => c.name == clipName);
+
+        /// <summary>Single-state controller for the seated pilot (Mixamo "Sitting Idle"), or null if missing.</summary>
+        public static AnimatorController BuildPilotSeated()
+        {
+            var clip = LoadClip(SittingIdleFbx, "Sitting Idle");
+            if (!clip) return null;
+            if (!AssetDatabase.IsValidFolder("Assets/SpaceRat/Animation")) AssetDatabase.CreateFolder("Assets/SpaceRat", "Animation");
+            AssetDatabase.DeleteAsset(PilotControllerPath);
+            var controller = AnimatorController.CreateAnimatorControllerAtPath(PilotControllerPath);
+            var st = controller.layers[0].stateMachine.AddState("Sitting Idle");
+            st.motion = clip;
+            controller.layers[0].stateMachine.defaultState = st;
+            AssetDatabase.SaveAssets();
+            return controller;
+        }
 
         [MenuItem("SpaceRat/Build Character Preview Animator")]
         public static AnimatorController Build()
