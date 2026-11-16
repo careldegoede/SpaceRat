@@ -103,10 +103,15 @@ the ship**. End when the settlement comes into view.
 | Dialogue / voice | DialogueSequence assets in `ScriptableObjects/Dialogue/Scene03`; Voice.md export; COMSET speaker tag |
 | Director | `Scene03Director`: WakeUp → Briefing → ExitFade → ThirdToFirst → Walk → SettlementInView → Complete |
 
-## Open questions (to decide before building)
-1. **Time of day** on the planet: day, dusk or night? (affects sky choice, lighting, mood)
-2. **Settlement:** inhabited, abandoned, or "lights on, nobody home"? (Scene 4 hook)
-3. **Walk length:** ~1.5 km is ~3–4 min walking, ~1.5 min running. Shorter?
-4. **Comset as an object:** visible on the pilot's wrist/belt, or just implied by the "COMSET" subtitle?
-5. **Pick up a part on the way?** (small first taste of the parts quest)
-6. **Third person allowed** during the walk (camera toggle), or first person only?
+## Decisions (2026-11-16)
+1. **Time of day:** **dusk** — low warm sun, long shadows, settlement lights glowing in the distance.
+2. **Settlement:** **lights on, nobody home** — working lights, open doors, signs of recent life, no people. What
+   happens inside is to be discussed (Scene 4 hook).
+3. **Walk length:** **~1.5 km** (crater → settlement, north-east, behind a ridge).
+4. **Comset:** **implied** by the "COMSET" subtitle label (no visible prop).
+5. **Parts quest:** **yes, a first taste** — a part (or a clue to where parts are) picked up on the way or at the outpost.
+6. **Camera:** **first person only** during the walk.
+7. **Settlement look:** reuse an **outpost** building (the user's "desert outpost" idea) as the settlement — exact
+   asset to confirm.
+8. **Scope:** gameplay first. Enemies and creatures come later — keep the walk and outpost ready for them
+   (open spaces, cover, a few points of interest).
