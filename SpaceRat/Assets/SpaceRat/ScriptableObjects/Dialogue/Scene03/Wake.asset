@@ -1,0 +1,71 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61f06bce5c9f0074bbc487a97ddc96f0, type: 3}
+  m_Name: Wake
+  m_EditorClassIdentifier: SpaceRat.Runtime::SpaceRat.Dialogue.DialogueSequence
+  lines:
+  - speaker: 1
+    text: Ow. Everything. Ow.
+    duration: 2
+    voice: {fileID: 8300000, guid: 88a6dd89a57a812478700cf45a6b287d, type: 3}
+  - speaker: 0
+    text: You are alive. Statistically, that was not the expected outcome.
+    duration: 4.1000004
+    voice: {fileID: 8300000, guid: b2a48a73141c3964d82cb0bbfa93b722, type: 3}
+  - speaker: 1
+    text: Thanks for the vote of confidence. What happened?
+    duration: 3.5
+    voice: {fileID: 8300000, guid: b9c130d17ab98f14baa485d4e2d44dc1, type: 3}
+  - speaker: 0
+    text: 'Summary: atmospheric entry, two engine fires, one landing. I am calling it a landing.'
+    duration: 4.8
+    voice: {fileID: 8300000, guid: fd1a18729ee5fdf4cb836aed88f797b3, type: 3}
+  - speaker: 1
+    text: You're the only one calling it that.
+    duration: 3.2
+    voice: {fileID: 8300000, guid: d1a497f6c9260ac4b9f514d22af8a533, type: 3}
+  - speaker: 0
+    text: During that remarkable landing I detected a remote station. About one kilometre north-east.
+    duration: 4.8
+    voice: {fileID: 8300000, guid: b23f44ba8532a7c46a19994a8dda518d, type: 3}
+  - speaker: 1
+    text: A station? People? Help? A bar?
+    duration: 2.9
+    voice: {fileID: 8300000, guid: b46535edb9d479c43a7086d9921577de, type: 3}
+  - speaker: 0
+    text: Unknown. I was busy landing.
+    duration: 2.6000001
+    voice: {fileID: 8300000, guid: e4e223e74e88b4a4e9a28cae196f6675, type: 3}
+  - speaker: 1
+    text: Fair. Can we just fly there?
+    duration: 2.9
+    voice: {fileID: 8300000, guid: 5c7c3f2b53b3ca04093152b0ec256dc9, type: 3}
+  - speaker: 0
+    text: No. The fusion cell cracked on impact. Without a new one, this ship is a very expensive tent.
+    duration: 4.8
+    voice: {fileID: 8300000, guid: 80eaa15f947e07d46bb0aa8bdb03b756, type: 3}
+  - speaker: 1
+    text: So I walk to the station and ask nicely for a fusion cell.
+    duration: 4.8
+    voice: {fileID: 8300000, guid: 3587e82c4280e13428deb9974d9a8de4, type: 3}
+  - speaker: 0
+    text: Take the comset. I will guide you from here. Try not to fall into anything.
+    duration: 4.8
+    voice: {fileID: 8300000, guid: 9f24cf1f7c361ab4b8aeafa113c7dc07, type: 3}
+  - speaker: 1
+    text: Great. A walkie-talkie and a ship that hates me.
+    duration: 3.8000002
+    voice: {fileID: 8300000, guid: db453c5b27f3b954f892de3afa21fd98, type: 3}
+  - speaker: 0
+    text: I do not hate you. I have not decided yet.
+    duration: 4.1000004
+    voice: {fileID: 8300000, guid: 7ec1a1cb81c694648afafc86690a2d02, type: 3}

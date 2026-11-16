@@ -1,0 +1,51 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61f06bce5c9f0074bbc487a97ddc96f0, type: 3}
+  m_Name: Walk_FusionCell
+  m_EditorClassIdentifier: SpaceRat.Runtime::SpaceRat.Dialogue.DialogueSequence
+  lines:
+  - speaker: 1
+    text: So... how the heck are we getting off this rock?
+    duration: 4.1000004
+    voice: {fileID: 8300000, guid: 89347364a1d114147a0195a7d6b52e31, type: 3}
+  - speaker: 0
+    text: Step one, a new fusion cell. Ours is currently in three pieces. Two of them are on fire.
+    duration: 4.8
+    voice: {fileID: 8300000, guid: 44116e9467524f54fa994d7e7573c3e1, type: 3}
+  - speaker: 1
+    text: And the station just has one lying around?
+    duration: 3.5
+    voice: {fileID: 8300000, guid: df8a5248b5ea98d4181936efed21bc86, type: 3}
+  - speaker: 0
+    text: Stations tend to keep spares. Or people who will sell them.
+    duration: 4.4
+    voice: {fileID: 8300000, guid: be7da3256dc06fd438b1afb89f2ba5db, type: 3}
+  - speaker: 1
+    text: With what money?
+    duration: 2
+    voice: {fileID: 8300000, guid: 7700025f12a0d56439fe35f7fe80ef74, type: 3}
+  - speaker: 0
+    text: You have charm.
+    duration: 2
+    voice: {fileID: 8300000, guid: 9aa4b86287b65734c938901bbf47191f, type: 3}
+  - speaker: 1
+    text: Do I?
+    duration: 1.7
+    voice: {fileID: 8300000, guid: 8ef4043cc9f005f46add8285e27c7653, type: 3}
+  - speaker: 0
+    text: Unknown. Your records are missing.
+    duration: 2.6000001
+    voice: {fileID: 8300000, guid: f65f2447ba4ab334b969588e9ae685f0, type: 3}
+  - speaker: 1
+    text: ...That was uncalled for.
+    duration: 2.3000002
+    voice: {fileID: 8300000, guid: 3a8f9ec560ab86d4787a1d19f0c34d95, type: 3}

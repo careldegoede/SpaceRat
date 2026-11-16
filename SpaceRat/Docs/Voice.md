@@ -51,7 +51,7 @@ Treat them as starting points; adjust per line.
 
 <!-- BEGIN GENERATED: in-game lines (SpaceRat > Export Voice Script) -->
 
-_Generated from 18 DialogueSequence assets. Do not edit by hand — edit the assets, then re-export._
+_Generated from 27 DialogueSequence assets. Do not edit by hand — edit the assets, then re-export._
 
 ### S01 · Beat1_ExteriorEmergency
 
@@ -230,53 +230,96 @@ _Generated from 18 DialogueSequence assets. Do not edit by hand — edit the ass
 | `S02_Tutorial_02` | Pilot | What happens if I hold it forever? | dry | `S02_Tutorial_02_pilot.wav` |
 | `S02_Tutorial_03` | Computer | It stops. Then you are disappointed. | deadpan | `S02_Tutorial_03_computer.wav` |
 
-**Totals:** Computer 49, Pilot 38
+### S03 · Exit
+
+| ID | Speaker | Line | Delivery | File |
+|---|---|---|---|---|
+| `S03_Exit_01` | Computer | Comset link established. Can you hear me? | deadpan | `S03_Exit_01_computer.wav` |
+| `S03_Exit_02` | Pilot | Loud and unfortunately clear. | dry | `S03_Exit_02_pilot.wav` |
+| `S03_Exit_03` | Computer | The station is on your compass. Follow the orange blip. Over the ridge. | deadpan | `S03_Exit_03_computer.wav` |
+
+### S03 · Nag_BackToShip
+
+| ID | Speaker | Line | Delivery | File |
+|---|---|---|---|---|
+| `S03_Nag_BackToShip_01` | Computer | You are walking back to the ship. I am flattered, but no. | deadpan | `S03_Nag_BackToShip_01_computer.wav` |
+
+### S03 · Nags
+
+| ID | Speaker | Line | Delivery | File |
+|---|---|---|---|---|
+| `S03_Nags_01` | Computer | North-east. It is the direction you are not walking in. | deadpan | `S03_Nags_01_computer.wav` |
+| `S03_Nags_02` | Computer | The compass is the round thing in the corner of your vision. It is there to help. | deadpan | `S03_Nags_02_computer.wav` |
+| `S03_Nags_03` | Computer | The station is north-east. The ocean is not. Please choose the station. | deadpan | `S03_Nags_03_computer.wav` |
+
+### S03 · Settlement
+
+| ID | Speaker | Line | Delivery | File |
+|---|---|---|---|---|
+| `S03_Settlement_01` | Computer | Structures ahead. Life signs: inconclusive. | deadpan | `S03_Settlement_01_computer.wav` |
+| `S03_Settlement_02` | Pilot | "Inconclusive" is my least favourite word. | dry | `S03_Settlement_02_pilot.wav` |
+| `S03_Settlement_03` | Computer | Noted. I will use it more often. | deadpan | `S03_Settlement_03_computer.wav` |
+
+### S03 · Wake
+
+| ID | Speaker | Line | Delivery | File |
+|---|---|---|---|---|
+| `S03_Wake_01` | Pilot | Ow. Everything. Ow. | dry | `S03_Wake_01_pilot.wav` |
+| `S03_Wake_02` | Computer | You are alive. Statistically, that was not the expected outcome. | deadpan | `S03_Wake_02_computer.wav` |
+| `S03_Wake_03` | Pilot | Thanks for the vote of confidence. What happened? | dry | `S03_Wake_03_pilot.wav` |
+| `S03_Wake_04` | Computer | Summary: atmospheric entry, two engine fires, one landing. I am calling it a landing. | deadpan | `S03_Wake_04_computer.wav` |
+| `S03_Wake_05` | Pilot | You're the only one calling it that. | dry | `S03_Wake_05_pilot.wav` |
+| `S03_Wake_06` | Computer | During that remarkable landing I detected a remote station. About one kilometre north-east. | deadpan | `S03_Wake_06_computer.wav` |
+| `S03_Wake_07` | Pilot | A station? People? Help? A bar? | dry | `S03_Wake_07_pilot.wav` |
+| `S03_Wake_08` | Computer | Unknown. I was busy landing. | deadpan | `S03_Wake_08_computer.wav` |
+| `S03_Wake_09` | Pilot | Fair. Can we just fly there? | dry | `S03_Wake_09_pilot.wav` |
+| `S03_Wake_10` | Computer | No. The fusion cell cracked on impact. Without a new one, this ship is a very expensive tent. | deadpan | `S03_Wake_10_computer.wav` |
+| `S03_Wake_11` | Pilot | So I walk to the station and ask nicely for a fusion cell. | dry | `S03_Wake_11_pilot.wav` |
+| `S03_Wake_12` | Computer | Take the comset. I will guide you from here. Try not to fall into anything. | deadpan | `S03_Wake_12_computer.wav` |
+| `S03_Wake_13` | Pilot | Great. A walkie-talkie and a ship that hates me. | dry | `S03_Wake_13_pilot.wav` |
+| `S03_Wake_14` | Computer | I do not hate you. I have not decided yet. | deadpan | `S03_Wake_14_computer.wav` |
+
+### S03 · WakeCall
+
+| ID | Speaker | Line | Delivery | File |
+|---|---|---|---|---|
+| `S03_WakeCall_01` | Computer | Pilot? ... Please respond. | hesitant | `S03_WakeCall_01_computer.wav` |
+| `S03_WakeCall_02` | Computer | Pilot. We have stopped moving. Please confirm you have not also stopped. | deadpan | `S03_WakeCall_02_computer.wav` |
+
+### S03 · Walk_FusionCell
+
+| ID | Speaker | Line | Delivery | File |
+|---|---|---|---|---|
+| `S03_Walk_FusionCell_01` | Pilot | So... how the heck are we getting off this rock? | hesitant | `S03_Walk_FusionCell_01_pilot.wav` |
+| `S03_Walk_FusionCell_02` | Computer | Step one, a new fusion cell. Ours is currently in three pieces. Two of them are on fire. | deadpan | `S03_Walk_FusionCell_02_computer.wav` |
+| `S03_Walk_FusionCell_03` | Pilot | And the station just has one lying around? | dry | `S03_Walk_FusionCell_03_pilot.wav` |
+| `S03_Walk_FusionCell_04` | Computer | Stations tend to keep spares. Or people who will sell them. | deadpan | `S03_Walk_FusionCell_04_computer.wav` |
+| `S03_Walk_FusionCell_05` | Pilot | With what money? | dry | `S03_Walk_FusionCell_05_pilot.wav` |
+| `S03_Walk_FusionCell_06` | Computer | You have charm. | deadpan | `S03_Walk_FusionCell_06_computer.wav` |
+| `S03_Walk_FusionCell_07` | Pilot | Do I? | dry | `S03_Walk_FusionCell_07_pilot.wav` |
+| `S03_Walk_FusionCell_08` | Computer | Unknown. Your records are missing. | deadpan | `S03_Walk_FusionCell_08_computer.wav` |
+| `S03_Walk_FusionCell_09` | Pilot | ...That was uncalled for. | hesitant | `S03_Walk_FusionCell_09_pilot.wav` |
+
+### S03 · Walk_NavCore
+
+| ID | Speaker | Line | Delivery | File |
+|---|---|---|---|---|
+| `S03_Walk_NavCore_01` | Computer | I will also need a new navigation core. Mine currently identifies this planet as "Error". | deadpan | `S03_Walk_NavCore_01_computer.wav` |
+| `S03_Walk_NavCore_02` | Pilot | Honestly? Fitting. | dry | `S03_Walk_NavCore_02_pilot.wav` |
+
+### S03 · Walk_Signal
+
+| ID | Speaker | Line | Delivery | File |
+|---|---|---|---|---|
+| `S03_Walk_Signal_01` | Computer | One more thing. The signal we followed. It originates from the station. | deadpan | `S03_Walk_Signal_01_computer.wav` |
+| `S03_Walk_Signal_02` | Pilot | So we crash-landed next to the one thing calling us. Coincidence? | dry | `S03_Walk_Signal_02_pilot.wav` |
+| `S03_Walk_Signal_03` | Computer | I am not programmed for suspicion. | deadpan | `S03_Walk_Signal_03_computer.wav` |
+| `S03_Walk_Signal_04` | Pilot | Lucky for you, I am. | dry | `S03_Walk_Signal_04_pilot.wav` |
+
+**Totals:** Computer 73, Pilot 55
 
 <!-- END GENERATED -->
 
 ## Planned lines (not in game yet)
 
-### Scene 3 — The Crash Site (from `Plans/SpaceRat_Scene3_Development_Brief.md`, draft)
-
-"Computer (comset)" lines are the same COMPUTER voice through the comset — apply a radio filter (band-pass + light
-crackle) in Unity; record clean.
-
-| ID | Speaker | Line | Delivery |
-|---|---|---|---|
-| `S03_Wake_01` | Computer | Pilot? ... Please respond. | damaged, quiet |
-| `S03_Wake_02` | Pilot | Ow. Everything. Ow. | groggy |
-| `S03_Wake_03` | Computer | You are alive. Statistically, that was not the expected outcome. | deadpan |
-| `S03_Wake_04` | Pilot | Thanks for the vote of confidence. Where are we? | dry |
-| `S03_Wake_05` | Computer | On the planet. Specifically, in a hole we made in the planet. | deadpan |
-| `S03_Wake_06` | Pilot | Comforting. Anything out there? People? Help? A bar? | dry |
-| `S03_Wake_07` | Computer | During descent I detected structures roughly two kilometres north-east. Possibly a settlement. | deadpan |
-| `S03_Wake_08` | Pilot | Possibly? | incredulous |
-| `S03_Wake_09` | Computer | I was busy crashing. | deadpan |
-| `S03_Wake_10` | Pilot | Fair. Can you call them? | dry |
-| `S03_Wake_11` | Computer | Long-range communications are damaged. Take the comset from the console. I can reach you through it. It may also reach whoever lives there. | deadpan |
-| `S03_Wake_12` | Pilot | Great. A walkie-talkie and a ship that hates me. | sarcastic |
-| `S03_Wake_13` | Computer | I do not hate you. I have not decided yet. | deadpan |
-| `S03_Exit_01` | Computer (comset) | Comset link established. Can you hear me? | radio |
-| `S03_Exit_02` | Pilot | Loud and unfortunately clear. | dry |
-| `S03_Exit_03` | Computer (comset) | Head north-east. Follow your compass. Try not to fall into anything. | radio, deadpan |
-| `S03_Walk_01` | Pilot | So... how the heck are we getting off this rock? | exasperated |
-| `S03_Walk_02` | Computer (comset) | The ship requires a new reactor regulator. Ours is currently in three pieces. Two of them are on fire. | radio, deadpan |
-| `S03_Walk_03` | Pilot | And where do we get one of those? | dry |
-| `S03_Walk_04` | Computer (comset) | Settlements tend to have spare parts. Or people who will sell them. | radio, deadpan |
-| `S03_Walk_05` | Pilot | With what money? | dry |
-| `S03_Walk_06` | Computer (comset) | You have charm. | radio, deadpan |
-| `S03_Walk_07` | Pilot | Do I? | genuinely unsure |
-| `S03_Walk_08` | Computer (comset) | Unknown. Your records are missing. | radio, deadpan |
-| `S03_Walk_09` | Pilot | ...That was uncalled for. | wounded |
-| `S03_Walk_10` | Computer (comset) | I will also need a new navigation core. Mine currently identifies this planet as "Error". | radio, deadpan |
-| `S03_Walk_11` | Pilot | Honestly? Fitting. | dry |
-| `S03_Walk_12` | Computer (comset) | One more thing. The signal we followed. It originates from the settlement. | radio, serious |
-| `S03_Walk_13` | Pilot | So we crash-landed next to the one thing calling us. Coincidence? | suspicious |
-| `S03_Walk_14` | Computer (comset) | I am not programmed for suspicion. | radio, deadpan |
-| `S03_Walk_15` | Pilot | Lucky for you, I am. | dry |
-| `S03_Nag_01` | Computer (comset) | North-east. It is the direction you are not walking in. | radio, deadpan |
-| `S03_Nag_02` | Computer (comset) | The compass is the round thing at the top of your vision. It is there to help. | radio, deadpan |
-| `S03_Nag_03` | Computer (comset) | You are walking back to the ship. I am flattered, but no. | radio, deadpan |
-| `S03_End_01` | Computer (comset) | Structures ahead. Life signs: inconclusive. | radio, cautious |
-| `S03_End_02` | Pilot | "Inconclusive" is my least favourite word. | dry |
-| `S03_End_03` | Computer (comset) | Noted. I will use it more often. | radio, deadpan |
+_None right now — every written line is in the game._

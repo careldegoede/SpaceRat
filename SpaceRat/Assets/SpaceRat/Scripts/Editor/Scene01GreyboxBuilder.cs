@@ -31,16 +31,16 @@ namespace SpaceRat.EditorTools
         internal const string DialogueDir = Root + "/ScriptableObjects/Dialogue";
         internal const string SkyboxPath = "Assets/SpaceSkies Free/Skybox_2/Green_2K_Resoution.mat"; // (sic) vendor filename typo
         internal const string StarPrefabPath = "Assets/Mwester Studios/Simple Space Starter Kit/Prefabs/Planet and Star/Star.prefab";
-        const string PilotPrefabPath = Root + "/Prefabs/Characters/" + CharacterViewerBuilder.PilotOutfit + ".prefab";
+        internal const string PilotPrefabPath = Root + "/Prefabs/Characters/" + CharacterViewerBuilder.PilotOutfit + ".prefab";
         static readonly Vector3 PilotHipsOnGreyboxSeat = new(0f, -0.36f, 2.45f); // body-local, just above the greybox cushion
 
         // Sci-Fi Styled Modular Pack "pilot_seat" (measured unscaled: cushion top y=0.74 spanning z -0.3..0.3,
         // backrest face z~-0.5, height 2.55). Modelled oversized, so it is scaled to fit the 1.98 m pilot.
-        const string PilotSeatPath = "Assets/Sci-Fi Styled Modular Pack/Prefabs/Decorative elements/pilot_seat.prefab";
-        const float PilotSeatScale = 0.5f;
-        const float CockpitFloorTop = -0.80f;                                      // body-local
-        static readonly Vector3 PilotSeatPos = new(0f, CockpitFloorTop, 2.58f);    // backrest face lands ~0.12 behind the hips
-        static readonly Vector3 PilotHipsOnPilotSeat = new(0f, CockpitFloorTop + 0.74f * PilotSeatScale + 0.11f, 2.45f);
+        internal const string PilotSeatPath = "Assets/Sci-Fi Styled Modular Pack/Prefabs/Decorative elements/pilot_seat.prefab";
+        internal const float PilotSeatScale = 0.5f;
+        internal const float CockpitFloorTop = -0.80f;                                      // body-local
+        internal static readonly Vector3 PilotSeatPos = new(0f, CockpitFloorTop, 2.58f);    // backrest face lands ~0.12 behind the hips
+        internal static readonly Vector3 PilotHipsOnPilotSeat = new(0f, CockpitFloorTop + 0.74f * PilotSeatScale + 0.11f, 2.45f);
         internal const string HeroShipPath = Root + "/Prefabs/Ship/Sparrow_blue_URP.prefab";
         internal const string CockpitArtPath = Root + "/Art/UI/Cockpit_Overlay.png";
         internal const string NoisePath ="Packages/com.unity.cinemachine/Presets/Noise/Handheld_normal_mild.asset";
@@ -463,8 +463,8 @@ namespace SpaceRat.EditorTools
         // ---- Cockpit interior shell (Sci-Fi Styled Modular Pack) --------------------------------
         const string Modular = "Assets/Sci-Fi Styled Modular Pack/Prefabs/";
         // Close-up over the console onto the pilot (was 2 m away at z 4.4).
-        static readonly Vector3 PilotCamPos = new(0.42f, 0.5f, 3.75f);
-        static readonly Vector3 PilotCamLookAt = new(0f, 0.18f, 2.5f);
+        internal static readonly Vector3 PilotCamPos = new(0.42f, 0.5f, 3.75f);
+        internal static readonly Vector3 PilotCamLookAt = new(0f, 0.18f, 2.5f);
         const float ShellScale = 0.55f;                 // pack modules are 4 m -> 2.2 m
         const float ShellModule = 4f * ShellScale;
         const float ShellBackZ = 1.1f;                  // back wall (door) behind the pilot
@@ -476,7 +476,7 @@ namespace SpaceRat.EditorTools
         /// pilot interior shot (it would poke through the Sparrow hull in exterior shots).
         /// Returns null if the pack isn't imported.
         /// </summary>
-        static GameObject BuildCockpitShell(Transform body, UnityEngine.SceneManagement.Scene scene)
+        internal static GameObject BuildCockpitShell(Transform body, UnityEngine.SceneManagement.Scene scene)
         {
             if (!AssetDatabase.IsValidFolder("Assets/Sci-Fi Styled Modular Pack")) return null;
             var shell = new GameObject("CockpitShell").transform;
