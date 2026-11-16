@@ -21,6 +21,7 @@ namespace SpaceRat.UI
 
         public bool Visible { get; set; }
         public Transform Target { get => target; set => target = value; }
+        public string TargetLabel { get => targetLabel; set => targetLabel = value; }
 
         float _alpha;
         GUIStyle _label, _value;

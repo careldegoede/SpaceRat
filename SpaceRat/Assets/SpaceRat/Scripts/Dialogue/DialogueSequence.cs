@@ -7,7 +7,9 @@ namespace SpaceRat.Dialogue
     public enum Speaker
     {
         Computer,
-        Pilot
+        Pilot,
+        /// <summary>Captain Voss, heard only through recorded station logs (Scene 3).</summary>
+        Captain
     }
 
     [Serializable]

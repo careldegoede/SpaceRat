@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61f06bce5c9f0074bbc487a97ddc96f0, type: 3}
+  m_Name: Pickup
+  m_EditorClassIdentifier: SpaceRat.Runtime::SpaceRat.Dialogue.DialogueSequence
+  lines:
+  - speaker: 1
+    text: Navigation module. Looks expensive.
+    duration: 2.3000002
+    voice: {fileID: 8300000, guid: bbb57b64871820b4ca26664c059146fe, type: 3}
+  - speaker: 0
+    text: It is. Please do not drop it.
+    duration: 3.2
+    voice: {fileID: 8300000, guid: 9d3619e987a5a594c950962db0030ca0, type: 3}
+  - speaker: 1
+    text: No promises.
+    duration: 1.7
+    voice: {fileID: 8300000, guid: 35765beb8f6be144fb56f5f5749696e5, type: 3}

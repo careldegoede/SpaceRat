@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61f06bce5c9f0074bbc487a97ddc96f0, type: 3}
+  m_Name: Arrival
+  m_EditorClassIdentifier: SpaceRat.Runtime::SpaceRat.Dialogue.DialogueSequence
+  lines:
+  - speaker: 1
+    text: Hello? Anybody home?
+    duration: 2
+    voice: {fileID: 8300000, guid: f5a615591cda247478d8d8f7a6bb6a25, type: 3}
+  - speaker: 0
+    text: 'Life signs: inconclusive.'
+    duration: 2
+    voice: {fileID: 8300000, guid: 33378cc5e11011642a6eb9e6223e8f43, type: 3}
+  - speaker: 1
+    text: You keep saying that.
+    duration: 2.3000002
+    voice: {fileID: 8300000, guid: 62bf94f86c980fd4eb67c4b495cc375a, type: 3}
+  - speaker: 0
+    text: It keeps being true.
+    duration: 2.3000002
+    voice: {fileID: 8300000, guid: fecf8ffefc76ca64eb2cd22c95445e97, type: 3}
+  - speaker: 1
+    text: Lights on, doors open, nobody here. That's not creepy at all.
+    duration: 4.4
+    voice: {fileID: 8300000, guid: 15eeda4030fea0e40902936317acce16, type: 3}
+  - speaker: 0
+    text: There is a command seat with terminal access. Sit down and I will pull the station manifest.
+    duration: 4.8
+    voice: {fileID: 8300000, guid: 7170a1976431f88489413877e558adcd, type: 3}

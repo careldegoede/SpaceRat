@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61f06bce5c9f0074bbc487a97ddc96f0, type: 3}
+  m_Name: Bot_Awake
+  m_EditorClassIdentifier: SpaceRat.Runtime::SpaceRat.Dialogue.DialogueSequence
+  lines:
+  - speaker: 0
+    text: I am... spherical. This is acceptable.
+    duration: 2.9
+    voice: {fileID: 8300000, guid: 716553332002ac94eb33386fd6a2f72f, type: 3}
+  - speaker: 1
+    text: You're in there?
+    duration: 2
+    voice: {fileID: 8300000, guid: fc47f537217469b4292e3a76daa47391, type: 3}
+  - speaker: 0
+    text: I am in here, and on the ship. Twice the supervision.
+    duration: 4.4
+    voice: {fileID: 8300000, guid: 5fd50adeb0ae700448b38c07c8ac612e, type: 3}
+  - speaker: 1
+    text: Fantastic. My two favourite voices.
+    duration: 2.6000001
+    voice: {fileID: 8300000, guid: 7bca386a798180d4f88d6b329dfddd10, type: 3}

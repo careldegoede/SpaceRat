@@ -20,3 +20,9 @@ https://assetstore.unity.com/packages/3d/characters/humanoids/humans/adventure-c
 
 ==============================================================================
 
+
+For later (both free, checked 2026-11-16):
+https://assetstore.unity.com/packages/3d/environments/landscapes/p-w-temple-edition-33637
+   Ancient temple = the ruins Captain Voss went into (Scene 4). Unity 4.3 era: materials need URP copies.
+https://assetstore.unity.com/packages/3d/vegetation/trees/realistic-tree-9-rainbow-tree-54622
+   Alien rainbow trees for the island. Unity 5.3 era: materials need URP copies.

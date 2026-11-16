@@ -14,8 +14,11 @@ namespace SpaceRat.Scene03
     /// Cockpit (wrecked, sparks; holo-capsule box) — computer wakes the slumped pilot, summarises the
     /// "landing", the remote station it detected and the cracked fusion cell → fade out →
     /// behind the ship (comset box, compass with the station blip) → Exit lines → Walk (banter by
-    /// progress, off-course nags, live distance/signal) → station in range → fade out → main menu.
-    /// Space skips lines during the cockpit opening only.
+    /// progress, off-course nags, live distance/signal) → station in sight → Outpost (MyOutpost prefab):
+    /// sit at the terminal (manifest scan + Captain Voss's logs) → only then can the service unit on the roof
+    /// be woken; take the navigation module from the lounge (inventory) → the computer copies itself into the
+    /// bot, which takes the module to the ship to patch it up until a power supply is found → menu.
+    /// Space skips lines during the cockpit opening and the terminal.
     /// </summary>
     public class Scene03Director : MonoBehaviour
     {
@@ -39,6 +42,7 @@ namespace SpaceRat.Scene03
         [SerializeField] Camera mainCamera;
         [SerializeField] PilotSeating seatedPilot;
         [SerializeField] CompassHud compass;
+        [SerializeField] PlayerHud hud;
         [SerializeField] float cockpitAmbient = 0.25f;
 
         [Header("Dialogue")]
@@ -51,6 +55,31 @@ namespace SpaceRat.Scene03
         [SerializeField] DialogueSequence nags;
         [SerializeField] DialogueSequence nagBackToShip;
         [SerializeField] DialogueSequence settlement;
+        [SerializeField] DialogueSequence arrival;
+        [SerializeField] DialogueSequence pickup;
+        [SerializeField] DialogueSequence terminalScan;
+        [SerializeField] DialogueSequence captainLogs;
+        [SerializeField] DialogueSequence logsReaction;
+        [SerializeField] DialogueSequence botActivate;
+        [SerializeField] DialogueSequence botAwake;
+        [SerializeField] DialogueSequence navReminder;
+        [SerializeField] DialogueSequence outro;
+
+        [Header("Outpost")]
+        [SerializeField] Inventory inventory;
+        [Tooltip("The spare navigation module on the lounge table.")]
+        [SerializeField] Interactable navPickup;
+        [Tooltip("Placeholders and closed door leaves hidden when the scene starts.")]
+        [SerializeField] GameObject[] hideOnStart;
+        [SerializeField] Interactable captainChair;
+        [SerializeField] Interactable botSwitch;
+        [SerializeField] ServiceBot serviceBot;
+        [Tooltip("Seated view of the captain's terminal while the logs play.")]
+        [SerializeField] Camera consoleCamera;
+        [SerializeField] GameObject consoleScreenGlow;
+        [Tooltip("Round portrait of the bot: the computer's dialogue icon once it lives in the bot.")]
+        [SerializeField] Texture2D botPortrait;
+        [SerializeField] float arriveRange = 16f;          // metres from the hub centre
 
         [Header("Tuning")]
         [SerializeField] float pauseBetweenLines = 0.35f;
@@ -62,7 +91,7 @@ namespace SpaceRat.Scene03
         [SerializeField] string endScene = "Scene00_MainMenu";
 
         float _black = 1f;            // full-screen black overlay (0..1)
-        bool _skip, _talking, _walking, _ended;
+        bool _skip, _talking, _walking, _ended, _spotted, _arrived, _logsHeard, _botAwake, _busy;
         int _lineToken, _nagIndex;
         float _startDist, _offCourseFor, _nextNag;
         Vector3 _lastPos;
@@ -72,6 +101,12 @@ namespace SpaceRat.Scene03
         {
             if (pilot) pilot.InputEnabled = false;
             SetCockpit(true);
+            if (consoleCamera) consoleCamera.enabled = false;
+            if (consoleScreenGlow) consoleScreenGlow.SetActive(false);
+            if (hideOnStart != null) foreach (var g in hideOnStart) if (g) g.SetActive(false);
+            if (navPickup) navPickup.Used += _ => StartCoroutine(TakeNavModule());
+            if (captainChair) captainChair.Used += _ => StartCoroutine(ReadLogs());
+            if (botSwitch) { botSwitch.Available = false; botSwitch.Used += _ => StartCoroutine(WakeBot()); }
             StartCoroutine(Run());
         }
 
@@ -89,16 +124,21 @@ namespace SpaceRat.Scene03
                 int signal = Mathf.RoundToInt(Mathf.Clamp01(1f - fromShip / signalRange) * 70f + 25f);
                 dialogue.comsetStatus = string.Format(CultureInfo.InvariantCulture, "DIST {0:0.0} KM  ·  SIGNAL {1}%", dist / 1000f, signal);
             }
-            if (!_walking || _ended) { _lastPos = pos; return; }
+            if (!_walking || _ended || _busy) { _lastPos = pos; return; }
 
             float progress = _startDist > 1f ? 1f - dist / _startDist : 0f;
             if (!_talking)
             {
-                if (dist < settlementRange) { StartCoroutine(End()); return; }
-                if (Play(walkFusionCell, progress > 0.12f)) { }
+                if (!_spotted && dist < settlementRange) { _spotted = true; StartCoroutine(Spotted()); return; }
+                if (_spotted)
+                {
+                    if (!_arrived && dist < arriveRange) { _arrived = true; StartCoroutine(PlayBackground(arrival)); }
+                }
+                else if (Play(walkFusionCell, progress > 0.12f)) { }
                 else if (Play(walkNavCore, progress > 0.4f)) { }
                 else Play(walkSignal, progress > 0.65f);
             }
+            if (_spotted) { _lastPos = pos; return; }   // no off-course nags once the station is in sight
 
             // Off course: moving, but not towards the outpost, for a while.
             Vector3 moved = Flat(pos - _lastPos);
@@ -158,26 +198,123 @@ namespace SpaceRat.Scene03
             SetCockpit(false);
             yield return new WaitForSeconds(0.8f);
             if (compass) compass.Visible = true;
+            if (hud) hud.Visible = true;
             yield return Fade(0f, 2.5f);
             if (pilot) pilot.InputEnabled = true;
             _walking = true;
             yield return PlayBackground(exit);
         }
 
-        IEnumerator End()
+        /// <summary>Station in sight: the signal reveal (if outrun) and "Structures ahead". The walk goes on.</summary>
+        IEnumerator Spotted()
         {
-            _ended = true;
             StopBackground();
-            // The signal reveal is story-critical: if the player outran its trigger, play it now.
             if (walkSignal && !_played.Contains(walkSignal))
             {
                 _played.Add(walkSignal);
                 yield return PlayBackground(walkSignal);
             }
             yield return PlayBackground(settlement);
+        }
+
+        // ---- Outpost ------------------------------------------------------------------------
+
+        const string NavModule = "nav_module";
+
+        /// <summary>The spare navigation module goes into the inventory (no UI yet).</summary>
+        IEnumerator TakeNavModule()
+        {
+            if (navPickup) { navPickup.Available = false; navPickup.gameObject.SetActive(false); }
+            if (inventory) inventory.Add(NavModule, "Navigation Module");
+            StopBackground();
+            yield return PlayBackground(pickup);
+            if (_botAwake) yield return Outro();          // the bot was already waiting for it
+        }
+
+        /// <summary>Sit in the captain's chair: seated view of the terminal, her logs, then the reaction.</summary>
+        IEnumerator ReadLogs()
+        {
+            if (_busy) yield break;
+            _busy = true;
+            StopBackground();
+            if (pilot) pilot.InputEnabled = false;
+            if (compass) compass.Visible = false;
+            if (hud) hud.Visible = false;
+
+            yield return Fade(1f, 0.5f);
+            if (mainCamera) mainCamera.enabled = false;
+            if (consoleCamera) consoleCamera.enabled = true;
+            if (consoleScreenGlow) consoleScreenGlow.SetActive(true);
+            if (dialogue) dialogue.Style = DialogueBoxStyle.HoloCapsule;
+            yield return Fade(0f, 0.8f);
+
+            yield return PlaySkippable(terminalScan);
+            yield return PlaySkippable(captainLogs);
+            yield return PlaySkippable(logsReaction);
+
+            yield return Fade(1f, 0.5f);
+            if (consoleCamera) consoleCamera.enabled = false;
+            if (consoleScreenGlow) consoleScreenGlow.SetActive(false);
+            if (mainCamera) mainCamera.enabled = true;
+            if (dialogue) dialogue.Style = DialogueBoxStyle.Comset;
+            if (compass) compass.Visible = true;
+            if (hud) hud.Visible = true;
+            yield return Fade(0f, 0.8f);
+
+            _logsHeard = true;
+            if (captainChair) captainChair.Prompt = "REPLAY STATION TERMINAL";
+            if (botSwitch && !_botAwake) botSwitch.Available = true;
+            if (compass && serviceBot && !_botAwake) { compass.Target = serviceBot.transform; compass.TargetLabel = "SERVICE UNIT"; }
+            if (pilot) pilot.InputEnabled = true;
+            _busy = false;
+        }
+
+        /// <summary>Wake the service unit: the computer copies itself in and the bot becomes a companion.</summary>
+        IEnumerator WakeBot()
+        {
+            if (_busy || _botAwake || !_logsHeard) yield break;
+            _busy = true;
+            _botAwake = true;
+            if (botSwitch) botSwitch.Available = false;
+            if (captainChair) captainChair.Available = false;
+            StopBackground();
+            yield return PlayBackground(botActivate);
+            if (serviceBot) serviceBot.Activate();
+            yield return new WaitForSeconds(1.2f);
+            if (dialogue && botPortrait) dialogue.ComputerPortrait = botPortrait;   // from here on, the computer is the bot
+            yield return PlayBackground(botAwake);
+            if (serviceBot) { serviceBot.FollowTarget = pilot ? pilot.transform : null; serviceBot.Following = true; }
+            _busy = false;
+
+            if (inventory && inventory.Has(NavModule)) yield return Outro();
+            else
+            {
+                yield return PlayBackground(navReminder);
+                if (compass && navPickup) { compass.Target = navPickup.transform; compass.TargetLabel = "NAV MODULE"; }
+            }
+        }
+
+        IEnumerator Outro()
+        {
+            if (_ended) yield break;
+            _ended = true;
+            if (compass && crashSite) { compass.Target = crashSite; compass.TargetLabel = "SHIP"; }
+            yield return new WaitForSeconds(0.6f);
+            yield return PlayBackground(outro);
+            // The bot takes the module and heads back to the ship to patch it up.
+            if (inventory) inventory.Remove(NavModule);
+            if (serviceBot && crashSite) serviceBot.SendTo(crashSite);
+            yield return new WaitForSeconds(2.5f);
+            yield return End();
+        }
+
+        IEnumerator End()
+        {
+            _ended = true;
             yield return new WaitForSeconds(1f);
             if (pilot) pilot.InputEnabled = false;
             if (compass) compass.Visible = false;
+            if (hud) hud.Visible = false;
             yield return Fade(1f, 2.5f);
             yield return new WaitForSeconds(1.5f);
             if (Application.CanStreamedLevelBeLoaded(endScene)) SceneManager.LoadScene(endScene);
@@ -322,7 +459,8 @@ namespace SpaceRat.Scene03
 
         void OnGUI()
         {
-            if (_black <= 0.001f || Event.current.type != EventType.Repaint) return;
+            if (Event.current.type != EventType.Repaint) return;
+            if (_black <= 0.001f) return;
             if (!_blackTex) { _blackTex = new Texture2D(1, 1); _blackTex.SetPixel(0, 0, Color.black); _blackTex.Apply(); }
             GUI.depth = 10;    // behind the dialogue box (lower depth draws on top)
             var prev = GUI.color;

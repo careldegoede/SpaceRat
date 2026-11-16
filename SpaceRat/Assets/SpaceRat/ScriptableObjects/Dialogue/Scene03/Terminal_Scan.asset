@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61f06bce5c9f0074bbc487a97ddc96f0, type: 3}
+  m_Name: Terminal_Scan
+  m_EditorClassIdentifier: SpaceRat.Runtime::SpaceRat.Dialogue.DialogueSequence
+  lines:
+  - speaker: 0
+    text: 'Connected. Station manifest: Kessel-9 research outpost. Crew of four. Crew currently aboard: zero.'
+    duration: 4.8
+    voice: {fileID: 8300000, guid: d8c72926cc9703d4ea0ae1188f4674e8, type: 3}
+  - speaker: 0
+    text: 'Inventory: one spare navigation module, stored in the lounge. Fusion cells: none. Of course.'
+    duration: 4.8
+    voice: {fileID: 8300000, guid: 7380c7fd7feb68d4e907b4140c75bbf1, type: 3}
+  - speaker: 0
+    text: There are station logs. Captain Voss. Playing them now.
+    duration: 3.8000002
+    voice: {fileID: 8300000, guid: a7403fc458f93cd43bad4661ddb0d5e7, type: 3}

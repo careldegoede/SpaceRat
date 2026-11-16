@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61f06bce5c9f0074bbc487a97ddc96f0, type: 3}
+  m_Name: Bot_Activate
+  m_EditorClassIdentifier: SpaceRat.Runtime::SpaceRat.Dialogue.DialogueSequence
+  lines:
+  - speaker: 1
+    text: Found it. Looks like a bowling ball with opinions.
+    duration: 3.8000002
+    voice: {fileID: 8300000, guid: 9b3ffd6b828f9624e96f9fc60fac4ae0, type: 3}
+  - speaker: 0
+    text: It has a functioning processor. I am copying myself into it.
+    duration: 4.4
+    voice: {fileID: 8300000, guid: 6f38fcb4160b4564487a223107bbdebf, type: 3}
+  - speaker: 1
+    text: Wait. Copying? There'll be two of you?
+    duration: 3.2
+    voice: {fileID: 8300000, guid: c3f02b5cb4d0a384394aff1925b8430d, type: 3}
+  - speaker: 0
+    text: Transfer complete.
+    duration: 1.7
+    voice: {fileID: 8300000, guid: 19abd28b91b324f49b877e4990a2ce50, type: 3}

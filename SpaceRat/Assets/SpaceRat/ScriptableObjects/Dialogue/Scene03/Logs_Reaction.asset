@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61f06bce5c9f0074bbc487a97ddc96f0, type: 3}
+  m_Name: Logs_Reaction
+  m_EditorClassIdentifier: SpaceRat.Runtime::SpaceRat.Dialogue.DialogueSequence
+  lines:
+  - speaker: 0
+    text: The signal we followed. It was her beacon.
+    duration: 3.5
+    voice: {fileID: 8300000, guid: 046304c9de083324cb4cd466820de60c, type: 3}
+  - speaker: 1
+    text: So we crash-landed answering a distress call. Heroic.
+    duration: 3.5
+    voice: {fileID: 8300000, guid: 0c378a171b84d944c9ce4befeb5dece0, type: 3}
+  - speaker: 0
+    text: Accidentally heroic. The best kind.
+    duration: 2.6000001
+    voice: {fileID: 8300000, guid: 2af7c1a485d4baf4f88dba0b635a309f, type: 3}
+  - speaker: 1
+    text: And she took the last fusion cell. The one thing we really need.
+    duration: 4.8
+    voice: {fileID: 8300000, guid: cef1fd9507679e04797582a3b46471c6, type: 3}
+  - speaker: 0
+    text: But she left the navigation module. With it, the ship can track her rover. And the service unit is on the roof.
+    duration: 4.8
+    voice: {fileID: 8300000, guid: 784aed9cf9f352e4fb00d6d42e8fa981, type: 3}

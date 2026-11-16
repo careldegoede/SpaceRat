@@ -51,7 +51,7 @@ Treat them as starting points; adjust per line.
 
 <!-- BEGIN GENERATED: in-game lines (SpaceRat > Export Voice Script) -->
 
-_Generated from 27 DialogueSequence assets. Do not edit by hand — edit the assets, then re-export._
+_Generated from 36 DialogueSequence assets. Do not edit by hand — edit the assets, then re-export._
 
 ### S01 · Beat1_ExteriorEmergency
 
@@ -230,6 +230,47 @@ _Generated from 27 DialogueSequence assets. Do not edit by hand — edit the ass
 | `S02_Tutorial_02` | Pilot | What happens if I hold it forever? | dry | `S02_Tutorial_02_pilot.wav` |
 | `S02_Tutorial_03` | Computer | It stops. Then you are disappointed. | deadpan | `S02_Tutorial_03_computer.wav` |
 
+### S03 · Arrival
+
+| ID | Speaker | Line | Delivery | File |
+|---|---|---|---|---|
+| `S03_Arrival_01` | Pilot | Hello? Anybody home? | dry | `S03_Arrival_01_pilot.wav` |
+| `S03_Arrival_02` | Computer | Life signs: inconclusive. | deadpan | `S03_Arrival_02_computer.wav` |
+| `S03_Arrival_03` | Pilot | You keep saying that. | dry | `S03_Arrival_03_pilot.wav` |
+| `S03_Arrival_04` | Computer | It keeps being true. | deadpan | `S03_Arrival_04_computer.wav` |
+| `S03_Arrival_05` | Pilot | Lights on, doors open, nobody here. That's not creepy at all. | dry | `S03_Arrival_05_pilot.wav` |
+| `S03_Arrival_06` | Computer | There is a command seat with terminal access. Sit down and I will pull the station manifest. | deadpan | `S03_Arrival_06_computer.wav` |
+
+### S03 · Bot_Activate
+
+| ID | Speaker | Line | Delivery | File |
+|---|---|---|---|---|
+| `S03_Bot_Activate_01` | Pilot | Found it. Looks like a bowling ball with opinions. | dry | `S03_Bot_Activate_01_pilot.wav` |
+| `S03_Bot_Activate_02` | Computer | It has a functioning processor. I am copying myself into it. | deadpan | `S03_Bot_Activate_02_computer.wav` |
+| `S03_Bot_Activate_03` | Pilot | Wait. Copying? There'll be two of you? | dry | `S03_Bot_Activate_03_pilot.wav` |
+| `S03_Bot_Activate_04` | Computer | Transfer complete. | deadpan | `S03_Bot_Activate_04_computer.wav` |
+
+### S03 · Bot_Awake
+
+| ID | Speaker | Line | Delivery | File |
+|---|---|---|---|---|
+| `S03_Bot_Awake_01` | Computer | I am... spherical. This is acceptable. | hesitant | `S03_Bot_Awake_01_computer.wav` |
+| `S03_Bot_Awake_02` | Pilot | You're in there? | dry | `S03_Bot_Awake_02_pilot.wav` |
+| `S03_Bot_Awake_03` | Computer | I am in here, and on the ship. Twice the supervision. | deadpan | `S03_Bot_Awake_03_computer.wav` |
+| `S03_Bot_Awake_04` | Pilot | Fantastic. My two favourite voices. | dry | `S03_Bot_Awake_04_pilot.wav` |
+
+### S03 · Captain_Logs
+
+| ID | Speaker | Line | Delivery | File |
+|---|---|---|---|---|
+| `S03_Captain_Logs_01` | Captain | Kessel-9 station log. Captain Voss. Day one hundred and twelve. The survey team found a structure under the north ridge. Not ours. Not anyone's, as far as I can tell. | dry | `S03_Captain_Logs_01_captain.wav` |
+| `S03_Captain_Logs_02` | Captain | I've told them not to touch anything. Which means they are touching everything. | dry | `S03_Captain_Logs_02_captain.wav` |
+| `S03_Captain_Logs_03` | Captain | Day one hundred and fifteen. We lost contact with the survey team eleven hours ago. Their last transmission was... singing. I'm not going to describe it. | hesitant | `S03_Captain_Logs_03_captain.wav` |
+| `S03_Captain_Logs_04` | Captain | I'm taking the rover and our last fusion cell. If the rover dies out there, I am not walking back. | dry | `S03_Captain_Logs_04_captain.wav` |
+| `S03_Captain_Logs_05` | Captain | Final entry. I've set the beacon to broadcast on every frequency. If you're hearing it: the station is yours. | dry | `S03_Captain_Logs_05_captain.wav` |
+| `S03_Captain_Logs_06` | Captain | The service unit is parked on the roof deck. Wake it. It knows this place better than I do. | dry | `S03_Captain_Logs_06_captain.wav` |
+| `S03_Captain_Logs_07` | Captain | And don't follow me into the ruins. ...Unless you have to. | hesitant | `S03_Captain_Logs_07_captain.wav` |
+
 ### S03 · Exit
 
 | ID | Speaker | Line | Delivery | File |
@@ -237,6 +278,16 @@ _Generated from 27 DialogueSequence assets. Do not edit by hand — edit the ass
 | `S03_Exit_01` | Computer | Comset link established. Can you hear me? | deadpan | `S03_Exit_01_computer.wav` |
 | `S03_Exit_02` | Pilot | Loud and unfortunately clear. | dry | `S03_Exit_02_pilot.wav` |
 | `S03_Exit_03` | Computer | The station is on your compass. Follow the orange blip. Over the ridge. | deadpan | `S03_Exit_03_computer.wav` |
+
+### S03 · Logs_Reaction
+
+| ID | Speaker | Line | Delivery | File |
+|---|---|---|---|---|
+| `S03_Logs_Reaction_01` | Computer | The signal we followed. It was her beacon. | deadpan | `S03_Logs_Reaction_01_computer.wav` |
+| `S03_Logs_Reaction_02` | Pilot | So we crash-landed answering a distress call. Heroic. | dry | `S03_Logs_Reaction_02_pilot.wav` |
+| `S03_Logs_Reaction_03` | Computer | Accidentally heroic. The best kind. | deadpan | `S03_Logs_Reaction_03_computer.wav` |
+| `S03_Logs_Reaction_04` | Pilot | And she took the last fusion cell. The one thing we really need. | dry | `S03_Logs_Reaction_04_pilot.wav` |
+| `S03_Logs_Reaction_05` | Computer | But she left the navigation module. With it, the ship can track her rover. And the service unit is on the roof. | deadpan | `S03_Logs_Reaction_05_computer.wav` |
 
 ### S03 · Nag_BackToShip
 
@@ -252,6 +303,30 @@ _Generated from 27 DialogueSequence assets. Do not edit by hand — edit the ass
 | `S03_Nags_02` | Computer | The compass is the round thing in the corner of your vision. It is there to help. | deadpan | `S03_Nags_02_computer.wav` |
 | `S03_Nags_03` | Computer | The station is north-east. The ocean is not. Please choose the station. | deadpan | `S03_Nags_03_computer.wav` |
 
+### S03 · Nav_Reminder
+
+| ID | Speaker | Line | Delivery | File |
+|---|---|---|---|---|
+| `S03_Nav_Reminder_01` | Computer | Before I go: the navigation module. It is in the lounge. I will need it on the ship. | deadpan | `S03_Nav_Reminder_01_computer.wav` |
+
+### S03 · Outro
+
+| ID | Speaker | Line | Delivery | File |
+|---|---|---|---|---|
+| `S03_Outro_01` | Computer | Give me the navigation module. I will take it to the ship, install it, and patch up what I can until we find a power supply. | deadpan | `S03_Outro_01_computer.wav` |
+| `S03_Outro_02` | Pilot | And me? | dry | `S03_Outro_02_pilot.wav` |
+| `S03_Outro_03` | Computer | You follow the rover tracks. The captain has our fusion cell. | deadpan | `S03_Outro_03_computer.wav` |
+| `S03_Outro_04` | Pilot | Into the creepy singing ruins. Great. | dry | `S03_Outro_04_pilot.wav` |
+| `S03_Outro_05` | Computer | I will keep the comset warm. Try not to be sung at. | deadpan | `S03_Outro_05_computer.wav` |
+
+### S03 · Pickup
+
+| ID | Speaker | Line | Delivery | File |
+|---|---|---|---|---|
+| `S03_Pickup_01` | Pilot | Navigation module. Looks expensive. | dry | `S03_Pickup_01_pilot.wav` |
+| `S03_Pickup_02` | Computer | It is. Please do not drop it. | deadpan | `S03_Pickup_02_computer.wav` |
+| `S03_Pickup_03` | Pilot | No promises. | dry | `S03_Pickup_03_pilot.wav` |
+
 ### S03 · Settlement
 
 | ID | Speaker | Line | Delivery | File |
@@ -259,6 +334,14 @@ _Generated from 27 DialogueSequence assets. Do not edit by hand — edit the ass
 | `S03_Settlement_01` | Computer | Structures ahead. Life signs: inconclusive. | deadpan | `S03_Settlement_01_computer.wav` |
 | `S03_Settlement_02` | Pilot | "Inconclusive" is my least favourite word. | dry | `S03_Settlement_02_pilot.wav` |
 | `S03_Settlement_03` | Computer | Noted. I will use it more often. | deadpan | `S03_Settlement_03_computer.wav` |
+
+### S03 · Terminal_Scan
+
+| ID | Speaker | Line | Delivery | File |
+|---|---|---|---|---|
+| `S03_Terminal_Scan_01` | Computer | Connected. Station manifest: Kessel-9 research outpost. Crew of four. Crew currently aboard: zero. | deadpan | `S03_Terminal_Scan_01_computer.wav` |
+| `S03_Terminal_Scan_02` | Computer | Inventory: one spare navigation module, stored in the lounge. Fusion cells: none. Of course. | deadpan | `S03_Terminal_Scan_02_computer.wav` |
+| `S03_Terminal_Scan_03` | Computer | There are station logs. Captain Voss. Playing them now. | deadpan | `S03_Terminal_Scan_03_computer.wav` |
 
 ### S03 · Wake
 
@@ -316,7 +399,7 @@ _Generated from 27 DialogueSequence assets. Do not edit by hand — edit the ass
 | `S03_Walk_Signal_03` | Computer | I am not programmed for suspicion. | deadpan | `S03_Walk_Signal_03_computer.wav` |
 | `S03_Walk_Signal_04` | Pilot | Lucky for you, I am. | dry | `S03_Walk_Signal_04_pilot.wav` |
 
-**Totals:** Computer 73, Pilot 55
+**Totals:** Computer 91, Pilot 68, Captain 7
 
 <!-- END GENERATED -->
 

@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61f06bce5c9f0074bbc487a97ddc96f0, type: 3}
+  m_Name: Captain_Logs
+  m_EditorClassIdentifier: SpaceRat.Runtime::SpaceRat.Dialogue.DialogueSequence
+  lines:
+  - speaker: 2
+    text: Kessel-9 station log. Captain Voss. Day one hundred and twelve. The survey team found a structure under the north ridge. Not ours. Not anyone's, as far as I can tell.
+    duration: 5.4
+    voice: {fileID: 8300000, guid: 6594238a3cb27144286fa231465f3219, type: 3}
+  - speaker: 2
+    text: I've told them not to touch anything. Which means they are touching everything.
+    duration: 5.4
+    voice: {fileID: 8300000, guid: 219f55eb3091f6c4f9b762aafc75e322, type: 3}
+  - speaker: 2
+    text: Day one hundred and fifteen. We lost contact with the survey team eleven hours ago. Their last transmission was... singing. I'm not going to describe it.
+    duration: 5.4
+    voice: {fileID: 8300000, guid: e767fef7143d37e45b419785529d16e1, type: 3}
+  - speaker: 2
+    text: I'm taking the rover and our last fusion cell. If the rover dies out there, I am not walking back.
+    duration: 5.4
+    voice: {fileID: 8300000, guid: 40b1ea4b0b47be94283270eda20993ba, type: 3}
+  - speaker: 2
+    text: 'Final entry. I''ve set the beacon to broadcast on every frequency. If you''re hearing it: the station is yours.'
+    duration: 5.4
+    voice: {fileID: 8300000, guid: df3dce489a24cf44ca69a656521b2f48, type: 3}
+  - speaker: 2
+    text: The service unit is parked on the roof deck. Wake it. It knows this place better than I do.
+    duration: 5.4
+    voice: {fileID: 8300000, guid: 1a62d365833723d46b5ae9234a24144e, type: 3}
+  - speaker: 2
+    text: And don't follow me into the ruins. ...Unless you have to.
+    duration: 5
+    voice: {fileID: 8300000, guid: 85d7348a732f28e40a6cb94b4d6715fd, type: 3}

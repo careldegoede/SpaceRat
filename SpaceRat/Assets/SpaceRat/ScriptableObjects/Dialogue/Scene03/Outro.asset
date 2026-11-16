@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61f06bce5c9f0074bbc487a97ddc96f0, type: 3}
+  m_Name: Outro
+  m_EditorClassIdentifier: SpaceRat.Runtime::SpaceRat.Dialogue.DialogueSequence
+  lines:
+  - speaker: 0
+    text: Give me the navigation module. I will take it to the ship, install it, and patch up what I can until we find a power supply.
+    duration: 4.8
+    voice: {fileID: 8300000, guid: ab4f2717e43e0b04dbef8ca22a405799, type: 3}
+  - speaker: 1
+    text: And me?
+    duration: 1.7
+    voice: {fileID: 8300000, guid: b97fb3ed944b30548aa76e3baf30ee42, type: 3}
+  - speaker: 0
+    text: You follow the rover tracks. The captain has our fusion cell.
+    duration: 4.4
+    voice: {fileID: 8300000, guid: 7cff55ae22313e24fbe3235309d22144, type: 3}
+  - speaker: 1
+    text: Into the creepy singing ruins. Great.
+    duration: 2.9
+    voice: {fileID: 8300000, guid: b4b510bede4fdd04c82f47f0a913c486, type: 3}
+  - speaker: 0
+    text: I will keep the comset warm. Try not to be sung at.
+    duration: 4.7000003
+    voice: {fileID: 8300000, guid: 1f555852846879e4783147e5ea2dc5a1, type: 3}

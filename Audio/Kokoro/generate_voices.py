@@ -24,6 +24,7 @@ OUT = REPO / "SpaceRat" / "Assets" / "SpaceRat" / "Audio" / "Voices"
 CAST = {
     "pilot": ("am_puck", "en-us", 1.05),
     "computer": ("bf_alice", "en-gb", 0.92),
+    "captain": ("af_sarah", "en-us", 1.0),     # Captain Voss (Scene 3 station logs): sharp, brisk
 }
 DELIVERY_SPEED = {"urgent": 1.12, "hesitant": 0.92}   # multiplies the speaker speed
 SR = 24000

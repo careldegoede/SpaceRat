@@ -145,6 +145,7 @@ namespace SpaceRat.EditorTools
             if (old) Object.DestroyImmediate(old);
 
             var dlg = EnsureDialogue();
+            var outpostWired = WireOutpostGameplay(terrain, scene);
             var cockpit = BuildWreckCockpit(scene);
             var go = new GameObject("Scene03Director");
             var box = go.AddComponent<DialogueBox>();
@@ -163,22 +164,218 @@ namespace SpaceRat.EditorTools
             var compass = go.AddComponent<SpaceRat.UI.CompassHud>();
             B.SetRefs(compass,
                 ("dial", HudTexture("CompassDial")), ("panel", HudTexture("CompassPanel")),
-                ("viewer", walker ? walker.transform : null), ("target", outpost ? outpost.transform : null));
+                ("viewer", walker ? walker.transform : null),
+                ("target", outpostWired.entrance ? outpostWired.entrance : (outpost ? outpost.transform : null)));
+
+            // Health / stamina / weapon charge: vitals on the pilot, status bar top-left.
+            SpaceRat.Characters.PlayerVitals vitals = null;
+            if (walker)
+            {
+                vitals = walker.GetComponent<SpaceRat.Characters.PlayerVitals>();
+                if (!vitals) vitals = walker.gameObject.AddComponent<SpaceRat.Characters.PlayerVitals>();
+                B.SetRefs(vitals, ("walker", walker));
+            }
+            var hud = go.AddComponent<SpaceRat.UI.PlayerHud>();
+            B.SetRefs(hud, ("frame", HudTexture("HudBar")), ("vitals", vitals));
+
+            // Inventory + "press E" on the pilot.
+            SpaceRat.Characters.Inventory inventory = null;
+            if (walker)
+            {
+                inventory = walker.GetComponent<SpaceRat.Characters.Inventory>();
+                if (!inventory) inventory = walker.gameObject.AddComponent<SpaceRat.Characters.Inventory>();
+                var interactor = walker.GetComponent<SpaceRat.Characters.PlayerInteractor>();
+                if (!interactor) interactor = walker.gameObject.AddComponent<SpaceRat.Characters.PlayerInteractor>();
+                B.SetRefs(interactor, ("walker", walker), ("view", Camera.main));
+            }
+            T Find<T>(string name) where T : Component { var g = GameObject.Find(name); return g ? g.GetComponent<T>() : null; }
 
             var director = go.AddComponent<Scene03Director>();
             B.SetRefs(director,
                 ("dialogue", box),
                 ("pilot", walker),
-                ("outpost", outpost ? outpost.transform : null),
+                ("outpost", outpostWired.entrance ? outpostWired.entrance : (outpost ? outpost.transform : null)),
                 ("crashSite", crash ? crash.transform : null),
                 ("cockpitSet", cockpit.set), ("cockpitCamera", cockpit.cam), ("mainCamera", Camera.main),
                 ("cockpitPovCamera", cockpit.pov), ("seatedPilotModel", cockpit.pilotModel), ("overlay", overlay),
                 ("cockpitShell", cockpit.shell), ("povBackdrop", cockpit.povBackdrop),
-                ("seatedPilot", cockpit.seating), ("compass", compass),
+                ("seatedPilot", cockpit.seating), ("compass", compass), ("hud", hud),
                 ("wakeCall", dlg["WakeCall"]), ("wake", dlg["Wake"]), ("exit", dlg["Exit"]),
                 ("walkFusionCell", dlg["Walk_FusionCell"]), ("walkNavCore", dlg["Walk_NavCore"]),
                 ("walkSignal", dlg["Walk_Signal"]), ("nags", dlg["Nags"]),
-                ("nagBackToShip", dlg["Nag_BackToShip"]), ("settlement", dlg["Settlement"]));
+                ("nagBackToShip", dlg["Nag_BackToShip"]), ("settlement", dlg["Settlement"]),
+                ("arrival", dlg["Arrival"]), ("pickup", dlg["Pickup"]),
+                ("terminalScan", dlg["Terminal_Scan"]),
+                ("captainLogs", dlg["Captain_Logs"]), ("logsReaction", dlg["Logs_Reaction"]),
+                ("botActivate", dlg["Bot_Activate"]), ("botAwake", dlg["Bot_Awake"]),
+                ("navReminder", dlg["Nav_Reminder"]), ("outro", dlg["Outro"]),
+                ("inventory", inventory),
+                ("navPickup", Find<SpaceRat.Characters.Interactable>("NavModule")),
+                ("captainChair", Find<SpaceRat.Characters.Interactable>("CaptainChair")),
+                ("botSwitch", Find<SpaceRat.Characters.Interactable>("ServiceBot")),
+                ("serviceBot", Find<SpaceRat.Characters.ServiceBot>("ServiceBot")),
+                ("consoleCamera", Find<Camera>("ConsoleCamera")),
+                ("consoleScreenGlow", GameObject.Find("ConsoleScreenGlow")),
+                ("botPortrait", HudTexture("BotPortrait")));
+            var dso = new SerializedObject(director);
+            var hide = dso.FindProperty("hideOnStart");
+            hide.arraySize = outpostWired.hide.Count;
+            for (int i = 0; i < outpostWired.hide.Count; i++) hide.GetArrayElementAtIndex(i).objectReferenceValue = outpostWired.hide[i];
+            dso.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        // ---- Hand-built outpost (Assets/DDG/MyOutpost.prefab) -------------------------------------
+
+        /// <summary>
+        /// Gameplay for the hand-built MyOutpost, anchored on its placeholders (the prefab itself is not edited):
+        /// "pilot seat for computer access" (terminal: manifest + logs), "Add here the navigation part…"
+        /// (navigation module pickup), "Place Bot here" (dormant service unit on the roof). Placeholders and the
+        /// a DoorOpener opens the doors for the Player. Flattens the terrain under the outpost.
+        /// Lives under its own root "OutpostGameplay" so re-running never touches the prefab.
+        /// </summary>
+        static (Transform entrance, List<GameObject> hide) WireOutpostGameplay(Terrain terrain, UnityEngine.SceneManagement.Scene scene)
+        {
+            var hide = new List<GameObject>();
+            var my = GameObject.Find("MyOutpost");
+            if (!my) return (null, hide);
+
+            var old = GameObject.Find("OutpostGameplay");
+            if (old) Object.DestroyImmediate(old);
+            var root = new GameObject("OutpostGameplay").transform;
+
+            Transform Child(string contains)
+            {
+                foreach (var t in my.GetComponentsInChildren<Transform>(true))
+                    if (t.name.IndexOf(contains, System.StringComparison.OrdinalIgnoreCase) >= 0) return t;
+                return null;
+            }
+            var seatPh = Child("computer access");
+            var navPh = Child("navigation part");
+            var botPh = Child("Place Bot here");
+            foreach (var ph in new[] { seatPh, navPh, botPh }) if (ph) hide.Add(ph.gameObject);
+
+            // Doors open for the Player (tag "Player") using their own animators.
+            var doors = root.gameObject.AddComponent<SpaceRat.Environment.DoorOpener>();
+            B.SetRefs(doors, ("root", my.transform));
+
+            // Walk target / compass: the main entrance (door_3), else the outpost itself.
+            var door = Child("door_3");
+            var entrance = new GameObject("OutpostEntrance").transform;
+            entrance.SetParent(root, false);
+            entrance.position = door ? door.position : my.transform.position;
+
+            // Terminal seat: sitting here plays the manifest scan and the captain's logs.
+            if (seatPh)
+            {
+                var seat = new GameObject("CaptainChair");
+                seat.transform.SetParent(root, false);
+                seat.transform.position = seatPh.position;
+                var it = seat.AddComponent<SpaceRat.Characters.Interactable>();
+                var so = new SerializedObject(it);
+                so.FindProperty("prompt").stringValue = "SIT  ·  STATION TERMINAL";
+                so.FindProperty("range").floatValue = 2.4f;
+                so.ApplyModifiedPropertiesWithoutUndo();
+
+                // Seated view towards the desk / terminal.
+                var desk = Child("desk");
+                Vector3 eye = seatPh.position + Vector3.up * 0.25f;
+                Vector3 look = desk ? desk.position + Vector3.up * 1.05f : eye + seatPh.forward;
+                var camGo = new GameObject("ConsoleCamera");
+                camGo.transform.SetParent(root, false);
+                camGo.transform.SetPositionAndRotation(eye, Quaternion.LookRotation(look - eye, Vector3.up));
+                var cam = camGo.AddComponent<Camera>();
+                cam.fieldOfView = 58f;
+                cam.nearClipPlane = 0.05f;
+                cam.depth = 2f;
+                cam.enabled = false;
+                var data = cam.GetUniversalAdditionalCameraData();
+                data.renderPostProcessing = true;
+                data.antialiasing = AntialiasingMode.SubpixelMorphologicalAntiAliasing;
+                var glow = new GameObject("ConsoleScreenGlow");
+                glow.transform.SetParent(root, false);
+                glow.transform.position = look + Vector3.up * 0.2f + (eye - look).normalized * 0.4f;
+                var gl = glow.AddComponent<Light>();
+                gl.type = LightType.Point;
+                gl.color = new Color(1f, 0.7f, 0.3f);
+                gl.intensity = 2.2f;
+                gl.range = 3.5f;
+            }
+
+            // Navigation module on the lounge table (a small capacitor with a cyan glow).
+            if (navPh)
+            {
+                var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(Modular + "Machines/Capacitor.prefab");
+                GameObject nav = prefab ? (GameObject)PrefabUtility.InstantiatePrefab(prefab, scene) : GameObject.CreatePrimitive(PrimitiveType.Cube);
+                nav.name = "NavModule";
+                nav.transform.SetParent(root, false);
+                nav.transform.position = navPh.position;
+                var b = new Bounds(nav.transform.position, Vector3.zero);
+                foreach (var r in nav.GetComponentsInChildren<Renderer>()) b.Encapsulate(r.bounds);
+                float size = Mathf.Max(b.size.x, b.size.y, b.size.z);
+                if (size > 0.01f) nav.transform.localScale *= 0.45f / size;
+                foreach (var c in nav.GetComponentsInChildren<Collider>()) Object.DestroyImmediate(c);
+                var light = new GameObject("NavGlow").AddComponent<Light>();
+                light.transform.SetParent(nav.transform, false);
+                light.transform.position = navPh.position + Vector3.up * 0.5f;
+                light.type = LightType.Point;
+                light.color = new Color(0.3f, 0.85f, 1f);
+                light.intensity = 2f;
+                light.range = 2.5f;
+                MakeInteractable(nav, "TAKE NAVIGATION MODULE", 2.4f, new Vector3(0f, 0.2f, 0f));
+            }
+
+            // Dormant service unit on the roof.
+            if (botPh)
+            {
+                var botPrefab = EnsureServiceBotPrefab();
+                if (botPrefab)
+                {
+                    var bot = (GameObject)PrefabUtility.InstantiatePrefab(botPrefab, scene);
+                    bot.name = "ServiceBot";
+                    bot.transform.SetParent(root, false);
+                    bot.transform.position = botPh.position - Vector3.up * 0.6f;
+                    bot.transform.rotation = Quaternion.Euler(0f, my.transform.eulerAngles.y + 90f, 0f);
+                    B.SetRefs(bot.GetComponent<SpaceRat.Characters.ServiceBot>(), ("terrain", terrain));
+                    var it = MakeInteractable(bot, "ACTIVATE SERVICE UNIT", 2.8f, new Vector3(0f, 0.5f, 0f));
+                    it.Available = false;
+                }
+            }
+
+            FlattenUnder(my, terrain);
+            return (entrance, hide);
+        }
+
+        /// <summary>Flattens the terrain under a structure to its base height, blending out over a margin.</summary>
+        static void FlattenUnder(GameObject structure, Terrain terrain)
+        {
+            if (!terrain) return;
+            var bounds = new Bounds(structure.transform.position, Vector3.zero);
+            foreach (var r in structure.GetComponentsInChildren<Renderer>()) bounds.Encapsulate(r.bounds);
+            var data = terrain.terrainData;
+            Vector3 tp = terrain.transform.position;
+            float baseY = structure.transform.position.y - 0.05f;
+            float target = Mathf.Clamp01((baseY - tp.y) / data.size.y);
+            const float margin = 18f;
+            int res = data.heightmapResolution;
+            float cell = data.size.x / (res - 1);
+            int x0 = Mathf.Clamp(Mathf.FloorToInt((bounds.min.x - margin - tp.x) / cell), 0, res - 1);
+            int x1 = Mathf.Clamp(Mathf.CeilToInt((bounds.max.x + margin - tp.x) / cell), 0, res - 1);
+            int z0 = Mathf.Clamp(Mathf.FloorToInt((bounds.min.z - margin - tp.z) / cell), 0, res - 1);
+            int z1 = Mathf.Clamp(Mathf.CeilToInt((bounds.max.z + margin - tp.z) / cell), 0, res - 1);
+            int w = x1 - x0 + 1, h = z1 - z0 + 1;
+            var heights = data.GetHeights(x0, z0, w, h);
+            for (int z = 0; z < h; z++)
+            for (int x = 0; x < w; x++)
+            {
+                float wx = tp.x + (x0 + x) * cell, wz = tp.z + (z0 + z) * cell;
+                float dx = Mathf.Max(0f, Mathf.Max(bounds.min.x - wx, wx - bounds.max.x));
+                float dz = Mathf.Max(0f, Mathf.Max(bounds.min.z - wz, wz - bounds.max.z));
+                float k = 1f - Mathf.SmoothStep(0f, 1f, Mathf.Sqrt(dx * dx + dz * dz) / margin);
+                heights[z, x] = Mathf.Lerp(heights[z, x], target, k);
+            }
+            data.SetHeights(x0, z0, heights);
+            EditorUtility.SetDirty(data);
+            Debug.Log($"[SpaceRat] Flattened terrain under {structure.name} to y={baseY:0.0}");
         }
 
         static Texture2D HudTexture(string name)
@@ -220,6 +417,11 @@ namespace SpaceRat.EditorTools
         static GameObject BuildOutpost(UnityEngine.SceneManagement.Scene scene)
         {
             var old = GameObject.Find("Outpost");
+            if (old && old.transform.Find("MyOutpost"))
+            {
+                Debug.Log("[SpaceRat] Outpost contains the hand-built MyOutpost prefab — leaving it alone.");
+                return old;
+            }
             if (old) Object.DestroyImmediate(old);
             var site = GameObject.Find("OutpostSite");
             if (!site || !AssetDatabase.IsValidFolder(Modular.TrimEnd('/'))) return null;
@@ -231,7 +433,16 @@ namespace SpaceRat.EditorTools
 
             // Hub: cross of corridors; front arm gets the open round door, the other arms are walled.
             Mod(root, scene, "Corridors/Corridor_X", new Vector3(0f, 0f, 0f), 0f);
-            Mod(root, scene, "Doors/door_3", new Vector3(0f, 0f, 6f), 0f);
+            var door = Mod(root, scene, "Doors/door_3", new Vector3(0f, 0f, 6f), 0f);
+            if (door)
+            {
+                // Standing open: remove the sliding leaves (and their colliders), keep the round frame.
+                PrefabUtility.UnpackPrefabInstance(door, PrefabUnpackMode.Completely, InteractionMode.AutomatedAction);
+                var leaves = new List<GameObject>();
+                foreach (Transform t in door.transform)
+                    if (t.name.Contains("_top_") || t.name.Contains("_bottom_")) leaves.Add(t.gameObject);
+                foreach (var leaf in leaves) Object.DestroyImmediate(leaf);
+            }
             Mod(root, scene, "Walls/wall_big", new Vector3(0f, 0f, -6f), 180f);
             Mod(root, scene, "Walls/wall_big", new Vector3(6f, 0f, 0f), 90f);
             Mod(root, scene, "Walls/wall_big", new Vector3(-6f, 0f, 0f), -90f);
@@ -249,10 +460,63 @@ namespace SpaceRat.EditorTools
             Mod(root, scene, "Machines/storage_container_small", new Vector3(-12.5f, 0f, 9f), 40f);
             Mod(root, scene, "Machines/shield_generator", new Vector3(0f, 0f, -16f), 0f);
 
-            // Spare fusion cell just inside the open door, under a cyan glow.
-            var cell = Mod(root, scene, "Machines/Battery", new Vector3(1.6f, 0f, 3.2f), 30f);
-            if (cell) { cell.name = "FusionCell_Spare"; cell.transform.localScale = Vector3.one * 0.55f; }
-            OutpostLight("CellGlow", root, new Vector3(1.6f, 1.2f, 3.2f), new Color(0.3f, 0.85f, 1f), 2.5f, 4f);
+            // Spare fusion cell at the back of the hub, under a cyan glow.
+            var cell = Mod(root, scene, "Machines/Battery", new Vector3(0f, 0f, -3.7f), 30f);
+            if (cell)
+            {
+                cell.name = "FusionCell_Spare";
+                cell.transform.localScale = Vector3.one * 0.55f;
+                MakeInteractable(cell, "TAKE FUSION CELL", 2.8f, new Vector3(0f, 0.8f, 0f));
+            }
+            OutpostLight("CellGlow", root, new Vector3(0f, 1.6f, -3.7f), new Color(0.3f, 0.85f, 1f), 2.5f, 4f);
+
+            // Captain's chair facing her terminal in the west arm (logs).
+            var chair = AssetDatabase.LoadAssetAtPath<GameObject>(B.PilotSeatPath);
+            if (chair)
+            {
+                var seat = (GameObject)PrefabUtility.InstantiatePrefab(chair, scene);
+                seat.name = "CaptainChair";
+                seat.transform.SetParent(root, false);
+                seat.transform.localPosition = new Vector3(-2.5f, 0f, 0f);
+                seat.transform.localRotation = Quaternion.Euler(0f, -90f, 0f);
+                seat.transform.localScale = Vector3.one * B.PilotSeatScale;
+                MakeInteractable(seat, "SIT  ·  STATION LOGS", 2.6f, new Vector3(0f, 1.6f, 0f));
+            }
+            Mod(root, scene, "Decorative elements/computer_station", new Vector3(-4.1f, 0f, 0f), 90f);   // end walls reach in to x = -4.42
+            var glowMat = OutpostMaterial("M_LogScreen", new Color(0.2f, 0.12f, 0.02f), new Color(2.2f, 1.3f, 0.35f));
+            var glow = B.Primitive("ConsoleScreenGlow", PrimitiveType.Quad, root, new Vector3(-3.78f, 1.55f, 0f), new Vector3(1.05f, 0.62f, 1f), glowMat, new Vector3(0f, -90f, 0f));
+            var glowLight = OutpostLight("ScreenLight", glow.transform, Vector3.zero, new Color(1f, 0.7f, 0.3f), 1.6f, 3f);
+            glowLight.transform.localPosition = new Vector3(0f, 0f, -0.6f);
+            // (the director hides it until the logs play)
+            var consoleCamGo = new GameObject("ConsoleCamera");
+            consoleCamGo.transform.SetParent(root, false);
+            consoleCamGo.transform.localPosition = new Vector3(-2.45f, 1.28f, 0f);
+            consoleCamGo.transform.localRotation = Quaternion.LookRotation(new Vector3(-3.78f, 1.42f, 0f) - new Vector3(-2.45f, 1.28f, 0f), Vector3.up);
+            var consoleCam = consoleCamGo.AddComponent<Camera>();
+            consoleCam.fieldOfView = 55f;
+            consoleCam.nearClipPlane = 0.05f;
+            consoleCam.depth = 2f;
+            consoleCam.enabled = false;
+            var ccd = consoleCam.GetUniversalAdditionalCameraData();
+            ccd.renderPostProcessing = true;
+            ccd.antialiasing = AntialiasingMode.SubpixelMorphologicalAntiAliasing;
+            OutpostLight("WestArmLight", root, new Vector3(-3.2f, 3.2f, 0f), new Color(1f, 0.85f, 0.7f), 1.4f, 6f);
+
+            // Dormant service unit in the east bay (wakes up after the logs).
+            var botPrefab = EnsureServiceBotPrefab();
+            if (botPrefab)
+            {
+                var bot = (GameObject)PrefabUtility.InstantiatePrefab(botPrefab, scene);
+                bot.name = "ServiceBot";
+                bot.transform.SetParent(root, false);
+                bot.transform.localPosition = new Vector3(3.6f, 0f, 0f);
+                bot.transform.localRotation = Quaternion.Euler(0f, -90f, 0f);
+                var sb = bot.GetComponent<SpaceRat.Characters.ServiceBot>();
+                B.SetRefs(sb, ("terrain", Object.FindAnyObjectByType<Terrain>()));
+                var it = MakeInteractable(bot, "ACTIVATE SERVICE UNIT", 2.8f, new Vector3(0f, 0.5f, 0f));
+                it.Available = false;
+                OutpostLight("EastBayLight", root, new Vector3(4f, 3.2f, 0f), new Color(0.6f, 0.85f, 1f), 1.4f, 6f);
+            }
 
             // Lights on, nobody home: lit doorway, blue wall lights, warm floods, interior fill.
             Mod(root, scene, "Lights/light_wall_1_blue", new Vector3(-2.3f, 0f, 6.4f), 0f);
@@ -276,6 +540,174 @@ namespace SpaceRat.EditorTools
             B.SetRefs(blink, ("beaconLight", beaconLight), ("beaconRenderer", beacon.GetComponent<Renderer>()));
             mast.AddComponent<CapsuleCollider>();
             return root.gameObject;
+        }
+
+        static SpaceRat.Characters.Interactable MakeInteractable(GameObject go, string prompt, float range, Vector3 focusOffset)
+        {
+            var focus = new GameObject("InteractFocus").transform;
+            focus.SetParent(go.transform, false);
+            focus.position = go.transform.position + focusOffset;
+            var it = go.AddComponent<SpaceRat.Characters.Interactable>();
+            var so = new SerializedObject(it);
+            so.FindProperty("prompt").stringValue = prompt;
+            so.FindProperty("range").floatValue = range;
+            so.FindProperty("focus").objectReferenceValue = focus;
+            so.ApplyModifiedPropertiesWithoutUndo();
+            return it;
+        }
+
+        // ---- Service bot (Robot Sphere by Razgrizzz Demon, free Asset Store) ------------------------
+
+        const string RobotRoot = "Assets/RobotSphere/Assets/";
+        const string BotArt = B.Root + "/Art/RobotSphere";
+        const string BotPrefabPath = B.Root + "/Prefabs/Characters/ServiceBot_URP.prefab";
+        const float BotScale = 0.2f;                    // vendor model is ~5 m tall -> ~1 m
+
+        /// <summary>URP copy of the Robot Sphere: own materials (vendor files untouched), no legacy-input demo
+        /// script, ServiceBot component, ~1 m tall. Also renders the round dialogue portrait.</summary>
+        static GameObject EnsureServiceBotPrefab()
+        {
+            var vendor = AssetDatabase.LoadAssetAtPath<GameObject>(RobotRoot + "Prefab/robotSphere.prefab");
+            if (!vendor) { Debug.LogWarning("[SpaceRat] Robot Sphere not imported — no service bot."); return null; }
+            B.EnsureFolder(BotArt);
+            B.EnsureFolder(B.Root + "/Prefabs/Characters");
+
+            var lit = Shader.Find("Universal Render Pipeline/Lit");
+            Material Convert(Material src)
+            {
+                if (!src) return null;
+                string path = $"{BotArt}/{src.name}_URP.mat";
+                var m = AssetDatabase.LoadAssetAtPath<Material>(path);
+                if (!m) { m = new Material(lit); AssetDatabase.CreateAsset(m, path); }
+                m.shader = lit;
+                if (src.HasProperty("_MainTex")) m.SetTexture("_BaseMap", src.GetTexture("_MainTex"));
+                m.SetColor("_BaseColor", src.HasProperty("_Color") ? src.GetColor("_Color") : Color.white);
+                m.SetFloat("_Smoothness", src.HasProperty("_Glossiness") ? src.GetFloat("_Glossiness") : 0.5f);
+                m.SetFloat("_Metallic", src.HasProperty("_Metallic") ? src.GetFloat("_Metallic") : 0f);
+                string n = src.name.ToLowerInvariant();
+                if (n.Contains("eye"))
+                {
+                    // The eye glows in the ship computer's cyan: it's the computer looking out now.
+                    m.SetColor("_BaseColor", new Color(0.2f, 0.85f, 1f));
+                    m.SetColor("_EmissionColor", new Color(0.4f, 1.6f, 2.2f));
+                    m.EnableKeyword("_EMISSION");
+                    m.globalIlluminationFlags = MaterialGlobalIlluminationFlags.None;
+                }
+                else if (n.Contains("visor"))
+                {
+                    m.SetColor("_BaseColor", new Color(0.05f, 0.07f, 0.09f));
+                    m.SetFloat("_Smoothness", 0.92f);
+                }
+                EditorUtility.SetDirty(m);
+                return m;
+            }
+
+            var inst = (GameObject)PrefabUtility.InstantiatePrefab(vendor);
+            PrefabUtility.UnpackPrefabInstance(inst, PrefabUnpackMode.Completely, InteractionMode.AutomatedAction);
+            inst.name = "ServiceBot_URP";
+            foreach (var mb in inst.GetComponents<MonoBehaviour>())
+                if (mb && mb.GetType().Name == "RobotFreeAnim") Object.DestroyImmediate(mb);     // legacy Input demo script
+            var cache = new Dictionary<Material, Material>();
+            foreach (var r in inst.GetComponentsInChildren<Renderer>(true))
+            {
+                var mats = r.sharedMaterials;
+                for (int i = 0; i < mats.Length; i++)
+                {
+                    if (!mats[i]) continue;
+                    if (!cache.TryGetValue(mats[i], out var urp)) cache[mats[i]] = urp = Convert(mats[i]);
+                    mats[i] = urp;
+                }
+                r.sharedMaterials = mats;
+            }
+            var anim = inst.GetComponent<Animator>();
+            if (anim) { anim.applyRootMotion = false; anim.cullingMode = AnimatorCullingMode.AlwaysAnimate; }
+
+            // Scale lives on a child so the root stays at 1 (ServiceBot moves the root).
+            var root = new GameObject("ServiceBot_URP");
+            inst.name = "Model";
+            inst.transform.SetParent(root.transform, false);
+            inst.transform.localScale *= BotScale;               // keep the vendor root scale, then shrink
+            var sb = root.AddComponent<SpaceRat.Characters.ServiceBot>();
+            B.SetRefs(sb, ("animator", anim));
+            var col = root.AddComponent<SphereCollider>();
+            col.center = new Vector3(0f, 0.5f, 0f);
+            col.radius = 0.45f;
+
+            var prefab = PrefabUtility.SaveAsPrefabAsset(root, BotPrefabPath);
+            Object.DestroyImmediate(root);
+            RenderBotPortrait(prefab);
+            return prefab;
+        }
+
+        /// <summary>Round portrait of the awake bot (eye open) for the computer's dialogue icon: Art/HUD/BotPortrait.png.</summary>
+        static void RenderBotPortrait(GameObject prefab)
+        {
+            var at = new Vector3(0f, -2000f, 0f);
+            var bot = (GameObject)PrefabUtility.InstantiatePrefab(prefab);
+            bot.transform.position = at;
+            var model = bot.transform.Find("Model");
+            foreach (var asset in AssetDatabase.LoadAllAssetsAtPath(RobotRoot + "Models/Animation/robotSphere@anim_open.fbx"))
+                if (asset is AnimationClip clip && !clip.name.StartsWith("__preview")) { clip.SampleAnimation(model.gameObject, clip.length); break; }
+
+            var bounds = new Bounds(at + Vector3.up * 0.5f, Vector3.zero);
+            foreach (var r in bot.GetComponentsInChildren<Renderer>()) bounds.Encapsulate(r.bounds);
+            Vector3 fwd = model.forward;
+
+            var lightGo = new GameObject("PortraitKey");
+            var key = lightGo.AddComponent<Light>();
+            key.type = LightType.Directional;
+            key.intensity = 1.4f;
+            key.color = new Color(1f, 0.95f, 0.9f);
+            lightGo.transform.rotation = Quaternion.LookRotation(-fwd + Vector3.down * 0.6f + model.right * 0.5f);
+            var fillGo = new GameObject("PortraitFill");
+            var fill = fillGo.AddComponent<Light>();
+            fill.type = LightType.Point;
+            fill.color = new Color(0.4f, 0.8f, 1f);
+            fill.intensity = 3f;
+            fill.range = 6f;
+            fillGo.transform.position = bounds.center + fwd * 1.2f - model.right * 0.8f;
+
+            var camGo = new GameObject("PortraitCam");
+            var cam = camGo.AddComponent<Camera>();
+            cam.clearFlags = CameraClearFlags.SolidColor;
+            cam.backgroundColor = new Color(0.03f, 0.09f, 0.12f);
+            cam.fieldOfView = 30f;
+            cam.nearClipPlane = 0.05f;
+            float dist = bounds.extents.magnitude / Mathf.Tan(15f * Mathf.Deg2Rad) * 0.82f;
+            camGo.transform.position = bounds.center + fwd * dist + Vector3.up * bounds.extents.y * 0.25f;
+            camGo.transform.LookAt(bounds.center + Vector3.up * bounds.extents.y * 0.1f);
+
+            const int n = 512;
+            var rt = new RenderTexture(n, n, 24, RenderTextureFormat.ARGB32, RenderTextureReadWrite.sRGB);
+            cam.targetTexture = rt;
+            cam.Render();
+            RenderTexture.active = rt;
+            var tex = new Texture2D(n, n, TextureFormat.RGBA32, false);
+            tex.ReadPixels(new Rect(0, 0, n, n), 0, 0);
+            RenderTexture.active = null;
+            cam.targetTexture = null;
+            var px = tex.GetPixels();
+            for (int y = 0; y < n; y++)
+            for (int x = 0; x < n; x++)
+            {
+                float d = new Vector2(x + 0.5f - n * 0.5f, y + 0.5f - n * 0.5f).magnitude / (n * 0.5f);
+                var c = px[y * n + x];
+                c.a = Mathf.Clamp01((1f - d) * 40f);          // crisp round edge
+                px[y * n + x] = c;
+            }
+            tex.SetPixels(px);
+            tex.Apply();
+            B.EnsureFolder(B.Root + "/Art/HUD");
+            string path = B.Root + "/Art/HUD/BotPortrait.png";
+            System.IO.File.WriteAllBytes(System.IO.Path.GetFullPath(path), tex.EncodeToPNG());
+            Object.DestroyImmediate(tex);
+            rt.Release();
+            Object.DestroyImmediate(rt);
+            Object.DestroyImmediate(camGo);
+            Object.DestroyImmediate(lightGo);
+            Object.DestroyImmediate(fillGo);
+            Object.DestroyImmediate(bot);
+            AssetDatabase.ImportAsset(path);
         }
 
         static GameObject Mod(Transform parent, UnityEngine.SceneManagement.Scene scene, string rel, Vector3 localPos, float yaw)
@@ -569,6 +1001,7 @@ namespace SpaceRat.EditorTools
 
         static (Speaker, string, float) C(string t) => (Speaker.Computer, t, Dur(t));
         static (Speaker, string, float) P(string t) => (Speaker.Pilot, t, Dur(t));
+        static (Speaker, string, float) Cap(string t) => (Speaker.Captain, t, Dur(t) + 0.6f);
         static float Dur(string t) => Mathf.Clamp(1.1f + t.Split(' ').Length * 0.3f, 1.6f, 4.8f);
 
         /// <summary>Scene 3 lines (tone rule: sharp, sarcastic pilot; deadpan computer). Assets are only created if missing.</summary>
@@ -624,6 +1057,53 @@ namespace SpaceRat.EditorTools
                     C("The station is north-east. The ocean is not. Please choose the station.")),
                 ["Nag_BackToShip"] = B.EnsureSequence(S("Nag_BackToShip"),
                     C("You are walking back to the ship. I am flattered, but no.")),
+                ["Arrival"] = B.EnsureSequence(S("Arrival"),
+                    P("Hello? Anybody home?"),
+                    C("Life signs: inconclusive."),
+                    P("You keep saying that."),
+                    C("It keeps being true."),
+                    P("Lights on, doors open, nobody here. That's not creepy at all."),
+                    C("There is a command seat with terminal access. Sit down and I will pull the station manifest.")),
+                ["Terminal_Scan"] = B.EnsureSequence(S("Terminal_Scan"),
+                    C("Connected. Station manifest: Kessel-9 research outpost. Crew of four. Crew currently aboard: zero."),
+                    C("Inventory: one spare navigation module, stored in the lounge. Fusion cells: none. Of course."),
+                    C("There are station logs. Captain Voss. Playing them now.")),
+                ["Pickup"] = B.EnsureSequence(S("Pickup"),
+                    P("Navigation module. Looks expensive."),
+                    C("It is. Please do not drop it."),
+                    P("No promises.")),
+                ["Captain_Logs"] = B.EnsureSequence(S("Captain_Logs"),
+                    Cap("Kessel-9 station log. Captain Voss. Day one hundred and twelve. The survey team found a structure under the north ridge. Not ours. Not anyone's, as far as I can tell."),
+                    Cap("I've told them not to touch anything. Which means they are touching everything."),
+                    Cap("Day one hundred and fifteen. We lost contact with the survey team eleven hours ago. Their last transmission was... singing. I'm not going to describe it."),
+                    Cap("I'm taking the rover and our last fusion cell. If the rover dies out there, I am not walking back."),
+                    Cap("Final entry. I've set the beacon to broadcast on every frequency. If you're hearing it: the station is yours."),
+                    Cap("The service unit is parked on the roof deck. Wake it. It knows this place better than I do."),
+                    Cap("And don't follow me into the ruins. ...Unless you have to.")),
+                ["Logs_Reaction"] = B.EnsureSequence(S("Logs_Reaction"),
+                    C("The signal we followed. It was her beacon."),
+                    P("So we crash-landed answering a distress call. Heroic."),
+                    C("Accidentally heroic. The best kind."),
+                    P("And she took the last fusion cell. The one thing we really need."),
+                    C("But she left the navigation module. With it, the ship can track her rover. And the service unit is on the roof.")),
+                ["Bot_Activate"] = B.EnsureSequence(S("Bot_Activate"),
+                    P("Found it. Looks like a bowling ball with opinions."),
+                    C("It has a functioning processor. I am copying myself into it."),
+                    P("Wait. Copying? There'll be two of you?"),
+                    C("Transfer complete.")),
+                ["Bot_Awake"] = B.EnsureSequence(S("Bot_Awake"),
+                    C("I am... spherical. This is acceptable."),
+                    P("You're in there?"),
+                    C("I am in here, and on the ship. Twice the supervision."),
+                    P("Fantastic. My two favourite voices.")),
+                ["Nav_Reminder"] = B.EnsureSequence(S("Nav_Reminder"),
+                    C("Before I go: the navigation module. It is in the lounge. I will need it on the ship.")),
+                ["Outro"] = B.EnsureSequence(S("Outro"),
+                    C("Give me the navigation module. I will take it to the ship, install it, and patch up what I can until we find a power supply."),
+                    P("And me?"),
+                    C("You follow the rover tracks. The captain has our fusion cell."),
+                    P("Into the creepy singing ruins. Great."),
+                    C("I will keep the comset warm. Try not to be sung at.")),
                 ["Settlement"] = B.EnsureSequence(S("Settlement"),
                     C("Structures ahead. Life signs: inconclusive."),
                     P("\"Inconclusive\" is my least favourite word."),

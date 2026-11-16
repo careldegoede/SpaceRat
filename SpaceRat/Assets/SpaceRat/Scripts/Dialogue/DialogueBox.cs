@@ -25,16 +25,25 @@ namespace SpaceRat.Dialogue
         [SerializeField] Color computerColor = new(0.25f, 0.85f, 1f);
         [SerializeField] Color pilotColor = new(0.72f, 0.62f, 1f);
         [SerializeField] Color systemColor = new(0.82f, 0.86f, 0.94f);
+        [SerializeField] Color captainColor = new(1f, 0.72f, 0.3f);
         [SerializeField, Range(0f, 1f)] float voiceVolume = 1f;
         [Tooltip("Comset footer, e.g. \"DIST 1.2 KM · SIGNAL 74%\". Empty hides it.")]
         public string comsetStatus = "";
 
         public DialogueBoxStyle Style { get => style; set => style = value; }
 
+        /// <summary>
+        /// Once the computer lives in the service bot: a round portrait of the bot shown in the computer's
+        /// icon frame instead of the crosshair (null = crosshair).
+        /// </summary>
+        public Texture2D ComputerPortrait { get; set; }
+
+        bool UsePortrait => ComputerPortrait && _icon == Icon.Computer;
+
         /// <summary>True while the current line's voice clip is still playing.</summary>
         public bool IsSpeaking => _src && _src.isPlaying;
 
-        enum Icon { None, Computer, Pilot }
+        enum Icon { None, Computer, Pilot, Captain }
 
         AudioSource _src;
         AudioHighPassFilter _highPass;
@@ -59,7 +68,8 @@ namespace SpaceRat.Dialogue
             Show(line.speaker, line.text);
             if (!line.voice) return;
             EnsureAudio();
-            bool radio = style == DialogueBoxStyle.Comset && line.speaker == Speaker.Computer;
+            // Ship voice through the comset, and recorded station logs, get the thin radio band.
+            bool radio = (style == DialogueBoxStyle.Comset && line.speaker == Speaker.Computer) || line.speaker == Speaker.Captain;
             _highPass.enabled = radio;
             _lowPass.enabled = radio;
             _src.clip = line.voice;
@@ -70,9 +80,12 @@ namespace SpaceRat.Dialogue
         /// <summary>Text only (stops any voice that was playing).</summary>
         public void Show(Speaker speaker, string text)
         {
-            Set(speaker == Speaker.Computer ? "COMPUTER" : "PILOT",
-                speaker == Speaker.Computer ? Icon.Computer : Icon.Pilot,
-                speaker == Speaker.Computer ? computerColor : pilotColor, text);
+            switch (speaker)
+            {
+                case Speaker.Computer: Set("COMPUTER", Icon.Computer, computerColor, text); break;
+                case Speaker.Captain: Set("CAPT. VOSS", Icon.Captain, captainColor, text); break;
+                default: Set("PILOT", Icon.Pilot, pilotColor, text); break;
+            }
         }
 
         public void ShowSystem(string text) => Set("", Icon.None, systemColor, text);
@@ -182,7 +195,12 @@ namespace SpaceRat.Dialogue
             float cx = x + baseH * 0.5f, cy = y + h * 0.5f;
             float iconSize = iconD + iconGlow * 2;
             GUI.DrawTexture(new Rect(cx - iconSize * 0.5f, cy - iconSize * 0.5f, iconSize, iconSize),
-                IconTex(_icon, false, (int)iconSize, (int)iconSize, (int)iconGlow, s, _accent));
+                IconTex(UsePortrait ? Icon.None : _icon, false, (int)iconSize, (int)iconSize, (int)iconGlow, s, _accent));
+            if (UsePortrait)
+            {
+                float pd = iconD * 0.86f;
+                GUI.DrawTexture(new Rect(cx - pd * 0.5f, cy - pd * 0.5f, pd, pd), ComputerPortrait);
+            }
 
             float tx = x + textLeft;
             _nameStyle.normal.textColor = _accent;
@@ -192,7 +210,12 @@ namespace SpaceRat.Dialogue
                 _tagStyle.normal.textColor = Color.Lerp(_accent, Color.black, 0.25f);
                 _tagStyle.alignment = TextAnchor.UpperRight;
                 GUI.Label(new Rect(tx, y + top + 4f * s, bodyW + rightPad * 0.15f, headerH),
-                    _icon == Icon.Computer ? "SHIP AI  ·  CH 01" : "COCKPIT  ·  CH 01", _tagStyle);
+                    _icon switch
+                    {
+                        Icon.Computer => "SHIP AI  ·  CH 01",
+                        Icon.Captain => "STATION LOG  ·  KESSEL-9",
+                        _ => "COCKPIT  ·  CH 01"
+                    }, _tagStyle);
             }
             _capsuleBody.normal.textColor = new Color(0.9f, 0.96f, 1f);
             GUI.Label(new Rect(tx, y + top + (_name.Length > 0 ? headerH : 6f * s), bodyW, bodyH), body, _capsuleBody);
@@ -230,7 +253,12 @@ namespace SpaceRat.Dialogue
             // Hex badge overlapping the strip's left edge.
             float bw = hexW + hexGlow * 2, bh = hexH + hexGlow * 2;
             GUI.DrawTexture(new Rect(x - hexGlow, y + h * 0.5f - bh * 0.5f, bw, bh),
-                IconTex(_icon, true, (int)bw, (int)bh, (int)hexGlow, s, _accent));
+                IconTex(UsePortrait ? Icon.None : _icon, true, (int)bw, (int)bh, (int)hexGlow, s, _accent));
+            if (UsePortrait)
+            {
+                float pd = hexH * 0.84f;
+                GUI.DrawTexture(new Rect(x - hexGlow + bw * 0.5f - pd * 0.5f, y + h * 0.5f - pd * 0.5f, pd, pd), ComputerPortrait);
+            }
 
             float tx = x + textLeft;
             _nameStyle.normal.textColor = Color.Lerp(_accent, Color.white, 0.75f);
@@ -241,7 +269,12 @@ namespace SpaceRat.Dialogue
                 _tagStyle.normal.textColor = new Color(1f, 0.58f, 0.48f);
                 _tagStyle.alignment = TextAnchor.UpperLeft;
                 GUI.Label(new Rect(tx + nameW + 26f * s, y + top + 3f * s, bodyW, headerH),
-                    _icon == Icon.Computer ? "●  SHIP AI  ·  COMSET LINK" : "●  COMSET LINK  ·  SHIP", _tagStyle);
+                    _icon switch
+                    {
+                        Icon.Computer => "●  SHIP AI  ·  COMSET LINK",
+                        Icon.Captain => "●  STATION LOG  ·  RECORDED",
+                        _ => "●  COMSET LINK  ·  SHIP"
+                    }, _tagStyle);
                 DrawWaveform(panel.xMax - rightPad - 320f * s, y + top + 12f * s, 320f * s, s);
             }
 
@@ -407,6 +440,13 @@ namespace SpaceRat.Dialogue
                     float visor = RoundBox(x, y + 0.02f, 0.27f, 0.08f, 0.03f);
                     float a = Mathf.Max(Stroke(shell), Stroke(visor));
                     return Mathf.Max(a, Stroke(Segment(x, y, -0.5f, -0.52f, 0.5f, -0.52f)));
+                }
+                case Icon.Captain:
+                {
+                    // Recorded log: a play triangle inside a thin ring.
+                    float len = Mathf.Sqrt(x * x + y * y);
+                    float tri = Mathf.Max(-(x + 0.16f), Mathf.Abs(y) * 1.05f + x * 0.62f - 0.2f);
+                    return Mathf.Max(Stroke(len - 0.46f), Solid(tri));
                 }
                 default:
                     return Solid(Mathf.Sqrt(x * x + y * y) - 0.12f);
