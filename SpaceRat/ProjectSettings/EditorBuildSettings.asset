@@ -18,6 +18,9 @@ EditorBuildSettings:
     path: Assets/SpaceRat/Scenes/Scene03_Terrain.unity
     guid: 15461fef856ea194ba40fa617c448b87
   - enabled: 1
+    path: Assets/SpaceRat/Scenes/Scene04_TheSearch.unity
+    guid: 39c6d3d99979dcc42ac53f7fbc8dc459
+  - enabled: 1
     path: Assets/Scenes/SampleScene.unity
     guid: 99c9720ab356a0642a771bea13969a05
   - enabled: 1

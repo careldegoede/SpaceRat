@@ -81,6 +81,7 @@ namespace SpaceRat.EditorTools
                 ("1  ·  AWAKENING", "Scene01_Awakening"),
                 ("2  ·  THE SIGNAL", "Scene02_TheSignal"),
                 ("3  ·  THE CRASH SITE", "Scene03_Terrain"),
+                ("4  ·  THE SEARCH", "Scene04_TheSearch"),
             };
             var chapterButtons = new List<(Image, Text, string)>();
             for (int i = 0; i < chapters.Length; i++)
@@ -88,10 +89,11 @@ namespace SpaceRat.EditorTools
                 var (img, txt) = MenuButton(chapterPanel, "Chapter" + (i + 1), chapters[i].label, new Vector2(40f, -70f - i * 62f), new Vector2(420f, 56f), 24);
                 chapterButtons.Add((img, txt, "scene:" + chapters[i].scene));
             }
-            var backBtn = MenuButton(chapterPanel, "Back", "BACK", new Vector2(100f, -268f), new Vector2(300f, 50f), 22);
+            var backBtn = MenuButton(chapterPanel, "Back", "BACK", new Vector2(100f, -330f), new Vector2(300f, 50f), 22);
             chapterButtons.Add((backBtn.img, backBtn.txt, "back"));
             var chapterPrompt = Txt("Prompt", chapterPanel, "ENTER  PLAY   ·   ESC  BACK", "Rajdhani-SemiBold", 20, Color.white, TextAnchor.MiddleCenter);
-            Place(chapterPrompt.rectTransform, new Vector2(40f, -334f), new Vector2(420f, 26f));
+            Place(chapterPrompt.rectTransform, new Vector2(40f, -396f), new Vector2(420f, 26f));
+            chapterPanel.sizeDelta = new Vector2(500f, 440f);
             chapterPanel.gameObject.SetActive(false);
 
             var version = Txt("Version", root, "PROTOTYPE  ·  ESC TO QUIT", "Rajdhani-Medium", 20, new Color(0.55f, 0.62f, 0.75f, 0.8f), TextAnchor.LowerRight);
