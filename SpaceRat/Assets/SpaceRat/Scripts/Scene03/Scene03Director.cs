@@ -64,6 +64,8 @@ namespace SpaceRat.Scene03
         [SerializeField] DialogueSequence botAwake;
         [SerializeField] DialogueSequence navReminder;
         [SerializeField] DialogueSequence outro;
+        [Tooltip("Said by the bot as it lifts off with the navigation module.")]
+        [SerializeField] DialogueSequence botFarewell;
 
         [Header("Outpost")]
         [SerializeField] Inventory inventory;
@@ -301,10 +303,12 @@ namespace SpaceRat.Scene03
             if (compass && crashSite) { compass.Target = crashSite; compass.TargetLabel = "SHIP"; }
             yield return new WaitForSeconds(0.6f);
             yield return PlayBackground(outro);
-            // The bot takes the module and heads back to the ship to patch it up.
+            // The bot takes the module out of the pilot's hands, lifts off and flies it back to the ship.
             if (inventory) inventory.Remove(NavModule);
-            if (serviceBot && crashSite) serviceBot.SendTo(crashSite);
-            yield return new WaitForSeconds(2.5f);
+            if (serviceBot) serviceBot.FlyAway(crashSite, navPickup ? navPickup.gameObject : null);
+            yield return new WaitForSeconds(2.2f);
+            yield return PlayBackground(botFarewell);
+            yield return new WaitForSeconds(3f);
             yield return End();
         }
 

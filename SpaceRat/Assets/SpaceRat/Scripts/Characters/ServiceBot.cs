@@ -27,6 +27,78 @@ namespace SpaceRat.Characters
 
         Transform _sendTarget;
 
+        /// <summary>True while the fly-away exit is running.</summary>
+        public bool Flying { get; private set; }
+
+        /// <summary>
+        /// Exit: a few steps towards the pilot (<see cref="FollowTarget"/>), float and lift off taking
+        /// <paramref name="carry"/> from him (hung under the bot), then climb and fly off towards the
+        /// destination; deactivates when far away.
+        /// </summary>
+        public void FlyAway(Transform destination, GameObject carry)
+        {
+            Following = false;
+            _sendTarget = null;
+            StartCoroutine(FlyRoutine(destination, carry));
+        }
+
+        System.Collections.IEnumerator FlyRoutine(Transform destination, GameObject carry)
+        {
+            Flying = true;
+            Vector3 Dir()
+            {
+                Vector3 d = (destination ? destination.position : transform.position + transform.forward * 100f) - transform.position;
+                d.y = 0f;
+                return d.sqrMagnitude > 0.01f ? d.normalized : transform.forward;
+            }
+
+            // 1) A few steps towards the pilot (stops at arm's length).
+            for (float t = 0f; t < 2.5f && follow; t += Time.deltaTime)
+            {
+                Vector3 to = follow.position - transform.position;
+                to.y = 0f;
+                if (to.magnitude < 1.4f) break;
+                transform.position += to.normalized * walkSpeed * 0.6f * Time.deltaTime;
+                transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(to.normalized, Vector3.up), turnSpeed * Time.deltaTime);
+                StickToGround();
+                SetAnim(true, true);
+                yield return null;
+            }
+            SetAnim(true, false);
+
+            // 2) Float up, bobbing, and take the part from the pilot.
+            Vector3 start = transform.position;
+            if (carry)
+            {
+                if (follow) carry.transform.position = follow.position + Vector3.up * 1.1f + (transform.position - follow.position).normalized * 0.5f;
+                carry.SetActive(true);
+                foreach (var c in carry.GetComponentsInChildren<Collider>()) c.enabled = false;
+                carry.transform.SetParent(transform, true);
+            }
+            Vector3 carryFrom = carry ? carry.transform.localPosition : Vector3.zero;
+            for (float t = 0f; t < 2.2f; t += Time.deltaTime)
+            {
+                float k = Mathf.SmoothStep(0f, 1f, t / 2.2f);
+                transform.position = start + Vector3.up * (k * 2.6f + Mathf.Sin(t * 5f) * 0.06f);
+                transform.Rotate(0f, 40f * Time.deltaTime, 0f, Space.World);
+                if (carry) carry.transform.localPosition = Vector3.Lerp(carryFrom, new Vector3(0f, -0.35f, 0f), Mathf.SmoothStep(0f, 1f, t / 1.2f));
+                yield return null;
+            }
+
+            // 3) Fly off towards the destination, climbing and speeding up.
+            float speed = 2f;
+            for (float t = 0f; t < 9f; t += Time.deltaTime)
+            {
+                speed = Mathf.Min(speed + 9f * Time.deltaTime, 28f);
+                Vector3 v = Dir() * speed + Vector3.up * Mathf.Lerp(2.5f, 0.6f, t / 9f);
+                transform.position += v * Time.deltaTime;
+                transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(Dir(), Vector3.up), turnSpeed * 0.5f * Time.deltaTime);
+                yield return null;
+            }
+            Flying = false;
+            gameObject.SetActive(false);
+        }
+
         /// <summary>Stop following and roll off to a destination (e.g. back to the ship).</summary>
         public void SendTo(Transform destination)
         {
@@ -53,6 +125,7 @@ namespace SpaceRat.Characters
 
         void Update()
         {
+            if (Flying) return;
             if (Active && _sendTarget) { RollTowards(_sendTarget.position); return; }
             if (!Active || !Following || !follow) return;
             Vector3 flatFwd = Vector3.ProjectOnPlane(follow.forward, Vector3.up).normalized;

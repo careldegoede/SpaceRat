@@ -51,7 +51,7 @@ Treat them as starting points; adjust per line.
 
 <!-- BEGIN GENERATED: in-game lines (SpaceRat > Export Voice Script) -->
 
-_Generated from 36 DialogueSequence assets. Do not edit by hand — edit the assets, then re-export._
+_Generated from 37 DialogueSequence assets. Do not edit by hand — edit the assets, then re-export._
 
 ### S01 · Beat1_ExteriorEmergency
 
@@ -259,6 +259,12 @@ _Generated from 36 DialogueSequence assets. Do not edit by hand — edit the ass
 | `S03_Bot_Awake_03` | Computer | I am in here, and on the ship. Twice the supervision. | deadpan | `S03_Bot_Awake_03_computer.wav` |
 | `S03_Bot_Awake_04` | Pilot | Fantastic. My two favourite voices. | dry | `S03_Bot_Awake_04_pilot.wav` |
 
+### S03 · Bot_Farewell
+
+| ID | Speaker | Line | Delivery | File |
+|---|---|---|---|---|
+| `S03_Bot_Farewell_01` | Computer | I'll sort the navigation. You sort the power cell. | deadpan | `S03_Bot_Farewell_01_computer.wav` |
+
 ### S03 · Captain_Logs
 
 | ID | Speaker | Line | Delivery | File |
@@ -399,7 +405,7 @@ _Generated from 36 DialogueSequence assets. Do not edit by hand — edit the ass
 | `S03_Walk_Signal_03` | Computer | I am not programmed for suspicion. | deadpan | `S03_Walk_Signal_03_computer.wav` |
 | `S03_Walk_Signal_04` | Pilot | Lucky for you, I am. | dry | `S03_Walk_Signal_04_pilot.wav` |
 
-**Totals:** Computer 91, Pilot 68, Captain 7
+**Totals:** Computer 92, Pilot 68, Captain 7
 
 <!-- END GENERATED -->
 
