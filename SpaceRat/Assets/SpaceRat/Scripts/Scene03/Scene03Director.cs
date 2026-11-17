@@ -319,9 +319,10 @@ namespace SpaceRat.Scene03
             if (_ended) yield break;
             _ended = true;
             if (compass && crashSite) { compass.Target = crashSite; compass.TargetLabel = "SHIP"; }
+            if (serviceBot) serviceBot.Following = false;   // stands still for the talk
             yield return new WaitForSeconds(0.6f);
             yield return PlayBackground(outro);
-            // The bot takes the module out of the pilot's hands, lifts off and flies it back to the ship.
+            // The bot lifts off with the module and flies it back to the ship.
             if (inventory) inventory.Remove(NavModule);
             if (serviceBot) serviceBot.FlyAway(crashSite, navPickup ? navPickup.gameObject : null);
             yield return new WaitForSeconds(2.2f);
