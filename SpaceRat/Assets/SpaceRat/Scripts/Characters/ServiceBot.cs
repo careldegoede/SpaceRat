@@ -33,9 +33,8 @@ namespace SpaceRat.Characters
         public bool Flying { get; private set; }
 
         /// <summary>
-        /// Exit: a few steps towards the pilot (<see cref="FollowTarget"/>), float and lift off taking
-        /// <paramref name="carry"/> from him (hung under the bot), then climb and fly off towards the
-        /// destination; deactivates when far away.
+        /// Exit: lift off on the spot with <paramref name="carry"/> hung under the bot, then climb and
+        /// fly off towards the destination; deactivates when far away.
         /// </summary>
         public void FlyAway(Transform destination, GameObject carry)
         {
@@ -54,40 +53,27 @@ namespace SpaceRat.Characters
                 return d.sqrMagnitude > 0.01f ? d.normalized : transform.forward;
             }
 
-            // 1) A few steps towards the pilot (stops at arm's length).
-            for (float t = 0f; t < 2.5f && follow; t += Time.deltaTime)
-            {
-                Vector3 to = follow.position - transform.position;
-                to.y = 0f;
-                if (to.magnitude < keepAway) break;
-                transform.position += to.normalized * walkSpeed * 0.6f * Time.deltaTime;
-                transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(to.normalized, Vector3.up), turnSpeed * Time.deltaTime);
-                StickToGround();
-                SetAnim(true, true);
-                yield return null;
-            }
             SetAnim(true, false);
 
-            // 2) Float up, bobbing, and take the part from the pilot.
+            // 1) Float up, bobbing, with the part hung under it.
             Vector3 start = transform.position;
             if (carry)
             {
-                if (follow) carry.transform.position = follow.position + Vector3.up * 1.1f + (transform.position - follow.position).normalized * 0.5f;
                 carry.SetActive(true);
                 foreach (var c in carry.GetComponentsInChildren<Collider>()) c.enabled = false;
-                carry.transform.SetParent(transform, true);
+                carry.transform.SetParent(transform, true);   // keep its world scale
+                carry.transform.localPosition = new Vector3(0f, -0.35f, 0f);
+                carry.transform.localRotation = Quaternion.identity;
             }
-            Vector3 carryFrom = carry ? carry.transform.localPosition : Vector3.zero;
             for (float t = 0f; t < 2.2f; t += Time.deltaTime)
             {
                 float k = Mathf.SmoothStep(0f, 1f, t / 2.2f);
                 transform.position = start + Vector3.up * (k * 2.6f + Mathf.Sin(t * 5f) * 0.06f);
                 transform.Rotate(0f, 40f * Time.deltaTime, 0f, Space.World);
-                if (carry) carry.transform.localPosition = Vector3.Lerp(carryFrom, new Vector3(0f, -0.35f, 0f), Mathf.SmoothStep(0f, 1f, t / 1.2f));
                 yield return null;
             }
 
-            // 3) Fly off towards the destination, climbing and speeding up.
+            // 2) Fly off towards the destination, climbing and speeding up.
             float speed = 2f;
             for (float t = 0f; t < 9f; t += Time.deltaTime)
             {
@@ -139,11 +125,12 @@ namespace SpaceRat.Characters
             to.y = 0f;
             float dist = to.magnitude;
             bool moving = dist > stopDistance;
+            float speed = dist > 6f ? catchUpSpeed : walkSpeed;
+            Vector3 step = to.normalized * Mathf.Min(dist, speed * Time.deltaTime);
+            if (moving && Blocked(step)) moving = false;   // spot is on his far side: wait beside him
             if (moving)
             {
-                float speed = dist > 6f ? catchUpSpeed : walkSpeed;
-                Vector3 step = to.normalized * Mathf.Min(dist, speed * Time.deltaTime);
-                transform.position = KeepClear(transform.position + AroundPilot(step, to));
+                transform.position = KeepClear(transform.position + step);
                 var look = Quaternion.LookRotation(to.normalized, Vector3.up);
                 transform.rotation = Quaternion.RotateTowards(transform.rotation, look, turnSpeed * Time.deltaTime);
             }
@@ -158,23 +145,13 @@ namespace SpaceRat.Characters
             SetAnim(true, moving);
         }
 
-        /// <summary>
-        /// If a step would enter the pilot's personal space (goal is on his far side), turn it into a step
-        /// along the circle towards the goal, so the bot walks around him instead of pushing against him
-        /// (KeepClear alone pushed it straight back every frame: walking on the spot forever).
-        /// </summary>
-        Vector3 AroundPilot(Vector3 step, Vector3 toGoal)
+        /// <summary>True if the step would take the bot into the pilot's personal space.</summary>
+        bool Blocked(Vector3 step)
         {
-            if (!follow) return step;
+            if (!follow) return false;
             Vector3 next = transform.position + step - follow.position;
             next.y = 0f;
-            if (next.magnitude >= keepAway) return step;
-            Vector3 radial = transform.position - follow.position;
-            radial.y = 0f;
-            if (radial.sqrMagnitude < 0.0001f) return step;
-            Vector3 tangent = Vector3.Cross(Vector3.up, radial.normalized);
-            if (Vector3.Dot(tangent, toGoal) < 0f) tangent = -tangent;
-            return tangent * step.magnitude;
+            return next.magnitude < keepAway;
         }
 
         /// <summary>Pushes a position out of the pilot's personal-space circle (flat), so the bot goes around him.</summary>
