@@ -143,7 +143,7 @@ namespace SpaceRat.Characters
             {
                 float speed = dist > 6f ? catchUpSpeed : walkSpeed;
                 Vector3 step = to.normalized * Mathf.Min(dist, speed * Time.deltaTime);
-                transform.position = KeepClear(transform.position + step);
+                transform.position = KeepClear(transform.position + AroundPilot(step, to));
                 var look = Quaternion.LookRotation(to.normalized, Vector3.up);
                 transform.rotation = Quaternion.RotateTowards(transform.rotation, look, turnSpeed * Time.deltaTime);
             }
@@ -156,6 +156,25 @@ namespace SpaceRat.Characters
             transform.position = KeepClear(transform.position);
             StickToGround();
             SetAnim(true, moving);
+        }
+
+        /// <summary>
+        /// If a step would enter the pilot's personal space (goal is on his far side), turn it into a step
+        /// along the circle towards the goal, so the bot walks around him instead of pushing against him
+        /// (KeepClear alone pushed it straight back every frame: walking on the spot forever).
+        /// </summary>
+        Vector3 AroundPilot(Vector3 step, Vector3 toGoal)
+        {
+            if (!follow) return step;
+            Vector3 next = transform.position + step - follow.position;
+            next.y = 0f;
+            if (next.magnitude >= keepAway) return step;
+            Vector3 radial = transform.position - follow.position;
+            radial.y = 0f;
+            if (radial.sqrMagnitude < 0.0001f) return step;
+            Vector3 tangent = Vector3.Cross(Vector3.up, radial.normalized);
+            if (Vector3.Dot(tangent, toGoal) < 0f) tangent = -tangent;
+            return tangent * step.magnitude;
         }
 
         /// <summary>Pushes a position out of the pilot's personal-space circle (flat), so the bot goes around him.</summary>
