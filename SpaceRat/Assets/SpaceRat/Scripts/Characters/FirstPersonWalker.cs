@@ -90,6 +90,8 @@ namespace SpaceRat.Characters
         }
         void OnDestroy() { _move.Dispose(); _run.Dispose(); _look.Dispose(); }
 
+        static bool _fastCheat;   // static: stays on across scene loads while testing
+
         void Update()
         {
             float dt = Time.deltaTime;
@@ -108,7 +110,11 @@ namespace SpaceRat.Characters
             bool running = InputEnabled && RunAllowed && _run.IsPressed() && input.y > 0.1f;
             IsRunning = running;
             IsMoving = input.sqrMagnitude > 0.01f;
-            float speed = running ? runSpeed : walkSpeed;
+            // Dev cheat (editor / development builds only): F6 toggles double move speed. No UI.
+            if ((Application.isEditor || Debug.isDebugBuild) && Application.isFocused
+                && Keyboard.current != null && Keyboard.current.f6Key.wasPressedThisFrame)
+                _fastCheat = !_fastCheat;
+            float speed = (running ? runSpeed : walkSpeed) * (_fastCheat ? 2f : 1f);
             Vector3 wish = (transform.forward * input.y + transform.right * input.x) * speed;
             Vector3 horizontal = Vector3.MoveTowards(new Vector3(_velocity.x, 0f, _velocity.z), wish, acceleration * dt);
             if (terrain && horizontal.sqrMagnitude > 0f)
