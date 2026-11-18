@@ -951,6 +951,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4223327963052349894}
   - component: {fileID: 3162552776246210495}
+  - component: {fileID: 1293367994270965116}
   m_Layer: 0
   m_Name: SciFiFence_Post
   m_TagString: Untagged
@@ -995,3 +996,22 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.36, y: 1.9, z: 0.36}
   m_Center: {x: 0, y: 0.95, z: 0}
+--- !u!114 &1293367994270965116
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9116782006169737604}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 85a6f56c6627eb242be4fc8f6db3097b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: SpaceRat.Runtime::SpaceRat.Environment.FenceAlarm
+  alarm: 0
+  flashRate: 4
+  flicker: 1
+  blueGlow: {fileID: 2100000, guid: 3393276a4a254eb4292b5ec6fdf69536, type: 2}
+  blueField: {fileID: 2100000, guid: c7a281edccba8324980ce53a7f0a5e90, type: 2}
+  redGlow: {fileID: 2100000, guid: cee7d2b61fc9ca54d87e261e32276f2f, type: 2}
+  redField: {fileID: 2100000, guid: 3fa70d85a05fc2f48a638516a00d5e0f, type: 2}

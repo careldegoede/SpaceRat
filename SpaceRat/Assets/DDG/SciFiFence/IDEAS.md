@@ -17,6 +17,8 @@ Use with FenceLayout: Panel → Fence prefab 0, Post → End post prefab, then c
 - [ ] Corner / junction post with a bigger beacon
 
 ## Gameplay
+- [x] Alarm mode: `FenceAlarm` on every piece flashes glow + field blue ↔ red (with flicker); `FenceAlarmController` on a fence root toggles a whole fence (`SetAlarm` / `ToggleAlarm`)
+- [ ] Alarm siren audio + link alarm to a trigger / terminal
 - [ ] Field can be switched off (terminal, power switch or door-lock link)
 - [ ] Damage or knockback on contact while powered
 - [ ] Hum audio loop near the field, zap sound on contact
