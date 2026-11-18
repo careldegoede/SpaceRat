@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using SpaceRat.Environment;
+using Unity.Scripting.LifecycleManagement;
 using UnityEditor;
 using UnityEngine;
 using S = SpaceRat.EditorTools.SpaceShuttleBuilder;
@@ -9,14 +10,15 @@ namespace SpaceRat.EditorTools
     using Mesh = UnityEngine.Mesh;
 
     /// <summary>
-    /// Builds Assets/DDG/Sparrow/Sparrow_Interior.prefab: a 1.4x copy of the blue URP Sparrow with a
+    /// Builds Assets/DDG/Sparrow/Sparrow_{blue,grey,orange}_Interior.prefab: a 1.4x copy of the URP Sparrow with a
     /// walk-in interior (cargo hold + cockpit, sliding bulkhead door), a doorway cut into the rear
     /// panel with a double sliding door, and a fold-down ramp. The vendor/URP Sparrow assets are not
     /// modified. Root origin = ground; the hull sits on its fins.
     /// </summary>
+    [NoAutoStaticsCleanup] // only a constant colour list
     public static class SparrowInteriorBuilder
     {
-        const string SrcPrefab = "Assets/SpaceRat/Prefabs/Ship/Sparrow_blue_URP.prefab";
+        const string SrcPrefab = "Assets/SpaceRat/Prefabs/Ship/Sparrow_blue_URP.prefab"; // hull geometry source
         const string Dir = "Assets/DDG/Sparrow";
         const float Scale = 1.4f;
 
@@ -74,32 +76,42 @@ namespace SpaceRat.EditorTools
             SaveMesh(hullMesh, Dir + "/Sparrow_Hull_Interior.asset");
             hullMesh = AssetDatabase.LoadAssetAtPath<Mesh>(Dir + "/Sparrow_Hull_Interior.asset");
 
-            // 4. Assemble the prefab.
-            var root = new GameObject("Sparrow_Interior").transform;
-            try
+            // 4. One prefab per colour. All three vendor meshes are identical, so they share the cut hull.
+            foreach (var colour in Colours)
             {
-                var ship = S.Group(root, "Ship");
-                ship.localPosition = new Vector3(0, FloorAboveGround - YFloor, 0);
+                var colourSrc = AssetDatabase.LoadAssetAtPath<GameObject>(SrcPrefabFor(colour));
+                var mat = colourSrc ? colourSrc.GetComponentInChildren<MeshRenderer>().sharedMaterial : srcMat;
+                string path = $"{Dir}/Sparrow_{colour}_Interior.prefab";
 
-                var hull = new GameObject("Hull");
-                hull.transform.SetParent(ship, false);
-                hull.AddComponent<MeshFilter>().sharedMesh = hullMesh;
-                hull.AddComponent<MeshRenderer>().sharedMaterial = srcMat;
-                hull.AddComponent<MeshCollider>().sharedMesh = hullMesh;
+                var root = new GameObject($"Sparrow_{colour}_Interior").transform;
+                try
+                {
+                    var ship = S.Group(root, "Ship");
+                    ship.localPosition = new Vector3(0, FloorAboveGround - YFloor, 0);
 
-                float zRoomRear = zHull + 0.15f;
-                BuildRoom(S.Group(ship, "Interior"), zRoomRear);
-                BuildRearExit(S.Group(ship, "RearExit"), zHull, zRoomRear, zBayEnd);
+                    var hull = new GameObject("Hull");
+                    hull.transform.SetParent(ship, false);
+                    hull.AddComponent<MeshFilter>().sharedMesh = hullMesh;
+                    hull.AddComponent<MeshRenderer>().sharedMaterial = mat;
+                    hull.AddComponent<MeshCollider>().sharedMesh = hullMesh;
 
-                PrefabUtility.SaveAsPrefabAsset(root.gameObject, Dir + "/Sparrow_Interior.prefab");
-                AssetDatabase.SaveAssets();
-                Debug.Log($"SparrowInteriorBuilder: saved {Dir}/Sparrow_Interior.prefab (rear panel z {zHull:F2}, bay end z {zBayEnd:F2}, removed {removed} tris).\n{fitReport}");
+                    float zRoomRear = zHull + 0.15f;
+                    BuildRoom(S.Group(ship, "Interior"), zRoomRear);
+                    BuildRearExit(S.Group(ship, "RearExit"), zHull, zRoomRear, zBayEnd);
+
+                    PrefabUtility.SaveAsPrefabAsset(root.gameObject, path);
+                }
+                finally
+                {
+                    Object.DestroyImmediate(root.gameObject);
+                }
             }
-            finally
-            {
-                Object.DestroyImmediate(root.gameObject);
-            }
+            AssetDatabase.SaveAssets();
+            Debug.Log($"SparrowInteriorBuilder: saved {Colours.Length} prefabs in {Dir} (rear panel z {zHull:F2}, bay end z {zBayEnd:F2}, removed {removed} tris).\n{fitReport}");
         }
+
+        static readonly string[] Colours = { "blue", "grey", "orange" };
+        static string SrcPrefabFor(string colour) => $"Assets/SpaceRat/Prefabs/Ship/Sparrow_{colour}_URP.prefab";
 
         // ------------------------------------------------------------------ interior
 
