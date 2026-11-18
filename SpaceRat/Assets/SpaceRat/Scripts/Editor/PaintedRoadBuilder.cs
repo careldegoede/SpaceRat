@@ -4,6 +4,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using RoadEnd = SpaceRat.Environment.WaypointRoad.RoadEnd;
 
 namespace SpaceRat.EditorTools
 {
@@ -33,6 +34,7 @@ namespace SpaceRat.EditorTools
         const float Lift = 0.06f;          // height above terrain
         const float BranchLift = 0.03f;    // junction ends sit lower so they tuck under the through road
         const float DeadEndFade = 4f;      // metres of alpha fade at free road ends
+        const float MaxGap = 8f;           // painted line breaks shorter than this are joined
 
         // ---------------------------------------------------------------- menu: setup
 
@@ -41,27 +43,36 @@ namespace SpaceRat.EditorTools
         {
             var terrain = ActiveTerrain();
             if (!terrain) return;
-            Directory.CreateDirectory(Folder);
+            EnsureRoadLayers(terrain);
+            Debug.Log($"[Roads] Terrain '{terrain.name}' layers: {string.Join(", ", terrain.terrainData.terrainLayers.Select(l => l ? l.name : "-"))}. Paint road lines with '{GuideLayer}'.");
+        }
 
+        /// <summary>Adds the RoadGuide and Gravel layers (and a grass base if the terrain has none). Returns the gravel layer index.</summary>
+        internal static int EnsureRoadLayers(Terrain terrain)
+        {
+            Directory.CreateDirectory(Folder);
             var guideTex = EnsureTexture("T_RoadGuide", 8, (x, y) => new Color(1f, 0f, 1f), true);
             var gravelTex = EnsureTexture("T_Gravel", 512, GravelPixel, false);
             var guide = EnsureLayer(GuideLayer, guideTex, 4f);
             var gravel = EnsureLayer(GravelLayer, gravelTex, 4f);
 
             var data = terrain.terrainData;
-            Undo.RegisterCompleteObjectUndo(data, "Setup road paint layers");
             var layers = data.terrainLayers.Where(l => l).ToList();
-            if (layers.Count == 0)
+            if (!layers.Contains(guide) || !layers.Contains(gravel))
             {
-                var grass = AssetDatabase.LoadAssetAtPath<TerrainLayer>(BaseGrassLayer);
-                if (grass) layers.Add(grass);
-                else Debug.LogWarning("[Roads] Terrain had no layers and the grass base layer was not found; RoadGuide becomes the base layer.");
+                Undo.RegisterCompleteObjectUndo(data, "Setup road paint layers");
+                if (layers.Count == 0)
+                {
+                    var grass = AssetDatabase.LoadAssetAtPath<TerrainLayer>(BaseGrassLayer);
+                    if (grass) layers.Add(grass);
+                    else Debug.LogWarning("[Roads] Terrain had no layers and the grass base layer was not found; RoadGuide becomes the base layer.");
+                }
+                if (!layers.Contains(guide)) layers.Add(guide);
+                if (!layers.Contains(gravel)) layers.Add(gravel);
+                data.terrainLayers = layers.ToArray();
+                EditorUtility.SetDirty(data);
             }
-            if (!layers.Contains(guide)) layers.Add(guide);
-            if (!layers.Contains(gravel)) layers.Add(gravel);
-            data.terrainLayers = layers.ToArray();
-            EditorUtility.SetDirty(data);
-            Debug.Log($"[Roads] Terrain '{terrain.name}' layers: {string.Join(", ", layers.Select(l => l.name))}. Paint road lines with '{GuideLayer}'.");
+            return LayerIndex(data, GravelLayer);
         }
 
         // ---------------------------------------------------------------- menu: build
@@ -85,7 +96,7 @@ namespace SpaceRat.EditorTools
             int painted = 0;
             for (int y = 0; y < h; y++)
             for (int x = 0; x < w; x++)
-                if (maps[y, x, gi] > 0.5f) { mask[x, y] = true; painted++; }
+                if (maps[y, x, gi] > 0.3f) { mask[x, y] = true; painted++; }
             if (painted == 0)
             {
                 EditorUtility.DisplayDialog("Painted Roads", "No RoadGuide paint found on the terrain.", "OK");
@@ -102,6 +113,8 @@ namespace SpaceRat.EditorTools
             float pxSize = data.size.x / w;
             var graph = Graph.Trace(mask, w, h);
             graph.Prune(Mathf.Max(4f, strokeWidthPx * 1.5f));
+            int bridged = graph.BridgeGaps(Mathf.Max(MaxGap / pxSize, strokeWidthPx * 3f));
+            graph.MergeDegreeTwo();
             int junctions = graph.ResolveJunctions((RoadWidth * 0.5f - 0.5f) / pxSize);
             graph.MergeDegreeTwo();
 
@@ -120,7 +133,10 @@ namespace SpaceRat.EditorTools
                 var px = Smooth(e.Points, e.Closed, 4);
                 var world = Resample(px.Select(p => PixelToWorld(terrain, p, w, h)).ToList(), e.Closed, MarkerSpacing);
                 if (world.Count < (e.Closed ? 3 : 2)) continue;
-                var go = BuildRoad(terrain, world, e.Closed, e.TrimA, e.TrimB, mat, RoadPrefix + (next++).ToString("000"));
+                float ty = terrain.transform.position.y;
+                var mesh = BuildRoadMesh(world, e.Closed, RoadWidth, e.TrimA ? RoadEnd.Junction : RoadEnd.Fade, e.TrimB ? RoadEnd.Junction : RoadEnd.Fade,
+                                         p => terrain.SampleHeight(p) + ty, null, null);
+                var go = CreateRoadObject(RoadPrefix + (next++).ToString("000"), mesh, mat);
                 go.transform.SetParent(root.transform, true);
                 Undo.RegisterCreatedObjectUndo(go, "Build painted roads");
                 if (e.Closed) loops++;
@@ -149,7 +165,7 @@ namespace SpaceRat.EditorTools
             EditorUtility.SetDirty(data);
             EditorSceneManager.MarkSceneDirty(terrain.gameObject.scene);
 
-            Debug.Log($"[Roads] Built {worldLines.Count} gravel road(s) ({loops} loop(s), {junctions} junction(s)) from {painted} guide pixels " +
+            Debug.Log($"[Roads] Built {worldLines.Count} gravel road(s) ({loops} loop(s), {junctions} junction(s), {bridged} gap(s) bridged) from {painted} guide pixels " +
                       $"(stroke ≈ {strokeWidthPx * pxSize:F1} m). Road material: {mat.name}.");
         }
 
@@ -219,8 +235,17 @@ namespace SpaceRat.EditorTools
 
         // ---------------------------------------------------------------- road mesh
 
-        static GameObject BuildRoad(Terrain t, List<Vector3> markers, bool closed, bool branchStart, bool branchEnd, Material mat, string name)
+        /// <summary>
+        /// Road ribbon through <paramref name="markers"/> (world space). <paramref name="ground"/> gives the ground
+        /// height under a point, or null to use the spline height. Vertices are written in <paramref name="space"/>'s
+        /// local space (world if null); <paramref name="target"/> is refilled instead of creating a new mesh.
+        /// </summary>
+        internal static UnityEngine.Mesh BuildRoadMesh(List<Vector3> markers, bool closed, float width, RoadEnd startEnd, RoadEnd endEnd,
+                                                       System.Func<Vector3, float?> ground, Transform space, UnityEngine.Mesh target)
         {
+            var mesh = target ? target : new UnityEngine.Mesh { name = "Road" };
+            mesh.Clear();
+            if (markers.Count < 2) return mesh;
             var centre = CatmullRom(markers, closed, SampleStep);
             if (closed) centre.Add(centre[0]); // duplicate ring closes the UVs
             int rings = centre.Count;
@@ -231,32 +256,32 @@ namespace SpaceRat.EditorTools
             var verts = new Vector3[rings * Across];
             var uvs = new Vector2[verts.Length];
             var colors = new Color[verts.Length];
-            float ty = t.transform.position.y;
             for (int i = 0; i < rings; i++)
             {
                 Vector3 prev = centre[i > 0 ? i - 1 : closed ? rings - 2 : 0];
                 Vector3 nxt = centre[i < rings - 1 ? i + 1 : closed ? 1 : rings - 1];
-                var fwd = nxt - prev; fwd.y = 0f; fwd.Normalize();
+                var fwd = nxt - prev; fwd.y = 0f;
+                fwd = fwd.sqrMagnitude > 1e-8f ? fwd.normalized : Vector3.forward;
                 var right = Vector3.Cross(Vector3.up, fwd);
 
                 float lift = Lift, alpha = 1f;
                 if (!closed)
                 {
                     float fromStart = dist[i], fromEnd = total - dist[i];
-                    if (branchStart) lift = Mathf.Min(lift, Mathf.Lerp(BranchLift, Lift, fromStart / 3f));
-                    else alpha = Mathf.Min(alpha, Mathf.Clamp01(fromStart / DeadEndFade));
-                    if (branchEnd) lift = Mathf.Min(lift, Mathf.Lerp(BranchLift, Lift, fromEnd / 3f));
-                    else alpha = Mathf.Min(alpha, Mathf.Clamp01(fromEnd / DeadEndFade));
+                    if (startEnd == RoadEnd.Junction) lift = Mathf.Min(lift, Mathf.Lerp(BranchLift, Lift, fromStart / 3f));
+                    else if (startEnd == RoadEnd.Fade) alpha = Mathf.Min(alpha, Mathf.Clamp01(fromStart / DeadEndFade));
+                    if (endEnd == RoadEnd.Junction) lift = Mathf.Min(lift, Mathf.Lerp(BranchLift, Lift, fromEnd / 3f));
+                    else if (endEnd == RoadEnd.Fade) alpha = Mathf.Min(alpha, Mathf.Clamp01(fromEnd / DeadEndFade));
                 }
 
                 for (int j = 0; j < Across; j++)
                 {
                     float s = j / (Across - 1f);
-                    var p = centre[i] + right * ((s - 0.5f) * RoadWidth);
-                    p.y = t.SampleHeight(p) + ty + lift;
+                    var p = centre[i] + right * ((s - 0.5f) * width);
+                    p.y = (ground?.Invoke(p) ?? centre[i].y) + lift;
                     int k = i * Across + j;
-                    verts[k] = p;
-                    uvs[k] = new Vector2(s, dist[i] / RoadWidth);
+                    verts[k] = space ? space.InverseTransformPoint(p) : p;
+                    uvs[k] = new Vector2(s, dist[i] / width);
                     colors[k] = new Color(1f, 1f, 1f, alpha);
                 }
             }
@@ -270,8 +295,7 @@ namespace SpaceRat.EditorTools
                 tris.Add(b); tris.Add(c); tris.Add(d);
             }
 
-            var mesh = new UnityEngine.Mesh { name = name };
-            if (verts.Length > 65000) mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
+            mesh.indexFormat = verts.Length > 65000 ? UnityEngine.Rendering.IndexFormat.UInt32 : UnityEngine.Rendering.IndexFormat.UInt16;
             mesh.vertices = verts;
             mesh.uv = uvs;
             mesh.colors = colors;
@@ -279,7 +303,12 @@ namespace SpaceRat.EditorTools
             mesh.RecalculateNormals();
             mesh.RecalculateTangents();
             mesh.RecalculateBounds();
+            return mesh;
+        }
 
+        static GameObject CreateRoadObject(string name, UnityEngine.Mesh mesh, Material mat)
+        {
+            mesh.name = name;
             var go = new GameObject(name);
             go.AddComponent<MeshFilter>().sharedMesh = mesh;
             var mr = go.AddComponent<MeshRenderer>();
@@ -290,10 +319,42 @@ namespace SpaceRat.EditorTools
             return go;
         }
 
-        static Vector2 XZ(Vector3 v) => new Vector2(v.x, v.z);
+        /// <summary>Paints gravel on the terrain under a road centre line (world space). Undoable.</summary>
+        internal static bool PaintGravelUnder(List<Vector3> markers, bool closed, float width, float shoulder)
+        {
+            if (markers.Count < 2) return false;
+            var terrain = TerrainUnder(markers[0]);
+            if (!terrain) return false;
+            int vi = EnsureRoadLayers(terrain);
+            if (vi < 0) return false;
+            var data = terrain.terrainData;
+            int w = data.alphamapWidth, h = data.alphamapHeight;
+            float pxSize = data.size.x / w;
+            Undo.RegisterCompleteObjectUndo(new Object[] { data }.Concat(data.alphamapTextures).ToArray(), "Paint gravel under road");
+            var maps = data.GetAlphamaps(0, 0, w, h);
+            var pts = CatmullRom(markers, closed, SampleStep * 2f).Select(p => WorldToPixel(terrain, p, w, h)).ToList();
+            if (closed) pts.Add(pts[0]);
+            float inner = (width * 0.5f + shoulder) / pxSize, outer = inner + 2f / pxSize;
+            for (int i = 0; i < pts.Count - 1; i++) StampSegment(maps, w, h, vi, pts[i], pts[i + 1], inner, outer);
+            data.SetAlphamaps(0, 0, maps);
+            EditorUtility.SetDirty(data);
+            return true;
+        }
+
+        internal static Terrain TerrainUnder(Vector3 p)
+        {
+            foreach (var t in Terrain.activeTerrains)
+            {
+                var o = t.transform.position; var size = t.terrainData.size;
+                if (p.x >= o.x && p.z >= o.z && p.x <= o.x + size.x && p.z <= o.z + size.z) return t;
+            }
+            return null;
+        }
+
+        internal static Vector2 XZ(Vector3 v) => new Vector2(v.x, v.z);
 
         /// <summary>Uniform Catmull-Rom through the markers, sampled roughly every <paramref name="step"/> metres.</summary>
-        static List<Vector3> CatmullRom(List<Vector3> m, bool closed, float step)
+        internal static List<Vector3> CatmullRom(List<Vector3> m, bool closed, float step)
         {
             int n = m.Count;
             Vector3 P(int i) => closed ? m[((i % n) + n) % n] : m[Mathf.Clamp(i, 0, n - 1)];
@@ -314,7 +375,7 @@ namespace SpaceRat.EditorTools
         }
 
         /// <summary>EasyRoads3D's dirt-road material if installed, otherwise a URP Lit gravel material.</summary>
-        static Material RoadMat()
+        internal static Material RoadMat()
         {
             var er = Resources.Load<Material>(RoadMaterial);
             if (er && er.shader.isSupported) return er;
@@ -683,6 +744,77 @@ namespace SpaceRat.EditorTools
                     }
                 }
                 return any;
+            }
+
+            /// <summary>
+            /// Joins loose ends that are close together (broken brush strokes) and connects a loose end that stops
+            /// just short of another line to it as a junction. Returns the number of bridges added.
+            /// </summary>
+            public int BridgeGaps(float maxGap)
+            {
+                int added = 0;
+                var deg = Degrees();
+                var ends = Enumerable.Range(0, Nodes.Count).Where(n => deg[n] == 1).ToList();
+                var used = new HashSet<int>();
+
+                // 1) end ↔ end, closest pairs first
+                var pairs = new List<(float d, int a, int b)>();
+                for (int i = 0; i < ends.Count; i++)
+                for (int j = i + 1; j < ends.Count; j++)
+                {
+                    float d = Vector2.Distance(Nodes[ends[i]], Nodes[ends[j]]);
+                    if (d > maxGap) continue;
+                    var own = Edges.FirstOrDefault(e => !e.Closed && ((e.A == ends[i] && e.B == ends[j]) || (e.A == ends[j] && e.B == ends[i])));
+                    if (own != null && own.Length < maxGap * 4f) continue; // a short dash, not a nearly closed loop
+                    pairs.Add((d, ends[i], ends[j]));
+                }
+                foreach (var (_, a, b) in pairs.OrderBy(x => x.d))
+                {
+                    if (used.Contains(a) || used.Contains(b)) continue;
+                    Edges.Add(new Edge { Points = new List<Vector2> { Nodes[a], Nodes[b] }, A = a, B = b });
+                    used.Add(a); used.Add(b); added++;
+                }
+
+                // 2) end → nearby point on another line (T junction that didn't quite touch)
+                foreach (int n in ends)
+                {
+                    if (used.Contains(n)) continue;
+                    var mine = Edges.First(e => !e.Closed ? e.A == n || e.B == n : false);
+                    Edge best = null; int bestK = -1; float bestD = maxGap;
+                    foreach (var e in Edges)
+                    {
+                        if (e == mine) continue;
+                        for (int k = 1; k < e.Points.Count - 1; k++)
+                        {
+                            float d = Vector2.Distance(Nodes[n], e.Points[k]);
+                            if (d < bestD) { bestD = d; best = e; bestK = k; }
+                        }
+                    }
+                    if (best == null) continue;
+                    int mid = Split(best, bestK);
+                    Edges.Add(new Edge { Points = new List<Vector2> { Nodes[n], Nodes[mid] }, A = n, B = mid });
+                    used.Add(n); added++;
+                }
+                return added;
+            }
+
+            /// <summary>Splits an edge at point index k, returning the new node there.</summary>
+            int Split(Edge e, int k)
+            {
+                int node = Nodes.Count;
+                Nodes.Add(e.Points[k]);
+                if (e.Closed)
+                {
+                    var rotated = e.Points.Skip(k).Concat(e.Points.Take(k + 1)).ToList();
+                    e.Points = rotated;
+                    e.Closed = false; e.A = e.B = node;
+                    return node;
+                }
+                var tail = new Edge { Points = e.Points.Skip(k).ToList(), A = node, B = e.B, TrimB = e.TrimB };
+                e.Points = e.Points.Take(k + 1).ToList();
+                e.B = node; e.TrimB = false;
+                Edges.Add(tail);
+                return node;
             }
 
             /// <summary>
