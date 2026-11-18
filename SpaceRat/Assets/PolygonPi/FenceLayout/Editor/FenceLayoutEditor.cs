@@ -113,7 +113,7 @@ public class FenceLayoutEditor : Editor
 			{
 				GUIContent calcLabel = new GUIContent("Calculate length & end offset from prefabs",
 					"Measures 'Fence prefab 0' along Z (after Fence rotation).\n" +
-					"With an end post: the panel is assumed to contain its own start post, so length = panel depth - post depth " +
+					"With an end post: the panel is assumed to contain its own start post, so length = start post centre to the panel's far end " +
 					"and End offset Z centres that post on the layout point.\n" +
 					"Without an end post: length = panel depth and End offset Z puts the panel's start edge on the point.\n" +
 					"End offset X/Y are left unchanged.");
@@ -539,10 +539,10 @@ public class FenceLayoutEditor : Editor
 		Bounds post;
 		if (m_fenceLayout.PostPrefab != null && TryGetLocalBounds(m_fenceLayout.PostPrefab, fenceRot, out post))
 		{
-			// Panel = start post + rails reaching into the next panel's post.
-			float postDepth = post.size.z;
-			length = panel.size.z - postDepth;
-			offsetZ = -(panel.min.z + postDepth * 0.5f);
+			// Panel = start post + rails reaching to the next panel's post centre.
+			float startPostCentre = panel.min.z + post.size.z * 0.5f;
+			length = panel.max.z - startPostCentre;
+			offsetZ = -startPostCentre;
 		}
 		else
 		{
